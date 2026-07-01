@@ -25,3 +25,70 @@ subscriptions:
     stage: A
     diff_threshold_pct: 15
   keyword_recall_mode: or
+  intent_profiles:
+    - tag: reconfig-dab
+      description: 可重构电池与DAB联合效率优化相关论文
+      enabled: true
+      paper_sources:
+        - arxiv
+        - biorxiv
+      keywords:
+        - keyword: reconfigurable battery
+          keyword_cn: 可重构电池
+          query: reconfigurable battery dual active bridge efficiency optimization
+        - keyword: efficiency optimization
+          keyword_cn: 效率优化
+          query: efficiency optimization of reconfigurable battery and DAB converter
+        - keyword: reconfigurable battery system
+          keyword_cn: 可重构电池系统
+          query: reconfigurable battery system integrated with dual active bridge for efficiency
+        - keyword: dual active bridge converter
+          keyword_cn: 双有源桥变换器
+          query: dual active bridge converter for reconfigurable battery efficiency improvement
+        - keyword: integrated system
+          keyword_cn: 集成系统
+          query: integrated reconfigurable battery and dual active bridge converter efficiency
+      intent_queries:
+        - query: joint efficiency optimization of reconfigurable battery and dual active bridge converter
+          query_cn: 可重构电池与双有源桥变换器的联合效率优化
+          enabled: true
+          source: manual
+          note: ''
+        - query: papers on reconfigurable battery with dual active bridge for energy efficiency
+          query_cn: 关于可重构电池与双有源桥提高能效的论文
+          enabled: true
+          source: manual
+          note: ''
+        - query: design and optimization of reconfigurable battery and DAB system
+          query_cn: 可重构电池与DAB系统的设计与优化
+          enabled: true
+          source: manual
+          note: ''
+      updated_at: '2026-07-01T13:37:46.868Z'
+source_backends:
+  arxiv:
+    papers_table: arxiv_papers
+    use_vector_rpc: true
+    vector_rpc: match_arxiv_papers
+    vector_rpc_exact: match_arxiv_papers_exact
+    use_bm25_rpc: true
+    bm25_rpc: match_arxiv_papers_bm25
+    sync_table: arxiv_sync_status
+    sync_success_value: success
+    schema: public
+    kind: supabase
+    enabled: true
+    url: https://lyucdwgefyfbmaiopjbk.supabase.co
+    anon_key: sb_publishable_lX-oi64Uxyd7SIVv3_w2Uw_MTOojeKq
+  biorxiv:
+    papers_table: biorxiv_papers
+    use_vector_rpc: true
+    vector_rpc: match_biorxiv_papers_exact
+    vector_rpc_exact: match_biorxiv_papers_exact
+    use_bm25_rpc: true
+    bm25_rpc: match_biorxiv_papers_bm25
+    schema: public
+    kind: supabase
+    enabled: true
+    url: https://lyucdwgefyfbmaiopjbk.supabase.co
+    anon_key: sb_publishable_lX-oi64Uxyd7SIVv3_w2Uw_MTOojeKq
