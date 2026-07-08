@@ -1,0 +1,24 @@
+{
+  "label": "2026-07-08",
+  "date": "2026-07-08",
+  "generated_at": "2026-07-08T21:48:29",
+  "count": 1,
+  "papers": [
+    {
+      "paper_id": "202607/08/2607.02948v1-exact-closed-form-feedforward-inversion-for-dual-bridge-series-resonant-dcdc-converter-via-state-plane-analysis",
+      "section": "quick",
+      "title_en": "Exact Closed-Form Feedforward Inversion for Dual-Bridge Series Resonant DC/DC Converter via State-Plane Analysis",
+      "authors": "Alex Borisevich",
+      "date": "2026-07-03",
+      "pdf": "https://arxiv.org/pdf/2607.02948v1",
+      "score": "6.0",
+      "evidence": "双桥串联谐振变换器前馈反演方法提升效率",
+      "tldr": "针对双桥串联谐振变换器，现有一次谐波近似方法在谐振频率以上存在换向角误差。本文通过状态平面轨迹分析推导出精确的闭环前馈逆映射，表达式闭合且与FHA在谐振频率处代数等价。该方法消除了5-72%的换向角误差，控制器结构采用谐振时间量自然耦合换向与频率控制，便于实时实现。",
+      "tags": "query:reconfig-dab",
+      "abstract_en": "This paper derives exact closed-form feedforward inversion maps for the dual-bridge series resonant converter (DB SRC) using state-plane trajectory analysis. The converter employs four modulation variables: primary duty cycle $d$, secondary shorting time $s$, phase shift $β$, and switching frequency $ω$. While the established first harmonic approximation (FHA) provides frequency-independent inversion, the exact state-plane approach yields frequency-dependent inversion model that is proven algebraically identical to FHA at resonance frequency. For practical above-resonance operation, the exact inversions eliminate the 5--72\\% commutation angle errors inherent in the FHA-based feedforward. The resulting controller architecture mirrors the parallel nonlinear compensation structure of the FHA-based design, with feedforward maps now operating on resonant-time quantities that naturally couple commutation and frequency control. All results are expressed in closed form suitable for real-time implementation.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "errors": []
+}

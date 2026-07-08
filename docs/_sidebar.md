@@ -1,5 +1,8 @@
 * <a class="dpr-sidebar-root-link" href="#/">首页</a>
 * <a class="dpr-sidebar-root-link dpr-sidebar-noactive-link" href="javascript:void(0)" data-dpr-hash="#/tutorial/README">使用教程</a>
 * Daily Papers
+  * 2026-07-08 <!--dpr-date:20260708-->
+    * 速读区
+      * <a class="dpr-sidebar-item-link dpr-sidebar-item-structured" href="#/202607/08/2607.02948v1-exact-closed-form-feedforward-inversion-for-dual-bridge-series-resonant-dcdc-converter-via-state-plane-analysis" data-sidebar-item="{&quot;title&quot;: &quot;Exact Closed-Form Feedforward Inversion for Dual-Bridge Series Resonant DC/DC Converter via State-Plane Analysis&quot;, &quot;link&quot;: &quot;https://arxiv.org/abs/2607.02948v1-exact-closed-form-feedforward-inversion-for-dual-bridge-series-resonant-dcdc-converter-via-state-plane-analysis&quot;, &quot;score&quot;: &quot;6.0&quot;, &quot;tags&quot;: [{&quot;kind&quot;: &quot;query&quot;, &quot;label&quot;: &quot;reconfig-dab&quot;}], &quot;evidence&quot;: &quot;双桥串联谐振变换器前馈反演方法提升效率&quot;}">Exact Closed-Form Feedforward Inversion for Dual-Bridge Series Resonant DC/DC Converter via State-Plane Analysis</a>
   * 2017-06-12
     * <a class="dpr-sidebar-item-link dpr-sidebar-item-structured" href="#/201706/12/1706.03762v1-attention-is-all-you-need" data-sidebar-item="{&quot;title&quot;: &quot;Attention Is All You Need&quot;, &quot;link&quot;: &quot;https://arxiv.org/abs/1706.03762v1&quot;, &quot;score&quot;: &quot;10.0&quot;, &quot;evidence&quot;: &quot;提出Transformer纯注意力架构，显著提升并行化与翻译质量。&quot;, &quot;selection_source&quot;: &quot;fresh_fetch&quot;, &quot;tags&quot;: [{&quot;kind&quot;: &quot;query&quot;, &quot;label&quot;: &quot;sr&quot;}, {&quot;kind&quot;: &quot;query&quot;, &quot;label&quot;: &quot;attention&quot;}]}">Attention Is All You Need</a>

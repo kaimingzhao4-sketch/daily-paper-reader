@@ -1,0 +1,52 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-07-08T21:47:27.003265+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 0,
+    "deep_cap": 6,
+    "deep_selected": 0,
+    "quick_candidates": 1,
+    "quick_skim_target": 11,
+    "quick_selected": 1
+  },
+  "deep_dive": [],
+  "quick_skim": [
+    {
+      "id": "2607.02948v1",
+      "source": "arxiv",
+      "title": "Exact Closed-Form Feedforward Inversion for Dual-Bridge Series Resonant DC/DC Converter via State-Plane Analysis",
+      "abstract": "This paper derives exact closed-form feedforward inversion maps for the dual-bridge series resonant converter (DB SRC) using state-plane trajectory analysis. The converter employs four modulation variables: primary duty cycle $d$, secondary shorting time $s$, phase shift $β$, and switching frequency $ω$. While the established first harmonic approximation (FHA) provides frequency-independent inversion, the exact state-plane approach yields frequency-dependent inversion model that is proven algebraically identical to FHA at resonance frequency. For practical above-resonance operation, the exact inversions eliminate the 5--72\\% commutation angle errors inherent in the FHA-based feedforward. The resulting controller architecture mirrors the parallel nonlinear compensation structure of the FHA-based design, with feedforward maps now operating on resonant-time quantities that naturally couple commutation and frequency control. All results are expressed in closed form suitable for real-time implementation.",
+      "authors": [
+        "Alex Borisevich"
+      ],
+      "primary_category": "eess.SY",
+      "categories": [
+        "eess.SY"
+      ],
+      "published": "2026-07-03T04:46:13+00:00",
+      "link": "https://arxiv.org/pdf/2607.02948v1",
+      "tags": [
+        "keyword:reconfig-dab",
+        "query:reconfig-dab"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "dual-bridge series resonant converter feedforward inversion for efficiency",
+      "llm_evidence_cn": "双桥串联谐振变换器前馈反演方法提升效率",
+      "llm_evidence": "双桥串联谐振变换器前馈反演方法提升效率",
+      "canonical_evidence": "双桥串联谐振变换器前馈反演方法提升效率",
+      "llm_tldr_en": "Derives exact closed-form feedforward inversion for dual-bridge series resonant converter via state-plane analysis, eliminating 5-72% commutation angle errors of FHA, enabling precise control and efficiency optimization.",
+      "llm_tldr_cn": "双桥串联谐振变换器（DB SRC）在谐振频率以上运行时，传统一阶谐波近似（FHA）前馈会产生5-72%的换向角误差。本文通过状态平面轨迹分析，推导了精确的闭环前馈反演映射，该映射在谐振频率处与FHA等价，但在偏离谐振时显著提高精度。所提方法可消除换向角误差，实现更精确的变换器控制，从而提升效率。该方法可直接应用于双有源桥（DAB）等类似拓扑的效率优化。",
+      "llm_tldr": "双桥串联谐振变换器（DB SRC）在谐振频率以上运行时，传统一阶谐波近似（FHA）前馈会产生5-72%的换向角误差。本文通过状态平面轨迹分析，推导了精确的闭环前馈反演映射，该映射在谐振频率处与FHA等价，但在偏离谐振时显著提高精度。所提方法可消除换向角误差，实现更精确的变换器控制，从而提升效率。该方法可直接应用于双有源桥（DAB）等类似拓扑的效率优化。",
+      "llm_tags": [
+        "query:reconfig-dab"
+      ],
+      "matched_query_tag": "query:reconfig-dab",
+      "matched_query_text": "dual active bridge converter for reconfigurable battery efficiency improvement",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}

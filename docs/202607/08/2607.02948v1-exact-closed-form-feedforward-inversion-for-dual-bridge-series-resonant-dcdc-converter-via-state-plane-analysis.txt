@@ -1,0 +1,1561 @@
+Title: Exact Closed-Form Feedforward Inversion for Dual-Bridge Series Resonant DC/DC Converter via State-Plane Analysis
+
+URL Source: https://arxiv.org/pdf/2607.02948v1
+
+Published Time: Tue, 07 Jul 2026 00:28:23 GMT
+
+Number of Pages: 22
+
+Markdown Content:
+> 1
+
+# Exact Closed-Form Feedforward Inversion for Dual-Bridge Series Resonant DC/DC Converter via State-Plane Analysis 
+
+Alex Borisevich, akpc806b@gmail.com 
+
+Abstract —This paper derives exact closed-form feedforward inversion maps for the dual-bridge series resonant converter (DB SRC) using state-plane trajectory analysis. The converter employs four modulation variables: primary duty cycle d, sec-ondary shorting time s, phase shift β, and switching frequency 
+
+ω. While the established first harmonic approximation (FHA) provides frequency-independent inversion, the exact state-plane approach yields frequency-dependent inversion model that is proven algebraically identical to FHA at resonance frequency. For practical above-resonance operation, the exact inversions eliminate the 5–72% commutation angle errors inherent in the FHA-based feedforward. The resulting controller architecture mirrors the parallel nonlinear compensation structure of the FHA-based design, with feedforward maps now operating on resonant-time quantities that naturally couple commutation and frequency control. All results are expressed in closed form suitable for real-time implementation. 
+
+Index Terms —Series resonant converter, state-plane analysis, dual active bridge, first harmonic approximation, DC-DC con-verter, soft switching. 
+
+I. I NTRODUCTION 
+
+The dual-bridge (DB) series resonant converter (SRC) of-fers significant advantages for high-power isolated DC/DC applications including electric vehicle chargers, battery energy storage, and DC power distribution [1]–[3]. The topology features controlled full-bridge circuits on both primary and secondary sides connected through a series LC resonant tank and a transformer, enabling bidirectional power flow, voltage boost capability, and near-sinusoidal transformer current. The modulation scheme employs four independent control variables: primary bridge duty cycle d, secondary bridge shorting time s, phase shift β between bridges, and switching frequency ω [4]. This provides sufficient degrees of freedom to simultaneously regulate output power and optimize efficiency through soft-switching operation. Existing analytical models for the DB SRC are predom-inantly based on the first harmonic approximation (FHA), which assumes purely sinusoidal tank current [5]. While computationally simple and adequate for many operating con-ditions, the FHA inherently neglects higher harmonics and cannot provide exact values of commutation currents needed for ZVS analysis. State-plane trajectory analysis, pioneered by Oruganti and Lee [6], [7], provides an exact geometric method for analyzing resonant converters. The key insight is that in normalized coor-dinates, the LC tank trajectory under constant applied voltage is a circular arc, and the steady-state is found by stitching arcs 
+
+Fig. 1. Dual-bridge series resonant DC/DC converter circuit. 
+
+together with periodicity constraints. This approach has been successfully applied to SRC converters with passive rectifiers [8]–[10] and to LLC resonant converters [11]. However, the state-plane method has not been systematically applied to the DB SRC with all four modulation degrees of freedom ( d, s, β, ω), where both bridges are actively con-trolled. The secondary-side modulation introduces additional switching intervals and complicates the trajectory structure compared to passive rectifier topologies. In this paper, we develop the complete exact state-plane analysis for the DB SRC under generalized modulation and establish its precise relationship to the FHA model from [5]. The main contributions are: 1) Closed-form expressions for the exact steady-state tra-jectory, output transconductance, and commutation an-gles under arbitrary (d, s, β, ω ) modulation. 2) A rigorous proof that the FHA is recovered as the fundamental-frequency term of the exact solution, with explicit error bounds. 3) Quantitative characterization of FHA error across the full operating range, identifying regimes where the exact model provides significant improvement. II. C ONVERTER TOPOLOGY AND MODULATION 
+
+A. Circuit Description 
+
+The DB SRC circuit consists of two full H-bridge inverters connected through a series LC resonant tank and a transformer with turns ratio n, as shown in Fig. 1. The input bridge (switches S1–S4) is connected to DC voltage source Vin . The output bridge (switches S5–S8) is connected to the secondary winding and delivers current to the output at voltage Vout .The series combination of transformer leakage inductance 
+
+L and resonant capacitor C forms the LC tank with resonant 
+
+> arXiv:2607.02948v1 [eess.SY] 3 Jul 2026 2
+
+frequency ω0 = 1 /√LC and characteristic impedance Z0 =pL/C . The tank current iL(t) flows through both bridges and the transformer. 
+
+B. Switching Waveforms and Control Variables 
+
+The converter is modulated by four independent parameters defined in switching-frequency angular coordinates ( t′ = ωt ):  
+
+> •
+
+d ∈ [0 , π ]: Primary bridge on-time (duty cycle). Full square-wave corresponds to d = π. 
+
+> •
+
+s ∈ [0 , π ]: Secondary bridge short-time. The secondary is shorted at the beginning of each half-cycle for duration 
+
+s. 
+
+> •
+
+β ∈ [0 , π ]: Phase shift between primary and secondary bridge switching cycles.  
+
+> •
+
+ω > ω 0: Switching angular frequency (above resonance for ZVS). The voltage gain is defined as: 
+
+G = nV out 
+
+Vin 
+
+(1) The primary bridge produces a half-wave-symmetric volt-age: 
+
+vin (t′)
+
+Vin 
+
+=
+
+
+
++1 0 < t ′ < d 
+
+0 d < t ′ < π 
+
+−1 π < t ′ < π + d
+
+0 π + d < t ′ < 2π
+
+(2) The secondary bridge, referenced to its own cycle starting at phase β, produces (with ϕ = t′ − β mod 2 π): 
+
+n · vout (t′)
+
+Vin 
+
+=
+
+
+
+0 0 < ϕ < s 
+
++G s < ϕ < π 
+
+0 π < ϕ < π + s
+
+−G π + s < ϕ < 2π
+
+(3) The net voltage applied to the LC tank is v(t) = vin (t) −
+
+n · vout (t).
+
+C. Timing Quantities σ and δ
+
+Two measurable timing quantities characterize the rela-tionship between the tank current zero crossing and bridge switching events (Fig. 2):  
+
+> •
+
+σ: Angular time from the rising edge of vin to the positive-going zero crossing of iL. 
+
+> •
+
+δ: Angular time from the zero crossing of iL to the rising edge of vout .These satisfy σ + δ = β. The soft-switching conditions for ZVS require σ ≥ 0 (ensures negative current at primary turn-on) and δ ≥ 0 (ensures positive current at secondary turn-on). 
+
+D. First Harmonic Approximation Model 
+
+The FHA model from [5] approximates the tank current as purely sinusoidal and yields the output transconductance: 
+
+WF HA = Iout 
+
+Vin 
+
+= n
+
+2π2
+
+√A2 + B2
+
+Z(ω) (cos( s + δ) + cos δ) (4)     
+
+> Fig. 2. Timing of bridge voltages relative to tank current zero crossing, defining σand δ.
+
+where the Fourier coefficients of the applied voltage are: 
+
+A = 4 sin d + 4 G sin( β + s) + 4 G sin βB = 4 − 4G cos( β + s) − 4G cos β − 4 cos d (5) the tank impedance is Z(ω) = ωL −1/(ωC ), and the timing quantities are: 
+
+σ = atan2 (B, A ), δ = β − σ (6) III. E XACT STATE -P LANE ANALYSIS 
+
+A. Complex State Variable 
+
+Introducing normalized coordinates x = vC /V in , y =
+
+Z0iL/V in , θ = ω0t, the LC dynamics become dx/dθ = y,
+
+dy/dθ = c − x where c is the normalized applied voltage (constant per interval). Define the complex state z = x + jy . For constant c, the exact solution is: 
+
+z(θ) = c + ( z0 − c) e−jθ (7) This traces a clockwise circular arc centered at c (on the real axis) with radius |z0 − c|.
+
+B. Interval Decomposition 
+
+The positive half-cycle decomposes into N intervals with centers ck and switching-angle durations αk (satisfying P 
+
+> k
+
+αk = π). In resonant-time, the durations are ∆θk =
+
+αk/F n and the half-period is Θ = π/F n.For the DB SRC, two principal orderings exist: 
+
+Case 1 (d ≥ s + β): ck = {1+ G, 1, 1−G, −G}, αk =
+
+{β, s, d −s−β, π −d}
+
+Case 2 (d < s + β): ck = {1+ G, 1, 0, −G}, αk =
+
+{β, d −β, s −d+β, π −s−β}
+
+C. Composition and Periodicity 
+
+Each interval applies the map z 7 → ck + ( z − ck)e−j∆θk .Composing all N intervals: 
+
+zN = e−jΘ z0 + C (8) where the complex offset C satisfies the recurrence: 
+
+C0 = 0 , Ck = ( Ck−1 + ck) e−j∆θk − ck, C = CN (9) 3
+
+Half-wave symmetry requires zN = −z0, giving (see Appendix A for derivation): 
+
+z0 = C
+
+1 + e−jΘ = C
+
+2 cos(Θ /2) ejΘ/2 (10) This is the exact closed-form initial state. The explicit expansion of C is: 
+
+C =
+
+> N
+
+X
+
+> k=1
+
+ck(e−j∆θk − 1) 
+
+> N
+
+Y
+
+> m=k+1
+
+e−j∆θm
+
+= −2j
+
+> N
+
+X
+
+> k=1
+
+ck sin ∆θk
+
+2 e−j(∆ θk /2+Φ k )
+
+(11) where Φk = PNm=k+1 ∆θm.
+
+D. Output Transconductance 
+
+Using R y dθ = ∆x = Re(∆ z) per interval and the rectification sign rk ∈ { +1 , −1, 0}:
+
+W = nZ0Θ
+
+> N
+
+X
+
+> k=1
+
+rk Re( zk − zk−1) (12) Since zk − zk−1 = ( zk−1 − ck)( e−j∆θk − 1) and zk−1 =
+
+e−jΘk−1 z0 + Ck−1, the transconductance is linear in z0:
+
+W = nZ0Θ Re( z0 · A + B) (13) with coefficients: 
+
+A =
+
+> N
+
+X
+
+> k=1
+
+rk e−jΘk−1 (e−j∆θk − 1) ,
+
+B =
+
+> N
+
+X
+
+> k=1
+
+rk (−C k−1 − ck)( e−j∆θk − 1) 
+
+(14) Substituting z0 from (10): 
+
+W = nZ0Θ Re 
+
+ C · A 
+
+1 + e−jΘ + B
+
+
+
+(15) This is the exact transconductance in closed form. 
+
+E. Zero-Crossing Angle 
+
+Within interval k, the positive-going current zero crossing (Im( z) = 0 , d[Im] /dθ > 0) occurs at: 
+
+σexact = Fn(Θ k−1 + arg( zk−1 − ck) + π) (16) selecting the interval where arg( zk−1 − ck) + π ∈ [0 , ∆θk].IV. E XACT SYNCHRONOUS RECTIFICATION AND 
+
+INVERSION 
+
+The FHA-based feedforward control from [5] inverts the model to find switching parameters (d, s, β ) from desired com-mutation angles (σ∗, δ ∗). The state-plane framework provides exact closed-form inversions that generalize the FHA results. The full derivation is given in Appendix A. 
+
+A. Synchronous Rectification Condition 
+
+The condition δ = 0 (current crosses zero at the secondary switching edge) has different expressions in the two frame-works: FHA [5] : cos β = G
+
+Exact (state-plane) : G sin Θ2 = sin 
+
+ Θ2 − ˆβ
+
+ (17) (shown here for the fully-driven case d = π, s = 0). The FHA condition is frequency-independent, while the exact condition depends on Θ = π/F n. Solving the exact condition: 
+
+ˆβ = Θ2 − arcsin 
+
+
+
+G sin Θ2
+
+
+
+(18) At resonance ( Fn = 1, Θ = π): ˆβ = β = π/ 2 −
+
+arcsin( G) = arccos( G), recovering the FHA result exactly. The physical interpretation: the FHA uses the fundamental component’s zero crossing, while the exact condition uses the actual current zero crossing including all harmonics. 
+
+B. Exact Inversion: Buck Mode 
+
+Given desired σ∗, δ∗ (with β = σ∗ + δ∗), the exact primary duty cycle for buck operation ( s = 0 ) is: 
+
+ˆd = ˆ σ + Θ2 + arcsin 
+
+
+
+−2G sin 
+
+
+
+ˆδ − Θ2
+
+
+
+− sin 
+
+ Θ2 − ˆσ
+
+ 
+
+(19) where ˆσ = σ∗/F n, ˆδ = δ∗/F n. The FHA equivalent from [5] is: 
+
+dF HA = arccos(cos σ∗ − 2G cos δ∗) + σ∗ (20) At resonance ( Fn = 1 ) the two are algebraically identical (using arccos( x) = π/ 2 − arcsin( x)). 
+
+C. Exact Inversion: Boost Mode 
+
+When the buck formula yields d > π , the boost mode ( d =
+
+π) is used and the secondary shorting time is: 
+
+ˆs = Θ2 − ˆδ+arcsin 
+
+
+
+sin 
+
+ Θ2 − ˆδ
+
+
+
+− 2
+
+G sin 
+
+ Θ2 − ˆσ
+
+ 
+
+(21) The FHA equivalent from [5] is: 
+
+sF HA = arccos 
+
+ 2 cos σ∗
+
+G − cos δ∗
+
+
+
+− δ∗ (22) Again identical at Fn = 1 .
+
+D. Generalization with sadd 
+
+For low-power operation at fixed maximum frequency, the additional shorting sadd is introduced. The buck inversion generalizes to: 
+
+ˆd = ˆ σ + Θ2 + arcsin 
+
+
+
+−G sin 
+
+ˆδ− Θ2
+
+
+
+−G sin 
+
+ˆδ+ˆ sadd − Θ2
+
+
+
+− sin   Θ2 −ˆσ 
+
+(23) reducing to (19) for sadd = 0 .4        
+
+> Fig. 3. Aggregated switching parameter q(G): exact state-plane inversion (dashed) vs. FHA (solid black) for σ∗= 0 .1,δ∗= 0 . At resonance ( Fn= 1 )both coincide; deviation grows with Fn.
+
+E. Aggregated Switching Parameter q
+
+Following [5], the buck and boost modes are combined into a single continuous variable with sadd accommodation: 
+
+ds
+
+
+
+=
+
+
+
+qsadd 
+
+!
+
+q ≤ π (buck) 
+
+πq − π
+
+!
+
+q > π (boost) (24) In buck mode, the inversion (23) directly gives q = d (with 
+
+s = sadd as an external parameter). In boost mode, q = s +
+
+π where s is obtained from (21). Since the boost formula (21) already computes s for d = π, no separate inversion is needed—the same formula applies with q = Fn ˆs + π.Fig. 12 compares q(G) from the exact inversion with the FHA result across several normalized frequencies. At Fn =1 the curves coincide; as Fn increases the exact q deviates progressively from the frequency-independent FHA curve. V. C ONTROLLER ARCHITECTURE 
+
+The control system uses the same parallel nonlinear com-pensation structure as [5] (Fig. 4): the feedforward maps (19)– (21) compute nominal q and β from (σ∗, δ ∗, G, F n), with PI controllers adding corrections for robustness. The outer loop adjusts ω (and sadd in low-power mode) to regulate W using the exact transconductance (15). The key difference from the FHA-based architecture: the inversion maps now operate on resonant-time quantities ( ˆd, ˆs,
+
+ˆβ) which are physical time intervals (in units of 1/ω 0), not switching-frequency angles. These quantities depend on Fn,coupling the inner commutation loop to the outer frequency loop. In practice, the feedforward look-up table is indexed by 
+
+(G, F n) rather than G alone, reflecting the improved physical modeling provided by the state-plane formalism. VI. N UMERICAL RESULTS 
+
+The model is evaluated for a converter with L = 31 μH, 
+
+C = 8 .2 nF, n = 2 .2 (f0 = 315 .7 kHz, Z0 = 61 .5 Ω ).         
+
+> Fig. 4. Controller architecture with commutation parameters control σand
+> δ, and output power control W.
+> Fig. 5. Transconductance comparison at Fn= 1 .05 : exact and FHA nearly coincide.
+
+A. Transconductance Comparison 
+
+Fig. 5 and Fig. 6 compare Wexact from (15) with WF HA 
+
+from (4) at Fn = 1 .05 (near resonance) and Fn = 2 .0 (far from resonance). 
+
+B. Inversion Accuracy 
+
+Table II compares the exact inversion formulas with FHA. The exact formulas achieve the target σ∗ precisely, while FHA produces errors of 3–72% depending on operating point. 
+
+C. Commutation Angle Prediction 
+
+Fig. 7 shows the relative σ prediction error. The FHA consistently overestimates σ by 5–20%, meaning the actual ZVS margin is lower than predicted. 
+
+D. Partial Rectification Mode 
+
+Fig. 8 shows FHA error growth with sadd , reaching 15% for sadd = 2 .5 rad. 5
+
+Fig. 6. Transconductance comparison at Fn = 2 .0: small but visible deviation appears. TABLE I INVERSION COMPARISON : EXACT FORMULA VS . FHA ( σ ACHIEVED )
+
+σ∗ δ∗ G Fn σ at dexact σ at dF HA 
+
+0.1 0.0 0.7 1.50 0.100 0.028 0.2 0.0 0.7 1.50 0.200 0.110 0.1 0.1 0.7 1.50 0.100 0.059 0.3 0.0 0.5 1.30 0.300 0.251 0.1 0.0 0.7 1.05 0.100 0.079 
+
+VII. C ONCLUSION 
+
+Exact closed-form feedforward inversion maps have been derived for the dual-bridge series resonant converter using state-plane trajectory analysis. The main contributions are: 1) Exact inversion formulas (19)–(21) for computing switching parameters (d, s, β ) from desired commuta-tion angles (σ∗, δ ∗). These have a structure analogous to the FHA trigonometric equations from [5] but incor-porate the normalized frequency through Θ = π/F n and commutation angles normalization. 2) A rigorous proof that the FHA inversion is the exact state-plane inversion evaluated at resonance ( Fn = 1 ). This establishes the FHA as a special case rather than an independent approximation. 3) For above-resonance operation ( Fn > 1), the exact inversions eliminate the 5–72% commutation angle er-rors of FHA-based feedforward, enabling precise ZVS margin control. 4) The generalization to partial rectification mode (23) retains the closed-form structure, providing exact low-power control maps. 5) The controller architecture mirrors the parallel nonlinear compensation from [5], with feedforward maps now operating on resonant-time quantities ( ˆd, ˆs, ˆβ in units of 1/ω 0) that couple the commutation and frequency loops. The state-plane framework (complex state variable, arc composition recurrence, half-wave symmetry) follows the 
+
+Fig. 7. FHA overestimation of σ relative to exact state-plane value. 
+
+Fig. 8. FHA transconductance error in partial rectification mode ( G = 0 .7,
+
+σ∗ = 0 .1). 
+
+established approach of [6], [7], extended here to the DB SRC topology with full (d, s, β, ω ) modulation. The novel contribution is the derivation of exact invertible feedforward maps from this framework and the explicit connection to the FHA results. REFERENCES [1] X. Li and A.K. Bhat, “Analysis and design of high-frequency isolated dual-bridge series resonant DC/DC converter,” IEEE Trans. Power Electron. , vol. 25, no. 4, pp. 850–862, 2010. [2] F. Krismer, J. Biela, and J.W. Kolar, “A comparative evaluation of isolated bi-directional DC/DC converters with wide input and output voltage range,” in Proc. IAS Annual Meeting , 2005, pp. 599–606. [3] C.S. Wang et al. , “An isolated three-port bidirectional DC-DC converter with enlarged ZVS region for HESS applications in DC microgrids,” 
+
+Energies , vol. 10, no. 4, p. 446, 2017. [4] B. Zhao, Q. Song, W. Liu, and Y. Sun, “Overview of dual-active-bridge isolated bidirectional DC–DC converter for high-frequency-link power-conversion system,” IEEE Trans. Power Electron. , vol. 29, no. 8, pp. 4091–4106, 2014. [5] A. Borisevich and F. Gleyzer, “Model of DC/DC dual-bridge series resonant converter in buck and boost modes for output current and commutation timing control,” J. Eng. Sci. Technol. Rev. , vol. 12, no. 2, pp. 152–160, 2019. 6
+
+[6] R. Oruganti and F.C. Lee, “Resonant power processors, Part II— Methods of control,” IEEE Trans. Ind. Appl. , vol. IA-21, no. 6, pp. 1461– 1471, 1985. [7] R. Oruganti, J.J. Yang, and F.C. Lee, “Implementation of optimal trajectory control of series resonant converter,” IEEE Trans. Power Electron. , vol. 3, no. 3, pp. 318–327, 1988. [8] L. Rossetto, “A simple control technique for series resonant converters,” 
+
+IEEE Trans. Power Electron. , vol. 11, no. 4, pp. 554–560, 1996. [9] M. Mohammadi and M. Ordonez, “Fast transient response of series resonant converters using average geometric control,” IEEE Trans. Power Electron. , vol. 31, no. 9, pp. 6738–6755, 2016. [10] M. Mohammadi and M. Ordonez, “Fast transient response of series resonant converter using an average large signal model,” in Proc. IEEE ECCE , 2015, pp. 187–192. [11] Z. Hu, Y.F. Liu, and P.C. Sen, “Bang-bang charge control for LLC resonant converters,” IEEE Trans. Power Electron. , vol. 30, no. 2, pp. 1093–1108, 2015. [12] W. Han and L. Corradini, “Wide-range ZVS control technique for bidi-rectional dual-bridge series-resonant DC–DC converters,” IEEE Trans. Power Electron. , vol. 34, no. 10, pp. 10256–10269, 2019. 7
+
+APPENDIX AEXACT STATE -P LANE ANALYSIS OF DUAL -B RIDGE SRC 
+
+A. Normalized state-plane formulation 
+
+Consider the series LC resonant tank driven by the net voltage v(t) = vin (t) − n · vout (t). The state variables are the inductor current iL(t) and the capacitor voltage vC (t):
+
+L di L
+
+dt = v(t) − vC (t), C dv C
+
+dt = iL(t) (25) With the resonant frequency ω0 = 1 /√LC , characteristic impedance Z0 = pL/C , and normalized coordinates: 
+
+x = vC
+
+Vin 
+
+, y = Z0 iL
+
+Vin 
+
+, θ = ω0t (26) the dynamics become: 
+
+dx dθ = y, dy dθ = c − x (27) where c = Vn/V in is the normalized applied voltage (constant within each switching interval). 
+
+B. Complex state variable and rotation 
+
+Introduce the complex state variable: 
+
+z = x + jy (28) The solution of (27) for constant applied voltage c with initial condition z0 is: 
+
+z(θ) = c + ( z0 − c) e−jθ (29) This represents a clockwise circular arc in the complex plane, centered at c (on the real axis), with radius |z0 − c|. The physical interpretation is: the normalized capacitor voltage oscillates around the applied voltage level c, with the normalized current as the imaginary part. 
+
+C. Switching pattern and interval decomposition 
+
+The positive half-cycle of the converter (one half switching period, t′ ∈ [0 , π ] in switching-frequency coordinates) is decomposed into N intervals with constant applied voltages c1, c 2, . . . , c N and angular durations α1, α 2, . . . , α N (in switching-frequency radians, satisfying P 
+
+> k
+
+αk = π). Converting to resonant-time coordinates, the durations become ∆θk = αk/F n where Fn = ω/ω 0 is the normalized switching frequency. The half-period in resonant-time is Θ = π/F n.For the DB SRC with parameters (d, s, β, G ), two principal orderings arise depending on the relative position of the primary turn-off edge d and the secondary active-to-short transition at s + β. In both cases N = 4 intervals span the positive half-cycle: 
+
+Case 1: d ≥ s + β (primary pulse encompasses secondary shorting interval): 
+
+k ck/V in αk
+
+1 1 + G β
+
+2 1 s
+
+3 1 − G d − s − β
+
+4 −G π − d
+
+(30) 
+
+Case 2: d < s + β (primary pulse ends before secondary becomes active): 
+
+k ck/V in αk
+
+1 1 + G β
+
+2 1 d − β
+
+3 0 s − d + β
+
+4 −G π − s − β
+
+(31) In both cases, the first interval has the secondary in negative-active state (carry-over from previous half-cycle), and the last interval has the primary off with secondary in positive-active state. Intervals with αk = 0 (e.g., when d = π or s = 0 ) are simply omitted, reducing N accordingly. All subsequent derivations use the values of ck and αk (or equivalently ∆θk = αk/F n) taken from the applicable table (30) or (31), with N being the number of non-zero-duration intervals. 8
+
+D. Composition of rotations 
+
+Starting from initial state z0, the state after interval k is: 
+
+z 7 → ck + ( z − ck) e−j∆θk (32) Composing all N intervals sequentially: 
+
+zN = F(z0) = e−jΘz0 + C (33) where Θ = PNk=1 ∆θk = π/F n is the half-period, and the complex offset C is computed by the recurrence: 
+
+C0 = 0 , Ck = ( Ck−1 + ck) e−j∆θk − ck, C = CN (34) Figure 9 illustrates the composition of rotations for a representative operating point. Each colored arc corresponds to one switching interval, centered at ck on the real axis. The state advances clockwise along each arc for an angular extent of ∆θk
+
+radians, then transitions to the next arc centered at ck+1 .      
+
+> Fig. 9. Composition of circular arcs in the state plane. Each interval Iktraces a clockwise arc about center ck(square markers). The switching instants
+> z0, z 1, . . . , z Nare marked with circles/diamonds.
+
+E. Half-wave symmetry and steady-state solution 
+
+Under half-wave symmetric modulation, the negative half-cycle is the exact negation of the positive half-cycle. The periodicity condition over one full cycle therefore reduces to: 
+
+z(Θ) = −z(0) (35) This condition is illustrated in Figure 10: the trajectory in the negative half-cycle is the point-symmetric image (through the origin) of the positive half-cycle trajectory. Substituting (33): 9       
+
+> Fig. 10. Half-wave symmetry in the state plane. The positive half-cycle (blue/green arcs) starts at z0and ends at zN=−z0. The negative half-cycle (red/orange arcs) traverses the point-symmetric trajectory, returning to z0.
+
+e−jΘ z0 + C = −z0 (36) Note: the recurrence (34) computes C = −b, where b is the true affine offset of the composed map. This can be verified by observing that propagating z = 0 through the physical arc maps yields b, while the recurrence starting from 0 yields −b.The composed map is therefore zN = e−jΘz0 − C , and the half-wave condition zN = −z0 gives: 
+
+−z0 = e−jΘ z0 − C =⇒ z0(1 + e−jΘ) = C (37) Solving for the initial state: 
+
+z0 = C
+
+1 + e−jΘ (38) Using the identity 1 + e−jΘ = 2 cos(Θ /2) e−jΘ/2:
+
+z0 = C
+
+2 cos(Θ /2) ejΘ/2 (39) This is the complete closed-form solution for the steady-state initial conditions. The real and imaginary parts give: 
+
+x0 = Re( z0), y0 = Im( z0) (40) 10 
+
+F. Explicit expansion of C
+
+Expanding the recurrence (34): 
+
+C =
+
+> N
+
+X
+
+> k=1
+
+ck
+
+ e−j∆θk − 1 NY
+
+> m=k+1
+
+e−j∆θm (41) Using e−jα − 1 = −2j sin( α/ 2) e−jα/ 2 and defining Φk = PNm=k+1 ∆θm (remaining angle after interval k): 
+
+C = −2j
+
+> N
+
+X
+
+> k=1
+
+ck sin ∆θk
+
+2 e−j(∆ θk /2+Φ k ) (42) For the special case of equal-angle normalization ( ∆θk = αk/F n): 
+
+C = − 2jFnNX
+
+> k=1
+
+ck sin αk
+
+2Fn
+
+e−j(αk /2+ PNm=k+1 αm)/F n (43) 
+
+G. State at intermediate switching instants 
+
+The state at the end of interval k (needed for output current and zero-crossing calculations) is obtained by partial composition. Define: 
+
+zk = e−jΘk z0 − C k (44) where Θk = Pkm=1 ∆θm and Ck is the partial offset from the recurrence (34). The minus sign reflects the fact that Ck is the negated affine offset of the composed map through the first k intervals. 
+
+H. Exact output transconductance 
+
+The output current is determined by the power delivered through the secondary bridge: 
+
+Iout = ⟨vout (t) · iL(t)⟩
+
+nV out 
+
+(45) Over the positive half-cycle, the integral of current weighted by the rectification function is: 
+
+Z Θ0
+
+r(θ) y(θ) dθ =
+
+> N
+
+X
+
+> k=1
+
+rk
+
+Z Θk
+
+> Θk−1
+
+y(θ) dθ =
+
+> N
+
+X
+
+> k=1
+
+rk(xk − xk−1) (46) where rk is the rectification sign ( +1 for secondary active positive, −1 for secondary active negative, 0 for shorted). By half-wave symmetry, the negative half-cycle contribution equals the positive half-cycle contribution (both vout and iL
+
+negate, so their product is unchanged). Therefore: 
+
+W = nZ0 · Θ
+
+> N
+
+X
+
+> k=1
+
+rk Re( zk − zk−1) (47) where Re( zk − zk−1) = xk − xk−1 is the capacitor voltage change in interval k.Now, using zk − zk−1 = ( zk−1 − ck)( e−j∆θk − 1) from (32): 
+
+zk − zk−1 = ( zk−1 − ck)( e−j∆θk − 1) (48) Taking the real part: 
+
+xk − xk−1 = ( xk−1 − ck)(cos ∆ θk − 1) + yk−1 sin ∆ θk (49) Substituting into (47): 
+
+W = nZ0Θ
+
+> N
+
+X
+
+> k=1
+
+rk [( xk−1 − ck)(cos ∆ θk − 1) + yk−1 sin ∆ θk] (50) 11 
+
+1) Compact complex form of W : Using the complex delta notation ∆zk = zk − zk−1 = ( zk−1 − ck)( e−j∆θk − 1) , the transconductance can be written as: 
+
+W = nZ0Θ Re 
+
+> N
+
+X
+
+> k=1
+
+rk ∆zk
+
+!
+
+= nZ0Θ Re 
+
+> N
+
+X
+
+> k=1
+
+rk(zk−1 − ck)( e−j∆θk − 1) 
+
+!
+
+(51) Since zk−1 = e−jΘk−1 z0 − C k−1 (the intermediate state, with Ck−1 from the recurrence), this is linear in z0:
+
+W = nZ0Θ Re( z0 · A + B) (52) where: 
+
+A =
+
+> N
+
+X
+
+> k=1
+
+rk e−jΘk−1 (e−j∆θk − 1) 
+
+B =
+
+> N
+
+X
+
+> k=1
+
+rk (−C k−1 − ck)( e−j∆θk − 1) 
+
+(53) Substituting z0 = C/(1 + e−jΘ) from (38): 
+
+W = nZ0Θ Re 
+
+ C · A 
+
+1 + e−jΘ + B
+
+
+
+(54) This is the exact closed-form transconductance , expressed entirely through the switching parameters via C, A, B.
+
+I. Fully-driven converter analysis 
+
+For the fully-driven case ( d = π) with the interval structure from Case 1 (with d ≥ s + β, which gives d − s − β = π − s − β
+
+and last interval duration π − d = 0 , so we reduce to 3 intervals): 
+
+k ck/V in αk rk
+
+1 1 + G β −12 1 s 03 1 − G π − s − β +1 
+
+(55) The rectification signs are: r1 = −1 (secondary active negative, carry-over from previous half-cycle), r2 = 0 (shorted), 
+
+r3 = +1 (secondary active positive). The transconductance becomes: 
+
+W = nZ0Θ [−(x1 − x0) + ( x3 − x2)] (56) Using x3 = −x0 (half-wave symmetry) and noting that x1 − x0 + x2 − x1 + x3 − x2 = −2x0:
+
+(x3 − x2) = −2x0 − (x1 − x0) − (x2 − x1) (57) Therefore: 
+
+W = nZ0Θ [−2( x1 − x0) − (x2 − x1) − 2x0] (58) Or equivalently, combining with the half-wave symmetry x3 = −x0:
+
+W = nZ0Θ [−2x0 − 2( x1 − x0) − (x2 − x1)] = nZ0Θ [−2x1 − (x2 − x1)] (59) Substituting the voltage changes using (49): 
+
+W = nZ0Θ
+
+
+
+− 2 Re  (z0 − c1)( e−j∆θ1 − 1) 
+
+− Re  (z1 − c2)( e−j∆θ2 − 1)   (60) where z0 is given by (38), c1 = 1 + G, c2 = 1 , ∆θ1 = β/F n, ∆θ2 = s/F n, and z1 = c1 + ( z0 − c1)e−j∆θ1 .12 
+
+1) Exact W for the fully-driven converter ( d = π, s ≥ 0): For d = π, the interval structure (55) gives 3 intervals with 
+
+∆θ1 = β/F n, ∆θ2 = s/F n, ∆θ3 = ( π − s − β)/F n, and rectification signs r1 = −1, r2 = 0 , r3 = +1 .Define shorthand angles ˆβ = β/F n, ˆs = s/F n, Θ = π/F n. The offset C from the recurrence (34) with normalized centers 
+
+c1 = 1 + G, c2 = 1 , c3 = 1 − G:
+
+C1 = (0 + c1)e−j ˆβ − c1 = c1(e−j ˆβ − 1) (61) 
+
+C2 = ( C1 + c2)e−j ˆs − c2 = C1e−j ˆs + c2(e−j ˆs − 1) (62) 
+
+C = C3 = ( C2 + c3)e−j(Θ − ˆβ−ˆs) − c3 = C2 e−j(Θ − ˆβ−ˆs) + c3(e−j(Θ − ˆβ−ˆs) − 1) (63) Expanding fully: 
+
+C = c1(e−j ˆβ − 1) e−j(Θ − ˆβ) + c2(e−j ˆs − 1) e−j(Θ − ˆβ−ˆs) + c3(e−j(Θ − ˆβ−ˆs) − 1) (64) Substituting c1 = 1 + G, c2 = 1 , c3 = 1 − G and using e−jα − 1 = −2j sin( α/ 2) e−jα/ 2:
+
+C = −2j
+
+
+
+(1 + G) sin ˆβ
+
+2 e−j(Θ − ˆβ/ 2) 
+
++ sin ˆs
+
+2 e−j(Θ − ˆβ−ˆs/ 2) 
+
++ (1 − G) sin Θ − ˆβ − ˆs
+
+2 e−j(Θ − ˆβ−ˆs)/2
+
+
+
+(65) The coefficients A and B from (53) with r1 = −1, r2 = 0 , r3 = +1 :
+
+A = −(e−j ˆβ − 1) + e−j( ˆβ+ˆ s)(e−j(Θ − ˆβ−ˆs) − 1) (66) Simplifying: 
+
+A = 1 − e−j ˆβ + e−jΘ − e−j( ˆβ+ˆ s) = (1 − e−j ˆβ ) − e−j( ˆβ+ˆ s)(1 − e−j(Θ − ˆβ−ˆs)) (67) And: 
+
+B = −(C0 − c1)( e−j ˆβ − 1) + ( C2 − c3)( e−j(Θ − ˆβ−ˆs) − 1) (68) with C0 = 0 .
+
+2) Special case s = 0 , d = π (pure synchronous rectification): With s = 0 , only 2 distinct intervals remain in the positive half-cycle: 
+
+k ck/V in αk rk
+
+1 1 + G β −12 1 − G π − β +1 
+
+(69) The offset C simplifies to: 
+
+C = (1 + G)( e−j ˆβ − 1) e−j(Θ − ˆβ) + (1 − G)( e−j(Θ − ˆβ) − 1) (70) Expanding and collecting: 
+
+C = (1 + G)e−jΘ − (1 + G)e−j(Θ − ˆβ) + (1 − G)e−j(Θ − ˆβ) − (1 − G) (71) 
+
+= (1 + G)e−jΘ − 2Ge −j(Θ − ˆβ) − (1 − G) (72) The initial state from (38): 
+
+z0 = C
+
+1 + e−jΘ = (1 + G)e−jΘ − 2Ge −j(Θ − ˆβ) − (1 − G)1 + e−jΘ (73) For the transconductance with r1 = −1, r2 = +1 (using (47)): 
+
+W = nZ0Θ [−(x1 − x0) + ( x2 − x1)] = nZ0Θ [−2( x1 − x0) + ( x2 − x0)] (74) Using x2 − x0 = Re( z2 − z0) = Re( −2z0) = −2x0 (half-wave symmetry): 
+
+W = nZ0Θ [−2 Re(∆ z1) − 2x0] (75) where ∆z1 = ( z0 − c1)( e−j ˆβ − 1) with c1 = 1 + G.13 
+
+Substituting z0 from (73): 
+
+W = nZ0Θ Re 
+
+ −2C
+
+1 + e−jΘ + 2 
+
+ C
+
+1 + e−jΘ − (1 + G)
+
+
+
+(e−j ˆβ − 1) 
+
+
+
+(76) which after simplification gives: 
+
+W s=0 = 2nZ0Θ Re 
+
+ C
+
+1 + e−jΘ
+
+
+
+−1 + ( e−j ˆβ − 1) 
+
+
+
+− (1 + G)( e−j ˆβ − 1) 
+
+
+
+(77) with C from (71). 
+
+J. Explicit expansion of all coefficients 
+
+In this section the general formulas are expanded explicitly for both switching pattern cases. Define shorthand notation for normalized angles: ˆα = α/F n for any switching angle α, so that ˆβ = β/F n, ˆs = s/F n, ˆd = d/F n, and Θ = π/F n.
+
+1) Case 1: d ≥ s + β: The intervals are (ck, α k) = {(1+ G, β ), (1 , s ), (1 −G, d −s−β), (−G, π −d)} with rectification signs rk = {− 1, 0, +1 , +1 }.
+
+a) Offset C.: From the expanded form (41): 
+
+C = (1+ G)( e−j ˆβ − 1) e−j(Θ − ˆβ) + ( e−j ˆs − 1) e−j(Θ − ˆβ−ˆs)
+
++ (1 −G)( e−j( ˆd−ˆs− ˆβ) − 1) e−j(Θ − ˆd) + ( −G)( e−j(Θ − ˆd) − 1) (78) Expanding each product ck(e−j ˆαk − 1) e−jΦk = ck e−j( ˆ αk +Φ k ) − ck e−jΦk = ck e−j(Θ −θk−1) − ck e−j(Θ −θk )... More usefully, collecting all exponential terms: 
+
+C = (1+ G) e−jΘ − (1+ G) e−j(Θ − ˆβ) + e−j(Θ − ˆβ) − e−j(Θ − ˆβ−ˆs)
+
++ (1 −G) e−j(Θ − ˆβ−ˆs) − (1 −G) e−j(Θ − ˆd) − G e −j(Θ − ˆd) + G (79) Simplifying by grouping terms at common exponential arguments: 
+
+C Case 1 = (1+ G) e−jΘ − G e −j(Θ − ˆβ) + G e −j(Θ − ˆβ−ˆs) − e−j(Θ − ˆd) + G (80) 
+
+b) Initial state.: 
+
+z0 = C
+
+1 + e−jΘ = (1+ G) e−jΘ − G e −j(Θ − ˆβ) + G e −j(Θ − ˆβ−ˆs) − e−j(Θ − ˆd) + G
+
+1 + e−jΘ (81) 
+
+c) Coefficient A.: With r1 = −1, r2 = 0 , r3 = +1 , r4 = +1 and Θ0 = 0 , Θ1 = ˆβ, Θ2 = ˆβ + ˆ s, Θ3 = ˆd:
+
+A = −(e−j ˆβ − 1) + e−j( ˆβ+ˆ s)(e−j( ˆd−ˆs− ˆβ) − 1) + e−j ˆd(e−j(Θ − ˆd) − 1) = 1 − e−j ˆβ + e−j ˆd − e−j( ˆβ+ˆ s) + e−jΘ − e−j ˆd (82) The e−j ˆd terms cancel: 
+
+A Case 1 = 1 − e−j ˆβ − e−j( ˆβ+ˆ s) + e−jΘ (83) 
+
+d) Coefficient B.: Using B = P rk(−C k−1 − ck)( e−j∆θk − 1) with C0 = 0 :The intermediate offsets are: 
+
+C1 = (1+ G)( e−j ˆβ − 1) 
+
+C2 = (1+ G)( e−j ˆβ − 1) e−j ˆs + ( e−j ˆs − 1) 
+
+C3 = C2 e−j( ˆd−ˆs− ˆβ) + (1 −G)( e−j( ˆd−ˆs− ˆβ) − 1) 
+
+(84) The coefficient B has contributions from k = 1 , 3, 4 (where rk̸ = 0 ): 
+
+B Case 1 = −(−0 − (1+ G))( e−j ˆβ − 1) + ( −C 2 − (1 −G))( e−j( ˆd−ˆs− ˆβ) − 1) + ( −C 3 − (−G))( e−j(Θ − ˆd) − 1) 
+
+(85) Expanding −C 2 − (1 −G) = −(1+ G)e−j( ˆβ+ˆ s) + Ge −j ˆs + G and −C 3 + G = −(1+ G)e−j ˆd + Ge −j( ˆd− ˆβ) + Ge −j( ˆd−ˆs− ˆβ) + 1 ,the factored form is: 14 
+
+B Case 1 = (1+ G)( e−j ˆβ − 1) +
+
+h
+
+−(1+ G)e−j( ˆβ+ˆ s) + Ge −j ˆs + G
+
+i
+
+(e−j( ˆd−ˆs− ˆβ) − 1) +
+
+h
+
+−(1+ G)e−j ˆd + Ge −j( ˆd− ˆβ) + Ge −j( ˆd−ˆs− ˆβ) + 1 
+
+i
+
+(e−j(Θ − ˆd) − 1) 
+
+(86) Multiplying out all products and collecting terms at common exponential arguments (noting that intermediate exponentials cancel in pairs), the fully simplified form is: 
+
+B Case 1 = (1+ G)e−j ˆβ + (1+ G)e−j( ˆβ+ˆ s) − Ge −j ˆs
+
+− (1+ G)e−jΘ + Ge −j(Θ − ˆβ) + Ge −j(Θ −ˆs− ˆβ) + e−j(Θ − ˆd) − 2(1+ G)
+
+(87) 
+
+e) Transconductance.: The exact W for Case 1 is: 
+
+W Case 1 = nZ0Θ Re 
+
+ C · A 
+
+1 + e−jΘ + B
+
+
+
+(88) with C from (80) and A from (83). 
+
+2) Case 2: d < s + β: The intervals are (ck, α k) = {(1+ G, β ), (1 , d −β), (0 , s −d+β), (−G, π −s−β)} with rectification signs rk = {− 1, 0, 0, +1 }.
+
+a) Offset C.: Since c3 = 0 , the third term vanishes: 
+
+C = (1+ G)( e−j ˆβ − 1) e−j(Θ − ˆβ) + ( e−j( ˆd− ˆβ) − 1) e−j(Θ − ˆd)
+
++ ( −G)( e−j(Θ −ˆs− ˆβ) − 1) (89) Expanding and collecting: 
+
+C Case 2 = (1+ G) e−jΘ − (1+ G) e−j(Θ − ˆβ) + e−j(Θ − ˆβ) − e−j(Θ − ˆd) − G e −j(Θ −ˆs− ˆβ) + G (90) Further simplification: 
+
+C Case 2 = (1+ G) e−jΘ − G e −j(Θ − ˆβ) − e−j(Θ − ˆd) − G e −j(Θ −ˆs− ˆβ) + G (91) 
+
+b) Coefficient A.: Only r1 = −1 and r4 = +1 contribute, with Θ0 = 0 and Θ3 = ˆβ + ( ˆd − ˆβ) + (ˆ s − ˆd + ˆβ) = ˆ s + ˆβ:
+
+A = −(e−j ˆβ − 1) + e−j(ˆ s+ ˆβ)(e−j(Θ −ˆs− ˆβ) − 1) (92) Expanding: 
+
+A Case 2 = 1 − e−j ˆβ + e−jΘ − e−j(ˆ s+ ˆβ) (93) 
+
+c) Observation.: Comparing (83) and (93): the coefficient A has the same form in both cases: 
+
+A = 1 − e−j ˆβ + e−jΘ − e−j(ˆ s+ ˆβ) (94) This is a consequence of the fact that A depends only on which intervals are rectified (and their cumulative start angles), not on the voltage levels ck. The rectified intervals are always the first (negative-active) and the last (positive-active), with cumulative angles 0 and ˆs + ˆβ respectively. Using sum-to-product identities, A can be written in trigonometric form: 
+
+A = −2j sin ˆβ
+
+2 e−j ˆβ/ 2 − 2j sin Θ − ˆs − ˆβ
+
+2 e−j(ˆ s+ ˆβ+(Θ −ˆs− ˆβ)/2) (95) or more compactly: 
+
+A = −2j
+
+"
+
+sin ˆβ
+
+2 e−j ˆβ/ 2 + sin Θ − ˆs − ˆβ
+
+2 e−j(Θ+ˆ s+ ˆβ)/2
+
+#
+
+(96) 15 
+
+d) Coefficient B.: Only r1 = −1 and r4 = +1 contribute. The intermediate offsets are: 
+
+C1 = (1+ G)( e−j ˆβ − 1) 
+
+C2 = C1 e−j( ˆd− ˆβ) + ( e−j( ˆd− ˆβ) − 1) 
+
+C3 = C2 e−j(ˆ s+ ˆβ− ˆd) (since c3 = 0 )(97) Expanding −C 3 + G = −(1+ G)e−j( ˆβ+ˆ s) + Ge −j ˆs + e−j(ˆ s+ ˆβ− ˆd) + G:
+
+B Case 2 = (1+ G)( e−j ˆβ − 1) + 
+
+h
+
+−(1+ G)e−j( ˆβ+ˆ s) + Ge −j ˆs + e−j(ˆ s+ ˆβ− ˆd) + G
+
+i
+
+(e−j(Θ −ˆs− ˆβ) − 1) (98) Multiplying out and collecting: 
+
+B Case 2 = (1+ G)e−j ˆβ + (1+ G)e−j( ˆβ+ˆ s) − Ge −j ˆs − e−j(ˆ s+ ˆβ− ˆd)
+
+− (1+ G)e−jΘ + Ge −j(Θ − ˆβ) + Ge −j(Θ −ˆs− ˆβ) + e−j(Θ − ˆd) − (1+2 G)
+
+(99) Note that at the case boundary d = s + β, the term e−j(ˆ s+ ˆβ− ˆd) = e0 = 1 , and the constant becomes −(1 + 2 G + 1) = 
+
+−2(1 + G), matching Case 1 exactly. This confirms continuity of B across the switching pattern boundary. 
+
+e) Transconductance.: 
+
+W Case 2 = nZ0Θ Re 
+
+ C · A 
+
+1 + e−jΘ + B
+
+
+
+(100) with C from (90) and A from (93). 
+
+3) Summary of explicit formulas: The exact transconductance for arbitrary (d, s, β, G, F n) is given by: 
+
+W = nZ0Θ Re 
+
+ C · A 
+
+1 + e−jΘ + B
+
+
+
+(101) where A is universal (94), and C depends on the case:  
+
+> •
+
+Case 1 ( d ≥ s + β): C = (1+ G)e−jΘ − Ge −j(Θ − ˆβ) + Ge −j(Θ − ˆβ−ˆs) − e−j(Θ − ˆd) + G 
+
+> •
+
+Case 2 ( d < s + β): C = (1+ G)e−jΘ − Ge −j(Θ − ˆβ) − e−j(Θ − ˆd) − Ge −j(Θ −ˆs− ˆβ) + G
+
+All quantities are elementary functions of the switching parameters and can be evaluated without any iterative computation. 
+
+K. State-plane trajectories for Cases 1 and 2 
+
+Figure 11 shows the exact state-plane trajectories for both switching pattern cases across buck ( G < 1), unity gain ( G = 1 ), and boost ( G > 1) operating points, all computed at normalized frequency Fn = 1 .3. Each colored arc segment corresponds to one switching interval with its center marked on the real axis. The positive half-cycle is drawn with full opacity, the negative half-cycle (point-symmetric) with reduced opacity. The gray dashed ellipse represents the FHA trajectory for comparison. 
+
+L. Exact zero-crossing angle 
+
+Within interval k, the state evolves as z(θ) = ck + ( zk−1 − ck)e−j(θ−Θk−1), so: 
+
+Im( z(θ)) = Im  (zk−1 − ck)e−jτ  = 0 (102) where τ = θ − Θk−1 ∈ [0 , ∆θk]. Writing wk = zk−1 − ck = |wk| ejϕ k :
+
+|wk| sin( ϕk − τ ) = 0 =⇒ τ = ϕk + mπ (103) The derivative ddτ Im( z) = −| wk| cos( ϕk − τ ). At τ = ϕk: derivative is −| wk| < 0 (negative-going). At τ = ϕk + π:derivative is +|wk| > 0 (positive-going). Therefore, the positive-going zero crossing is: 
+
+τzero = arg( zk−1 − ck) + π (104) provided this falls within [0 , ∆θk]. The exact commutation angle is: 
+
+σexact = Fn · (Θ k−1 + τzero ) = Fn (Θ k−1 + arg( zk−1 − ck) + π) (105) where k is the interval containing the crossing, and the intermediate states zk−1 are computed by successive application of 
+
+zk = ck + ( zk−1 − ck)e−j∆θk starting from z0 = C/(1 + e−jΘ). The offset C is the same quantity used for computing W ,given by (80) for Case 1 or (90) for Case 2. For typical operating conditions with the feedforward control law ( σ∗ > 0, δ∗ ≥ 0), the zero crossing falls in interval 1 (where c1 = 1 + G), giving the simplest form: 
+
+σexact = Fn ·
+
+
+
+arg 
+
+ C
+
+1 + e−jΘ − (1+ G)
+
+
+
++ π
+
+
+
+(when crossing is in interval 1) (106) 16                        
+
+> Fig. 11. State-plane trajectories at Fn= 1 .3. Top row: Case 1 ( d≥s+β) with d=π. Bottom row: Case 2 ( d < s +β). Columns: buck ( G= 0 .5), unity (G= 1 ), boost ( G= 1 .5). Colors: I1(blue), I2(orange), I3(green), I4(purple). Gray dashed line: FHA ellipse.
+
+M. Exact synchronous rectification condition 
+
+In the original FHA-based analysis, the synchronous rectification condition δ = 0 (secondary bridge switches exactly at the current zero crossing) yields the algebraic constraint cos β − G − cos( β − d) − G cos s = 0 . The state-plane framework provides the exact version of this condition without harmonic truncation. 
+
+1) General form: The condition δ = 0 means that Im( z) = 0 (current crosses zero) exactly at θ = ˆβ (the end of interval 1, where the secondary bridge transitions). Since z1 = c1 + ( z0 − c1)e−j ˆβ :
+
+Im( z1) = Im 
+
+
+
+(z0 − c1) e−j ˆβ 
+
+= 0 (107) where c1 = 1 + G and z0 = C/(1 + e−jΘ). This condition is equivalent to: 
+
+arg( z0 − (1+ G)) + π = ˆβ (108) which states that the first arc must subtend exactly angle ˆβ to bring the trajectory to the real axis. Substituting z0:
+
+Im 
+
+ C
+
+1 + e−jΘ − (1+ G)
+
+
+
+e−j ˆβ
+
+
+
+= 0 (109) Writing 11+ e−jΘ = ejΘ/2 
+
+> 2 cos(Θ /2)
+
+and separating real and imaginary parts, this becomes a single transcendental equation relating 
+
+(d, s, β, G, F n).For both cases 1 and 2, the condition (109) takes the same form after substitution: 
+
+Im 
+
+h 
+
+C( ˆβ) − (1+ G)(1 + e−jΘ)
+
+i
+
+ej(Θ /2− ˆβ)
+
+= 0 (110) 17 
+
+where ˆβ = β/F n, and C(β) is taken from (80) if d ≥ s + β (Case 1) or from (90) if d < s + β (Case 2). In both cases, C
+
+depends on β through the normalized angle ˆβ appearing in the exponentials, making (110) an implicit transcendental equation in β. It is smooth and monotone, ensuring efficient numerical solution. 
+
+2) Specialization: d = π, s = 0 : For the fully-driven converter without secondary shorting, the offset reduces to C =(1+ G)e−jΘ − 2Ge −j(Θ − ˆβ) − (1 −G) (two intervals only). The numerator N = C − (1+ G)(1 + e−jΘ) simplifies to: 
+
+N = −2G e −j(Θ − ˆβ) − 2 (111) Applying the condition Im( N · ej(Θ /2− ˆβ)) = 0 :
+
+Im 
+
+
+
+−2G e −jΘ/2 − 2 ej(Θ /2− ˆβ)
+
+= 0 (112) which gives 2G sin(Θ /2) − 2 sin(Θ /2 − ˆβ) = 0 , or: 
+
+G sin Θ2 = sin 
+
+ Θ2 − ˆβ
+
+
+
+(113) Solving for ˆβ:
+
+ˆβ = Θ2 − arcsin 
+
+
+
+G sin Θ2
+
+
+
+(114) or equivalently β = Fn ˆβ = π 
+
+> 2
+
+−Fn arcsin 
+
+
+
+G sin π
+
+> 2Fn
+
+
+
+. This is the exact closed-form solution for the synchronous rectification phase shift, valid for all Fn and G ≤ 1/ sin(Θ /2) .This is the exact synchronous rectification condition for the fully-driven converter with synchronous secondary ( d = π,
+
+s = 0 ), expressed as a single compact equation. 
+
+3) Comparison with FHA condition and physical interpretation: The FHA synchronous rectification condition for d = π,
+
+s = 0 is: 
+
+cos β = G ⇐⇒ β = arccos G (115) The exact state-plane condition (113) and the FHA condition (115) express the same physical requirement : the tank current crosses zero precisely at the moment the secondary bridge transitions. The difference is:  
+
+> •
+
+FHA : the fundamental component of the tank current crosses zero at θ = β. This is equivalent to requiring σF HA =atan2( B, A ) = β. 
+
+> •
+
+State-plane : the actual tank current (including all harmonics) crosses zero at θ = β. This is the physical condition 
+
+iL(tβ ) = 0 .Since the actual current contains higher harmonics that shift the zero-crossing relative to the fundamental, the two conditions yield different values of β. For G = 0 .7:
+
+Fn βexact βF HA = arccos G
+
+1.05 0.760 0.795 1.2 0.680 0.795 1.5 0.594 0.795 2.0 0.535 0.795 5.0 0.481 0.795 The discrepancy grows with Fn, reaching 18 ◦ at Fn = 5 . This is a consequence of the harmonic content: at higher switching frequencies, the ratio ω/ω 0 increases, but the arc structure becomes more pronounced (shorter arcs with larger angular steps between centers), causing the zero-crossing to shift further from the fundamental’s prediction. Conversely, near resonance ( Fn → 1), the exact condition approaches the FHA because the LC tank filters out harmonics more effectively and the trajectory becomes nearly elliptical. The practical implication: if a controller uses β = arccos G (the FHA prescription) to achieve synchronous rectification, the actual zero-crossing will be offset from the switching edge by δactual = β − σexact ̸ = 0 . The exact condition (113) provides the corrected β for true zero-crossing alignment. 
+
+4) Exact inversion of commutation parameters: The FHA-based feedforward control inverts σ(d, s, β, G ) = σ∗,
+
+δ(d, s, β, G ) = δ∗ to find switching parameters. The state-plane framework yields exact closed-form inversions. 
+
+a) Problem formulation.: Given desired σ∗, δ∗, voltage gain G, and Fn, find d, s, β such that: 
+
+σexact (d, s, β, G, F n) = σ∗, δexact = β − σ∗ = δ∗ (116) 18 
+
+b) Step 1: β is determined directly.: Since δ = β − σ by definition: 
+
+β = σ∗ + δ∗ (117) 
+
+c) Step 2: Closed-form solution for d or s.: The zero-crossing condition requires Im(( z0 − c1)e−j ˆσ ) = 0 , i.e., the current crosses zero at resonant-time angle ˆσ = σ∗/F n on the first arc (center c1 = 1 + G). Since δ∗ ≥ 0 implies ˆσ ≤ ˆβ, the crossing always falls within interval 1. Defining N = C − (1+ G)(1 + e−jΘ) and using z0 = C/(1 + e−jΘ), the condition becomes: 
+
+Im 
+
+
+
+N ej(Θ /2−ˆσ)
+
+= 0 (118) 
+
+d) Buck mode ( s = 0 , solve for d).: For s = 0 , the numerator is N = −2Ge −j(Θ − ˆβ) − e−j(Θ − ˆd) − 1. Expanding (118) term by term and substituting ˆβ = ˆ σ + ˆδ:
+
+2G sin(Θ /2 − ˆσ − Θ + ˆβ) − sin(Θ /2 − ˆσ − Θ + ˆd) − sin(Θ /2 − ˆσ) = 0 (119) Simplifying the arguments (using ˆβ = ( σ∗ + δ∗)/F n = ˆ σ + ˆδ): 
+
+2G sin( ˆδ − Θ/2) − sin( ˆd − ˆσ − Θ/2) − sin(Θ /2 − ˆσ) = 0 (120) Solving for ˆd:
+
+sin( ˆd − ˆσ − Θ/2) = 2 G sin( ˆδ − Θ/2) − sin(Θ /2 − ˆσ) (121) 
+
+ˆd = ˆ σ + Θ2 + arcsin 
+
+
+
+−2G sin 
+
+
+
+ˆδ − Θ2
+
+
+
+− sin 
+
+ Θ2 − ˆσ
+
+ 
+
+(122) where ˆσ = σ∗/F n, ˆδ = δ∗/F n, Θ = π/F n. A solution exists (buck mode valid) when the arcsin argument is in [−1, 1] and 
+
+d = Fn ˆd ≤ π.
+
+e) Boost mode ( d = π, solve for s).: When the buck formula yields d > π , the boost mode applies. With d = π (3 intervals: (1+ G, β ), (1 , s ), (1 −G, π −s−β)), the numerator is N = −Ge −j(Θ − ˆβ) − Ge −j(Θ − ˆβ−ˆs) − 2. Expanding (118) term by term with ˆβ = ˆ σ + ˆδ:
+
+−G sin( ˆδ − Θ/2) − G sin( ˆδ + ˆ s − Θ/2) − 2 sin(Θ /2 − ˆσ) = 0 (123) Using − sin( ˆδ − Θ/2) = sin(Θ /2 − ˆδ):
+
+G sin(Θ /2 − ˆδ) − G sin( ˆδ + ˆ s − Θ/2) = 2 sin(Θ /2 − ˆσ) (124) Isolating the ˆs-dependent term: 
+
+sin( ˆδ + ˆ s − Θ/2) = sin(Θ /2 − ˆδ) − 2
+
+G sin(Θ /2 − ˆσ) (125) Solving for ˆs:
+
+ˆs = Θ2 − ˆδ + arcsin 
+
+
+
+sin 
+
+ Θ2 − ˆδ
+
+
+
+− 2
+
+G sin 
+
+ Θ2 − ˆσ
+
+ 
+
+(126) 
+
+f) Verification.: Table II compares the exact closed-form inversion with the FHA inversion across representative operating points. The column “ σ actual” shows the true σ (from the exact state-plane model) when using the respective d or s value. The exact formulas achieve the target σ∗ precisely in all cases, while the FHA inversion produces errors ranging from 2% (near resonance, boost) to 72% (higher Fn, buck). This is expected: the exact formulas explicitly depend on the normalized frequency Fn through Θ = π/F n, whereas the FHA formulas are frequency-independent. Near resonance ( Fn → 1, Θ → π)the arc angles are large and the multi-arc trajectory closely resembles an ellipse, so both models agree. Far from resonance (Fn ≫ 1, Θ → 0) the arcs become short and the harmonic distortion grows, making the FHA inversion increasingly inaccurate. 19  
+
+> TABLE II INVERSION COMPARISON :EXACT FORMULA VS . FHA
+
+σ∗ δ∗ G Fn dexact σ actual dF HA σ actual 
+
+Buck mode ( s = 0 , solve for d)
+
+0.1 0.0 0.7 1.50 2.258 0.100 2.088 0.028 0.2 0.0 0.7 1.50 2.422 0.200 2.204 0.110 0.1 0.1 0.7 1.50 2.179 0.100 2.080 0.059 0.3 0.0 0.5 1.30 2.009 0.300 1.916 0.251 0.1 0.0 0.7 1.05 2.115 0.100 2.088 0.079 0.2 0.1 0.6 1.20 2.037 0.200 1.986 0.173 
+
+sexact σ actual sF HA σ actual 
+
+Boost mode ( d = π, solve for s)
+
+0.1 0.0 1.3 1.50 0.934 0.100 1.011 0.156 0.1 0.0 1.5 1.20 1.219 0.100 1.238 0.116 0.2 0.0 1.3 1.30 1.032 0.200 1.038 0.205 0.1 0.05 1.2 1.50 0.673 0.100 0.801 0.147 
+
+g) Comparison with FHA inversion.: The FHA inversion yields d = arccos(cos σ∗ − 2G cos δ∗) + σ∗ (buck) and s =arccos(2 cos σ∗/G − cos δ∗) − δ∗ (boost). Placing the formulas side by side for the buck case: 
+
+ˆdexact = ˆ σ + Θ2 + arcsin 
+
+
+
+−2G sin 
+
+
+
+ˆδ − Θ2
+
+
+
+− sin 
+
+ Θ2 − ˆσ
+
+ 
+
+(exact) 
+
+dF HA = σ∗ + arccos(cos σ∗ − 2G cos δ∗) (FHA) (127) At resonance ( Fn = 1 , Θ = π), all hatted quantities equal the switching angles ( ˆσ = σ∗, ˆδ = δ∗, ˆd = d) and the exact formula becomes: 
+
+d = σ∗ + π
+
+2 + arcsin(2 G cos δ∗ − cos σ∗) (128) Using the identity arccos( x) = π/ 2 − arcsin( x), the FHA formula rewrites as: 
+
+d = σ∗ + π
+
+2 − arcsin(cos σ∗ − 2G cos δ∗) = σ∗ + π
+
+2 + arcsin(2 G cos δ∗ − cos σ∗) (129) These are identical . The same equivalence holds for the boost formula. This proves that the FHA inversion is the exact state-plane inversion evaluated at resonance (Fn = 1 ). The departure from FHA for Fn > 1 is entirely captured by the parameter Θ = π/F n, which compresses the trigonometric arguments as the switching frequency increases above resonance. Figure 12 illustrates this relationship using the aggregated switching parameter q, which combines both modes into a single continuous variable: 
+
+q =
+
+(
+
+d buck mode (d ≤ π)
+
+s + π boost mode (d = π) (130) The FHA curve (black, frequency-independent) coincides with the Fn = 1 .0 curve, confirming the resonance equivalence. As Fn increases, the exact q(G) curves depart progressively from the FHA, with the largest deviation near the buck-to-boost transition ( G ≈ 1). 
+
+5) Low-power mode: inversion with sadd : When the switching frequency reaches its maximum ωmax (i.e., Fn = Fn,max 
+
+is fixed), further output power reduction requires introducing additional secondary shorting sadd > 0. Following the original FHA-based approach, the aggregated variable q with sadd is defined as: 
+
+ds
+
+
+
+=
+
+
+
+qsadd 
+
+!
+
+q ≤ π (buck) 
+
+πq − π
+
+!
+
+q > π (boost) (131) In buck mode, d = q and s = sadd ; in boost mode, d = π and s = q − π (with sadd absorbed into s). 20                
+
+> Fig. 12. Aggregated switching parameter q(G)from exact state-plane inversion (dashed, for Fn= 1 .0,1.3,2.0,3.0) vs. FHA inversion (solid black, frequency-independent). Parameters: σ∗= 0 .1,δ∗= 0 . At Fn= 1 (resonance) the exact and FHA curves coincide.
+
+a) Generalized buck inversion with sadd .: For the buck case with s = sadd > 0, the numerator N = −Ge −j(Θ − ˆβ) −
+
+Ge −j(Θ − ˆβ−ˆsadd ) −e−j(Θ − ˆd) −1 contains one ˆd-dependent term. Expanding Im( N ej(Θ /2−ˆσ)) = 0 and isolating the ˆd-dependent sine: 
+
+sin( ˆd − ˆσ − Θ/2) = −G sin( ˆδ − Θ/2) − G sin( ˆδ + ˆ sadd − Θ/2) − sin(Θ /2 − ˆσ) (132) Solving: 
+
+ˆd = ˆ σ + Θ2 + arcsin 
+
+
+
+−G sin 
+
+
+
+ˆδ − Θ2
+
+
+
+− G sin 
+
+
+
+ˆδ + ˆ sadd − Θ2
+
+
+
+− sin 
+
+ Θ2 − ˆσ
+
+ 
+
+(133) where ˆsadd = sadd /F n. This generalizes the buck formula (122) (which is recovered for sadd = 0 since −G sin x−G sin x =
+
+−2G sin x). 
+
+b) Low-power control algorithm.: The output transconductance at fixed ω = ωmax is: 
+
+W (sadd ) = nZ0Θ Re 
+
+ C(d(sadd ), s add , β ) · A 
+
+1 + e−jΘ + B
+
+
+
+(134) where d(sadd ) is given by (133) for the buck case (or d = π with s from (126) for boost). The algorithm for achieving a target W ∗ below the minimum power at sadd = 0 is: 1) Compute s0 
+
+> add
+
+(the minimal sadd for monotonic W decrease) from W (s0
+
+> add
+
+) = W (0) .2) For sadd > s 0
+
+> add
+
+, bisect on sadd to satisfy W (sadd ) = W ∗.Each evaluation of W (sadd ) uses the closed-form inversion (133) to compute d, followed by the closed-form W from (54). No iterative differential equation solving is required. 
+
+c) Control architecture.: The overall control system mirrors the parallel nonlinear compensation architecture from the original FHA-based design. The feedforward maps for commutation angles ( q and β from (133), (126), (117)) serve as the inner-loop nonlinear compensation, with external PI controllers adding corrections to q and β for robustness against model uncertainties. The outer-loop series compensation for output power uses the look-up table (or bisection) mapping W ∗ to frequency ω and sadd .21 
+
+The only structural difference from the FHA architecture is that the commutation feedforward maps (133)–(126) operate on normalized resonant-time quantities ˆd = d/F n, ˆs = s/F n, ˆβ = β/F n rather than switching-frequency angles. Since 
+
+ˆx = x/F n = x/ (ω/ω 0), these hatted quantities have the physical dimension of time (in units of 1/ω 0), not angles. This means the feedforward maps and the controllers could equivalently operate in time domain — controlling timing intervals between switching edges and current zero crossings rather than phase angles. The dependence on switching frequency enters naturally: all timing quantities scale with 1/F n, coupling the inner commutation loop to the outer frequency loop. This coupling reflects the physically correct dependency captured by the state-plane model. 
+
+N. Recovery of First Harmonic Approximation 
+
+The FHA emerges as the leading-order approximation of the exact state-plane solution. In this section we provide a geometric interpretation of this relationship. 
+
+1) Geometric view: single-arc approximation: The exact state-plane trajectory consists of N circular arcs, each with a different center ck. The FHA is geometrically equivalent to replacing all N arcs by a single arc with an effective center ceff .For a single arc centered at ceff spanning the full half-period angle Θ, the half-wave symmetry condition gives: 
+
+zsingle  
+
+> 0
+
+= ceff · 1 − e−jΘ
+
+1 + e−jΘ = j c eff tan Θ2 (135) Comparing with the exact solution z0 = C/(1 + e−jΘ), the effective center that matches the initial state is: 
+
+ceff = C
+
+1 − e−jΘ (136) In general ceff is complex-valued , meaning no single real-centered arc can perfectly reproduce the exact initial state. The imaginary part Im( ceff ) measures the irreducible deviation of the multi-arc trajectory from any single-arc approximation. 
+
+2) Curvature interpretation: Each arc segment k has radius Rk = |zk−1 −ck| and curvature κk = 1 /R k. The FHA trajectory (an ellipse) has continuously varying curvature. The key geometric difference:  
+
+> •
+
+Exact trajectory : piecewise-constant curvature with discontinuous jumps at switching instants. Each jump in curvature is proportional to the voltage step |ck+1 − ck| divided by the local radius.  
+
+> •
+
+FHA ellipse : smooth curvature varying between Fn/Y 1 (at current peaks) and F 2 
+
+> n
+
+/Y 1 (at voltage peaks), where Y1 is the fundamental current amplitude. The FHA becomes exact when all arc centers coincide ( c1 = c2 = . . . = cN ), which corresponds to constant applied voltage (no switching) — a degenerate case. The FHA error is fundamentally related to the spread of arc centers relative to the trajectory size. 
+
+3) Fourier interpretation: The applied voltage Vn(θ) has Fourier harmonics Vk at frequencies kω . Each harmonic excites a current component at the same frequency with amplitude Yk = Vk/|Z(kω )|. In the state plane:  
+
+> •
+
+The fundamental ( k = 1 ) produces the FHA ellipse with semi-axes Y1/F n (voltage) and Y1 (current).  
+
+> •
+
+The k-th harmonic produces a smaller ellipse with semi-axes Yk/(kF n) and Yk, rotating k times faster.  
+
+> •
+
+The exact trajectory is the superposition of all harmonic ellipses. The multi-arc piecewise-circular structure is therefore the result of adding infinitely many nested ellipses of decreasing size — the FHA retains only the largest one. 
+
+4) Error bound: The relative discrepancy between Wexact and WF HA is bounded by the higher-harmonic current contributions: |Wexact − WF HA |
+
+Wexact 
+
+≲ X
+
+> k=3 ,5,...
+
+|Vk||V1| · |Fn − 1/F n||kF n − 1/(kF n)| (137) The first factor is the voltage harmonic ratio ( ≤ 1/k for half-wave symmetric waveforms). The second is the impedance attenuation. For above-resonance operation, the k-th harmonic current is suppressed by the LC tank impedance as ∼ 1/(k ·
+
+kF n) = 1 /k 2Fn, giving rapid convergence of the series. Note that while the pointwise trajectory deviation between exact and FHA can be significant (several percent of the current amplitude at switching instants), the integrated quantities ( W , σ) benefit from cancellation of positive and negative deviations, resulting in much smaller errors in practice ( < 2% for typical operating conditions). 
+
+O. Summary of exact analytical results 
+
+Theorem 1 (Exact Steady-State of DB SRC) . For a dual-bridge series resonant converter with switching parameters (d, s, β ),normalized frequency Fn = ω/ω 0̸ = integer, and voltage gain G:
+
+1. Switching pattern: Determine intervals (ck, α k)Nk=1 from (30) or (31) . Set ∆θk = αk/F n.
+
+2. Offset computation: Calculate C by the recurrence: 
+
+C0 = 0 , Ck = ( Ck−1 + ck)e−j∆θk − ck (138) 22 
+
+3. Initial state: 
+
+z0 = x0 + jy 0 = C
+
+1 + e−jΘ , Θ = π/F n (139) 
+
+4. Exact transconductance: 
+
+W = nZ0Θ Re 
+
+ C A 
+
+1 + e−jΘ + B
+
+
+
+(140) 
+
+where A, B are defined in (53) .
+
+5. Exact zero crossing: 
+
+σexact = Fn (Θ k−1 + arg( zk−1 − ck) + π) (141) 
+
+in the interval k containing the positive-going zero crossing. 
+
+6. FHA as special case: The first harmonic approximation (5) –(4) corresponds to replacing the multi-arc trajectory by a single effective arc, with error bounded by (137) .Proof sketch. (1) follows from the definition of bridge switching waveforms in Section 2 and the enumeration of voltage levels 
+
+vin − nv out across all combinations of bridge states. 
+
+(2) The recurrence implements the composition z 7 → ck + ( z − ck)e−j∆θk applied to z = 0 , computing the negated affine offset of the composed map. This is verified by noting that propagating any z0 gives zN = e−jΘz0 − C (the total rotation plus accumulated shift). 
+
+(3) Half-wave symmetry requires zN = −z0. Substituting zN = e−jΘz0 − C gives (1 + e−jΘ)z0 = C. The denominator 
+
+1 + e−jΘ = 2 cos(Θ /2) e−jΘ/2̸ = 0 for Θ̸ = π (i.e., Fn̸ = 1 ), guaranteeing existence and uniqueness. 
+
+(4) The output current integral R r(θ) y dθ = P rk(xk − xk−1) = P rk Re(∆ zk) is linear in z0 since each ∆zk =(zk−1 − ck)( e−j∆θk − 1) and zk−1 = e−jΘk−1 z0 − C k−1. Collecting terms linear in z0 gives coefficient A; the remainder is B.
+
+(5) Within arc k, Im( z(τ )) = |wk| sin( ϕk − τ ) where wk = zk−1 − ck = |wk|ejϕ k . The positive-going zero ( d[Im] /dτ > 0)occurs at τ = ϕk + π = arg( wk) + π.
+
+(6) When all ∆θk → 0, the multi-arc trajectory approaches a smooth curve whose shape is determined by the fundamental Fourier component of the applied voltage, as shown in Section A-N.
