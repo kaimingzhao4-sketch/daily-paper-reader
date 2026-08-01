@@ -1,0 +1,56 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-08-01T20:58:33.531058+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 0,
+    "deep_cap": 6,
+    "deep_selected": 0,
+    "quick_candidates": 1,
+    "quick_skim_target": 11,
+    "quick_selected": 1
+  },
+  "deep_dive": [],
+  "quick_skim": [
+    {
+      "id": "2607.25223v1",
+      "source": "arxiv",
+      "title": "Event-Triggered Discrete-Time Multivariable Extremum Seeking Systems",
+      "abstract": "This paper introduces a discrete-time event-triggered extremum seeking framework for real-time optimization of multivariable nonlinear systems. In contrast to conventional discrete-time extremum seeking implementations that rely on periodic input updates, the proposed scheme updates the control action only when a state-dependent triggering condition is met, enabling aperiodic execution and substantial reduction of actuation and communication effort. The resulting closed-loop architecture reconciles two structurally different paradigms: the periodic excitation required for gradient recovery in extremum seeking and the aperiodic philosophy of event-triggered control. By combining discrete-time averaging arguments with Lyapunov-based analysis, we prove practical convergence of the system trajectories to a neighborhood of the unknown extremum and exponential stability of the corresponding average dynamics despite the loss of uniform sampling. The results show that appropriately designed triggering rules preserve the essential optimization mechanisms of classical extremum seeking while drastically reducing the number of input updates. Numerical simulations demonstrate that comparable optimization performance can be achieved with significantly fewer actuation events, highlighting the suitability of the method for resource-aware digital and networked control implementations.",
+      "authors": [
+        "Victor Hugo Pereira Rodrigues",
+        "Tiago Roux Oliveira",
+        "Miroslav Krstić",
+        "Frank Allgöwer"
+      ],
+      "primary_category": "math.OC",
+      "categories": [
+        "math.OC",
+        "eess.SY"
+      ],
+      "published": "2026-07-28T02:55:48+00:00",
+      "link": "https://arxiv.org/pdf/2607.25223v1",
+      "tags": [
+        "keyword:reconfig-dab",
+        "query:reconfig-dab"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Event-triggered extremum seeking method for real-time optimization applicable to converter efficiency",
+      "llm_evidence_cn": "事件触发极值搜索方法，可用于变换器效率优化",
+      "llm_evidence": "事件触发极值搜索方法，可用于变换器效率优化",
+      "canonical_evidence": "事件触发极值搜索方法，可用于变换器效率优化",
+      "llm_tldr_en": "Discrete-time event-triggered multivariable extremum seeking for real-time optimization; reduces actuation/communication while proving stability; a promising transferable method for online efficiency optimization of dual active bridge converters.",
+      "llm_tldr_cn": "本文提出离散时间事件触发多变量极值搜索框架，针对传统周期更新方式控制与通信开销大的问题，仅在状态依赖触发条件满足时更新控制输入。方法将周期激励与事件触发机制统一，通过离散时间平均与Lyapunov分析证明实际稳定性。该框架可在保证收敛性能的同时大幅降低执行频率，为DAB变换器效率优化等实时优化应用提供了可借鉴的模型无关控制方法。",
+      "llm_tldr": "本文提出离散时间事件触发多变量极值搜索框架，针对传统周期更新方式控制与通信开销大的问题，仅在状态依赖触发条件满足时更新控制输入。方法将周期激励与事件触发机制统一，通过离散时间平均与Lyapunov分析证明实际稳定性。该框架可在保证收敛性能的同时大幅降低执行频率，为DAB变换器效率优化等实时优化应用提供了可借鉴的模型无关控制方法。",
+      "llm_tags": [
+        "query:reconfig-dab"
+      ],
+      "matched_query_tag": "query:reconfig-dab",
+      "matched_query_text": "efficiency optimization of reconfigurable battery and DAB converter",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}

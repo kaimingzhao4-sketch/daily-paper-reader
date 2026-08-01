@@ -1,6 +1,9 @@
 * <a class="dpr-sidebar-root-link" href="#/">首页</a>
 * <a class="dpr-sidebar-root-link dpr-sidebar-noactive-link" href="javascript:void(0)" data-dpr-hash="#/tutorial/README">使用教程</a>
 * Daily Papers
+  * 2026-08-01 <!--dpr-date:20260801-->
+    * 速读区
+      * <a class="dpr-sidebar-item-link dpr-sidebar-item-structured" href="#/202608/01/2607.25223v1-event-triggered-discrete-time-multivariable-extremum-seeking-systems" data-sidebar-item="{&quot;title&quot;: &quot;Event-Triggered Discrete-Time Multivariable Extremum Seeking Systems&quot;, &quot;link&quot;: &quot;https://arxiv.org/abs/2607.25223v1-event-triggered-discrete-time-multivariable-extremum-seeking-systems&quot;, &quot;score&quot;: &quot;6.0&quot;, &quot;tags&quot;: [{&quot;kind&quot;: &quot;query&quot;, &quot;label&quot;: &quot;reconfig-dab&quot;}], &quot;evidence&quot;: &quot;事件触发极值搜索方法，可用于变换器效率优化&quot;}">Event-Triggered Discrete-Time Multivariable Extremum Seeking Systems</a>
   * 2026-07-08 <!--dpr-date:20260708-->
     * 速读区
       * <a class="dpr-sidebar-item-link dpr-sidebar-item-structured" href="#/202607/08/2607.02948v1-exact-closed-form-feedforward-inversion-for-dual-bridge-series-resonant-dcdc-converter-via-state-plane-analysis" data-sidebar-item="{&quot;title&quot;: &quot;Exact Closed-Form Feedforward Inversion for Dual-Bridge Series Resonant DC/DC Converter via State-Plane Analysis&quot;, &quot;link&quot;: &quot;https://arxiv.org/abs/2607.02948v1-exact-closed-form-feedforward-inversion-for-dual-bridge-series-resonant-dcdc-converter-via-state-plane-analysis&quot;, &quot;score&quot;: &quot;6.0&quot;, &quot;tags&quot;: [{&quot;kind&quot;: &quot;query&quot;, &quot;label&quot;: &quot;reconfig-dab&quot;}], &quot;evidence&quot;: &quot;双桥串联谐振变换器前馈反演方法提升效率&quot;}">Exact Closed-Form Feedforward Inversion for Dual-Bridge Series Resonant DC/DC Converter via State-Plane Analysis</a>
