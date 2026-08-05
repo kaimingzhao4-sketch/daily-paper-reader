@@ -1,6 +1,9 @@
 * <a class="dpr-sidebar-root-link" href="#/">首页</a>
 * <a class="dpr-sidebar-root-link dpr-sidebar-noactive-link" href="javascript:void(0)" data-dpr-hash="#/tutorial/README">使用教程</a>
 * Daily Papers
+  * 2026-08-05 <!--dpr-date:20260805-->
+    * 速读区
+      * <a class="dpr-sidebar-item-link dpr-sidebar-item-structured" href="#/202608/05/2608.02965v1-a-physics-informed-hybrid-neural-operator-for-transient-magnetization-prediction-in-power-magnetics" data-sidebar-item="{&quot;title&quot;: &quot;A Physics-Informed Hybrid Neural Operator for Transient Magnetization Prediction in Power Magnetics&quot;, &quot;link&quot;: &quot;https://arxiv.org/abs/2608.02965v1-a-physics-informed-hybrid-neural-operator-for-transient-magnetization-prediction-in-power-magnetics&quot;, &quot;score&quot;: &quot;6.0&quot;, &quot;tags&quot;: [{&quot;kind&quot;: &quot;query&quot;, &quot;label&quot;: &quot;reconfig-dab&quot;}], &quot;evidence&quot;: &quot;功率磁性元件瞬态磁化预测，用于变换器磁芯损耗建模，支撑DAB效率优化&quot;}">A Physics-Informed Hybrid Neural Operator for Transient Magnetization Prediction in Power Magnetics</a>
   * 2026-08-01 <!--dpr-date:20260801-->
     * 速读区
       * <a class="dpr-sidebar-item-link dpr-sidebar-item-structured" href="#/202608/01/2607.25223v1-event-triggered-discrete-time-multivariable-extremum-seeking-systems" data-sidebar-item="{&quot;title&quot;: &quot;Event-Triggered Discrete-Time Multivariable Extremum Seeking Systems&quot;, &quot;link&quot;: &quot;https://arxiv.org/abs/2607.25223v1-event-triggered-discrete-time-multivariable-extremum-seeking-systems&quot;, &quot;score&quot;: &quot;6.0&quot;, &quot;tags&quot;: [{&quot;kind&quot;: &quot;query&quot;, &quot;label&quot;: &quot;reconfig-dab&quot;}], &quot;evidence&quot;: &quot;事件触发极值搜索方法，可用于变换器效率优化&quot;}">Event-Triggered Discrete-Time Multivariable Extremum Seeking Systems</a>

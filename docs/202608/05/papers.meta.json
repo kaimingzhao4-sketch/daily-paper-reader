@@ -1,0 +1,24 @@
+{
+  "label": "2026-08-05",
+  "date": "2026-08-05",
+  "generated_at": "2026-08-05T21:36:59",
+  "count": 1,
+  "papers": [
+    {
+      "paper_id": "202608/05/2608.02965v1-a-physics-informed-hybrid-neural-operator-for-transient-magnetization-prediction-in-power-magnetics",
+      "section": "quick",
+      "title_en": "A Physics-Informed Hybrid Neural Operator for Transient Magnetization Prediction in Power Magnetics",
+      "authors": "Yachao Zhu, Qiujie Huang, Sinan Li, Yang Li, Gang Lei, Jianguo Zhu",
+      "date": "2026-08-03",
+      "pdf": "https://arxiv.org/pdf/2608.02965v1",
+      "score": "6.0",
+      "evidence": "功率磁性元件瞬态磁化预测，用于变换器磁芯损耗建模，支撑DAB效率优化",
+      "tldr": "面向功率磁性高频非正弦激励下瞬态磁化预测，提出物理信息混合神经算子PI-HNO，融合局部循环与Preisach全局分支，以B-H能量一致性正则化约束。在MagNetX的14种铁氧体上以4777参数取得平均1.92%、95分位7.60%的能量一致性误差，兼顾精度与紧凑性。",
+      "tags": "query:reconfig-dab",
+      "abstract_en": "Magnetic components in high-frequency, high-power-density converters are increasingly driven by non-sinusoidal flux-density waveforms with fast transitions, minor-loop operation, dc bias, and temperature variation. Under these conditions, steady-state core-loss formulas and single-valued material curves cannot fully capture transient magnetization responses. This work proposes the Physics-Informed Hybrid Neural Operator (PI-HNO), a compact material-specific neural model with B-H energy-consistency regularization for core-loss-oriented transient magnetization prediction. Given the measured B(t)-H(t) history, the input B(t) series over the prediction interval and operating-condition information, PI-HNO predicts the H(t) series and the corresponding reconstructed B-H trajectory. The model integrates a local recurrent branch for boundary-state representation and rate-dependent response evolution with a Preisach-inspired global branch that extracts waveform-level hysteresis context. Evaluation on the MagNetX transient database using material-specific models for 14 ferrite materials demonstrates that PI-HNO achieves a compact trade-off between sequence accuracy and B(t)-H(t) energy consistency, with the mean and 95th percentile B(t)-H(t) energy consistency errors of 1.92% and 7.60%, respectively, using only 4777 trainable parameters per model. Ablation studies further demonstrate that the local, global, and energy-aware regularized components provide distinct contributions to transient magnetization prediction.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "errors": []
+}

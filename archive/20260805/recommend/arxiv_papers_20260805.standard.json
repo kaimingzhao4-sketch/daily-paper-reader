@@ -1,0 +1,59 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-08-05T21:36:00.436923+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 0,
+    "deep_cap": 6,
+    "deep_selected": 0,
+    "quick_candidates": 1,
+    "quick_skim_target": 11,
+    "quick_selected": 1
+  },
+  "deep_dive": [],
+  "quick_skim": [
+    {
+      "id": "2608.02965v1",
+      "source": "arxiv",
+      "title": "A Physics-Informed Hybrid Neural Operator for Transient Magnetization Prediction in Power Magnetics",
+      "abstract": "Magnetic components in high-frequency, high-power-density converters are increasingly driven by non-sinusoidal flux-density waveforms with fast transitions, minor-loop operation, dc bias, and temperature variation. Under these conditions, steady-state core-loss formulas and single-valued material curves cannot fully capture transient magnetization responses. This work proposes the Physics-Informed Hybrid Neural Operator (PI-HNO), a compact material-specific neural model with B-H energy-consistency regularization for core-loss-oriented transient magnetization prediction. Given the measured B(t)-H(t) history, the input B(t) series over the prediction interval and operating-condition information, PI-HNO predicts the H(t) series and the corresponding reconstructed B-H trajectory. The model integrates a local recurrent branch for boundary-state representation and rate-dependent response evolution with a Preisach-inspired global branch that extracts waveform-level hysteresis context. Evaluation on the MagNetX transient database using material-specific models for 14 ferrite materials demonstrates that PI-HNO achieves a compact trade-off between sequence accuracy and B(t)-H(t) energy consistency, with the mean and 95th percentile B(t)-H(t) energy consistency errors of 1.92% and 7.60%, respectively, using only 4777 trainable parameters per model. Ablation studies further demonstrate that the local, global, and energy-aware regularized components provide distinct contributions to transient magnetization prediction.",
+      "authors": [
+        "Yachao Zhu",
+        "Qiujie Huang",
+        "Sinan Li",
+        "Yang Li",
+        "Gang Lei",
+        "Jianguo Zhu"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cond-mat.mtrl-sci",
+        "eess.SY"
+      ],
+      "published": "2026-08-03T23:59:02+00:00",
+      "link": "https://arxiv.org/pdf/2608.02965v1",
+      "tags": [
+        "keyword:reconfig-dab",
+        "query:reconfig-dab"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "power magnetics transient magnetization prediction for converter core-loss modeling, supporting DAB efficiency optimization",
+      "llm_evidence_cn": "功率磁性元件瞬态磁化预测，用于变换器磁芯损耗建模，支撑DAB效率优化",
+      "llm_evidence": "功率磁性元件瞬态磁化预测，用于变换器磁芯损耗建模，支撑DAB效率优化",
+      "canonical_evidence": "功率磁性元件瞬态磁化预测，用于变换器磁芯损耗建模，支撑DAB效率优化",
+      "llm_tldr_en": "A physics-informed hybrid neural operator predicts transient magnetization with B-H energy consistency, improving core-loss modeling in power magnetics for high-frequency converter efficiency, applicable to dual active bridge optimization.",
+      "llm_tldr_cn": "面向高频高功率密度变换器中的磁性元件，传统稳态磁芯损耗公式难以描述非正弦激励下的瞬态磁化行为。本文提出物理信息混合神经算子（PI-HNO），采用B-H能量一致性正则化，基于实测B(t)-H(t)历史数据预测瞬态磁化响应。实验验证该方法在多种工作条件下均能准确预测磁滞回线，为变换器磁芯损耗建模与效率优化提供了有力工具。该模型可推广至双有源桥等电力电子变换器的磁元件设计。",
+      "llm_tldr": "面向高频高功率密度变换器中的磁性元件，传统稳态磁芯损耗公式难以描述非正弦激励下的瞬态磁化行为。本文提出物理信息混合神经算子（PI-HNO），采用B-H能量一致性正则化，基于实测B(t)-H(t)历史数据预测瞬态磁化响应。实验验证该方法在多种工作条件下均能准确预测磁滞回线，为变换器磁芯损耗建模与效率优化提供了有力工具。该模型可推广至双有源桥等电力电子变换器的磁元件设计。",
+      "llm_tags": [
+        "query:reconfig-dab"
+      ],
+      "matched_query_tag": "query:reconfig-dab",
+      "matched_query_text": "efficiency optimization of reconfigurable battery and DAB converter",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}
