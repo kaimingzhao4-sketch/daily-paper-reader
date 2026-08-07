@@ -1,16 +1,144 @@
 {
   "mode": "standard",
-  "generated_at": "2026-08-07T01:28:06.495349+00:00",
+  "generated_at": "2026-08-07T21:12:45.750973+00:00",
   "stats": {
     "mode": "standard",
     "tag_count": 1,
     "deep_divecandidates": 0,
     "deep_cap": 6,
     "deep_selected": 0,
-    "quick_candidates": 0,
+    "quick_candidates": 3,
     "quick_skim_target": 11,
-    "quick_selected": 0
+    "quick_selected": 3
   },
   "deep_dive": [],
-  "quick_skim": []
+  "quick_skim": [
+    {
+      "id": "2608.00316v1",
+      "source": "arxiv",
+      "title": "Agentic Bayesian Optimization through Surrogate-Augmented Autoresearch",
+      "abstract": "Bayesian optimization (BO) has become the standard tool for sample-efficient optimization and owes its efficiency to uncertainty-aware search driven by generic statistical priors. Richer domain priors can improve BO in principle, but encoding them through tailored kernels or problem structure is difficult and rarely done in practice. LLMs can help sidestep this difficulty by making informal priors from natural language, code, and documentation directly available to the optimizer. However, existing LLM-based BO methods either insert the LLM into a fixed role (surrogate, acquisition proxy, or configuration interface) or hand it broad control, sacrificing the systematic exploration that makes BO reliable. We introduce agentic Bayesian optimization: a paradigm in which an LLM agent is the central decision maker in the BO loop while a Bayesian backend provides the uncertainty-aware optimization substrate. The agent configures the problem, queries the backend, selects and commits evaluations, and can revise the optimization strategy during the run by tightening bounds, switching acquisition functions, proposing targeted evaluations, or even reframing the problem following new instructions or observed evidence. We instantiate this idea in Sara, a surrogate-augmented autoresearch agent, and lenz, a modular BoTorch-based backend that the agent can inspect and modify through a structured interface. Across synthetic and real-world benchmarks, Sara preserves the reliability of state-of-the-art BO without prior knowledge, outperforms LLM-based baselines, and uses natural-language priors to improve beyond standard BO. We further demonstrate the practical value of agentic BO in dynamic settings, where Sara reconfigures the full optimization problem on the fly as requirements change, a capability not previously available in standard BO.",
+      "authors": [
+        "Paul Brunzema",
+        "Louis Tiao",
+        "Nhat Le",
+        "Kevin De Angeli",
+        "Yao Xuan",
+        "Djordje Gligorijevic"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "stat.ML"
+      ],
+      "published": "2026-07-31T22:01:18+00:00",
+      "link": "https://arxiv.org/pdf/2608.00316v1",
+      "tags": [
+        "keyword:reconfig-dab"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "sample-efficient optimization method, transferable to DAB/battery efficiency design",
+      "llm_evidence_cn": "样本高效优化方法，可迁移至DAB与可重构电池效率设计",
+      "llm_evidence": "样本高效优化方法，可迁移至DAB与可重构电池效率设计",
+      "canonical_evidence": "样本高效优化方法，可迁移至DAB与可重构电池效率设计",
+      "llm_tldr_en": "Agentic Bayesian Optimization augments standard BO with LLM-driven surrogate-assisted automatic research, converting informal domain priors into structured search guidance. Results show improved sample efficiency and reliable exploration across benchmarks, offering a transferable optimization paradigm suitable for reconfigurable battery and DAB efficiency design.",
+      "llm_tldr_cn": "现有贝叶斯优化难以利用丰富的非结构化领域先验，LLM辅助优化又常牺牲系统探索。提出智能体贝叶斯优化框架，通过代理增强的自动研究让LLM动态注入知识并指导搜索。基准实验显示其样本效率与探索可靠性俱佳。该范式可迁移至可重构电池与DAB系统的联合效率优化。",
+      "llm_tldr": "现有贝叶斯优化难以利用丰富的非结构化领域先验，LLM辅助优化又常牺牲系统探索。提出智能体贝叶斯优化框架，通过代理增强的自动研究让LLM动态注入知识并指导搜索。基准实验显示其样本效率与探索可靠性俱佳。该范式可迁移至可重构电池与DAB系统的联合效率优化。",
+      "llm_tags": [
+        "query:reconfig-dab"
+      ],
+      "matched_query_tag": "query:reconfig-dab",
+      "matched_query_text": "design and optimization of reconfigurable battery and DAB system",
+      "matched_requirement_id": "req-8",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2608.04999v1",
+      "source": "arxiv",
+      "title": "ORACLE: A Multi-Objective Reinforcement Learning-Based Analog Circuit Design Optimizer with Large Language Models-Guided Exploration",
+      "abstract": "Analog circuit design automation using reinforcement learning (RL) has emerged as a promising approach for reducing manual effort. However, many existing RL-based methods focus on single-objective optimization. Even methods designed for multi-objective (MO) problems often reduce multiple design specifications to a single scalar reward. This simplification limits the ability to capture the true Pareto trade-off among competing objectives and often leads to suboptimal designs. Moreover, requiring the model to be retrained from scratch whenever the desired MO specifications change remains a key limitation. To address these challenges, we present ORACLE, an open-source RL-based framework for MO analog circuit design optimization that replaces scalar reward optimization with vector-valued learning and preference-aware conditioning. ORACLE represents a true MO analog circuit design optimizer that uses a preference vector to specify the relative weights of multiple objectives, enabling a single trained model to generate designs across diverse trade-off settings without retraining. We further propose two preference-guidance strategies, namely normalized-weight guidance and cosine-aligned guidance, to improve convergence. In addition, we incorporate a large language model (LLM)-guided action selection mechanism to filter actions that are likely to lead to suboptimal designs or increased runtime. Our results show that, on multiple circuit topologies with 2,000 test cases, ORACLE reduces runtime by 20.4x - 104.4x compared to state-of-the-art approaches. It also meets 99.9% of the 2,000 target specifications, and achieves 5.1x - 318.6x better figure of merit in the resulting output specs.",
+      "authors": [
+        "Osei Brempong",
+        "Mohammed Ayman Habib",
+        "Vivan Poddar",
+        "Morteza Fayazi"
+      ],
+      "primary_category": "eess.SY",
+      "categories": [
+        "eess.SY",
+        "cs.AI"
+      ],
+      "published": "2026-08-05T16:09:12+00:00",
+      "link": "https://arxiv.org/pdf/2608.04999v1",
+      "tags": [
+        "keyword:reconfig-dab",
+        "query:reconfig-dab"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "multi-objective RL analog circuit design optimizer; transferable to DAB converter design and efficiency optimization",
+      "llm_evidence_cn": "多目标强化学习模拟电路设计优化方法，可迁移至DAB变换器设计与效率优化",
+      "llm_evidence": "多目标强化学习模拟电路设计优化方法，可迁移至DAB变换器设计与效率优化",
+      "canonical_evidence": "多目标强化学习模拟电路设计优化方法，可迁移至DAB变换器设计与效率优化",
+      "llm_tldr_en": "Existing RL analog design methods collapse multi-objective specs and retrain per change; ORACLE is an open-source multi-objective RL framework with LLM-guided exploration that directly optimizes multiple specs, yielding better Pareto trade-offs and spec-change reuse.",
+      "llm_tldr_cn": "针对模拟电路设计中强化学习方法难以处理多目标优化、且设计规范变化后需重新训练的问题，ORACLE提出融合大型语言模型引导探索的多目标强化学习框架，直接对多个设计规范联合优化以逼近真实帕累托前沿。在模拟电路设计任务上，ORACLE展示了更优的折衷解，并支持目标规范变化后无需从头重训。该开源框架可作为DAB功率变换器等模拟或电力电子电路效率优化与设计的通用工具。",
+      "llm_tldr": "针对模拟电路设计中强化学习方法难以处理多目标优化、且设计规范变化后需重新训练的问题，ORACLE提出融合大型语言模型引导探索的多目标强化学习框架，直接对多个设计规范联合优化以逼近真实帕累托前沿。在模拟电路设计任务上，ORACLE展示了更优的折衷解，并支持目标规范变化后无需从头重训。该开源框架可作为DAB功率变换器等模拟或电力电子电路效率优化与设计的通用工具。",
+      "llm_tags": [
+        "query:reconfig-dab"
+      ],
+      "matched_query_tag": "query:reconfig-dab",
+      "matched_query_text": "design and optimization of reconfigurable battery and DAB system",
+      "matched_requirement_id": "req-8",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2608.06183v1",
+      "source": "arxiv",
+      "title": "MicroEvo: Knowledge-Guided LLM Sampling for Efficient Microarchitecture Design Space Exploration",
+      "abstract": "Microarchitecture design space exploration suffers from expansive search spaces and expensive PPA evaluation, leaving only a small simulation budget for design decision-making. Existing methods perform blind search without considering microarchitectural dependencies and fail to learn from the iterative search effectively, leading to wasted evaluations and weak Pareto convergence. In this paper, we propose MicroEvo, a knowledge-guided framework that couples off-the-shelf LLMs with Monte Carlo Tree Search (MCTS) for multi-objective microarchitecture optimization. MicroEvo combines LLM-driven evolutionary operators, a Pareto-aware tree policy that balances Pareto contribution and diversity, an active knowledge accumulation mechanism that extracts and reuses optimization insights, and state-aware directives that adapt the search behavior online. Experiments show that MicroEvo improves Pareto-front quality by up to 36.2% over NSGA-II and achieves 10.6x higher search efficiency, and also demonstrates strong scalability to a complex industrial-scale core. The code repository is available at: https://github.com/GEAR-SEU/MicroEvo-ICCAD-26.",
+      "authors": [
+        "Jia Xiong",
+        "Runkai Li",
+        "Chenxu Niu",
+        "Guangyuan Gao",
+        "Changwen Xing",
+        "Yifan Zhang",
+        "Xinlai Wan",
+        "Jieran Cui",
+        "Chen Bai",
+        "Yusheng Hua",
+        "Ying Wang",
+        "Ming Ling",
+        "Xi Wang",
+        "Tao Xie"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI"
+      ],
+      "published": "2026-08-06T15:43:31+00:00",
+      "link": "https://arxiv.org/pdf/2608.06183v1",
+      "tags": [
+        "keyword:reconfig-dab",
+        "query:reconfig-dab"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "knowledge-guided multi-objective design space exploration, applicable to converter design",
+      "llm_evidence_cn": "知识引导的多目标设计空间探索，可应用于变流器设计",
+      "llm_evidence": "知识引导的多目标设计空间探索，可应用于变流器设计",
+      "canonical_evidence": "知识引导的多目标设计空间探索，可应用于变流器设计",
+      "llm_tldr_en": "MicroEvo couples LLMs with Monte Carlo Tree Search for multi-objective microarchitecture design space exploration, using knowledge-guided evolutionary operators and a Pareto-aware tree policy to reduce wasted evaluations and improve Pareto convergence under tight budgets. The framework is transferable to other expensive design optimization tasks such as DAB systems.",
+      "llm_tldr_cn": "微架构设计空间探索面临搜索空间大与评估代价高的问题，现有盲搜方法忽略设计依赖且难以从迭代中学习。提出MicroEvo，将LLM与蒙特卡洛树搜索结合，用知识引导的进化算子与Pareto感知树策略进行多目标优化。实验表明其能显著减少无效评估并改善Pareto收敛。该方法可推广至DAB等复杂电力电子系统的设计优化。",
+      "llm_tldr": "微架构设计空间探索面临搜索空间大与评估代价高的问题，现有盲搜方法忽略设计依赖且难以从迭代中学习。提出MicroEvo，将LLM与蒙特卡洛树搜索结合，用知识引导的进化算子与Pareto感知树策略进行多目标优化。实验表明其能显著减少无效评估并改善Pareto收敛。该方法可推广至DAB等复杂电力电子系统的设计优化。",
+      "llm_tags": [
+        "query:reconfig-dab"
+      ],
+      "matched_query_tag": "query:reconfig-dab",
+      "matched_query_text": "design and optimization of reconfigurable battery and DAB system",
+      "matched_requirement_id": "req-8",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
 }

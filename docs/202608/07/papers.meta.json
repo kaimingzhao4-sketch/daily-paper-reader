@@ -1,8 +1,54 @@
 {
   "label": "2026-08-07",
   "date": "2026-08-07",
-  "generated_at": "2026-08-07T01:28:06",
-  "count": 0,
-  "papers": [],
+  "generated_at": "2026-08-07T21:15:15",
+  "count": 3,
+  "papers": [
+    {
+      "paper_id": "202608/07/2608.00316v1-agentic-bayesian-optimization-through-surrogate-augmented-autoresearch",
+      "section": "quick",
+      "title_en": "Agentic Bayesian Optimization through Surrogate-Augmented Autoresearch",
+      "authors": "Paul Brunzema, Louis Tiao, Nhat Le, Kevin De Angeli, Yao Xuan, Djordje Gligorijevic",
+      "date": "2026-07-31",
+      "pdf": "https://arxiv.org/pdf/2608.00316v1",
+      "score": "6.0",
+      "evidence": "样本高效优化方法，可迁移至DAB与可重构电池效率设计",
+      "tldr": "贝叶斯优化依赖通用统计先验，难以融入领域知识。现有LLM方法要么固定角色要么过度控制，牺牲系统探索。本文提出agentic贝叶斯优化，让LLM agent作为中央决策者，通过可检查修改的贝叶斯后端(如Sara与lenz)进行探索。在基准上保持最优BO可靠性，优于LLM基线，并能利用自然语言先验动态重构优化问题，扩大BO适用范围。",
+      "tags": "query:reconfig-dab",
+      "abstract_en": "Bayesian optimization (BO) has become the standard tool for sample-efficient optimization and owes its efficiency to uncertainty-aware search driven by generic statistical priors. Richer domain priors can improve BO in principle, but encoding them through tailored kernels or problem structure is difficult and rarely done in practice. LLMs can help sidestep this difficulty by making informal priors from natural language, code, and documentation directly available to the optimizer. However, existing LLM-based BO methods either insert the LLM into a fixed role (surrogate, acquisition proxy, or configuration interface) or hand it broad control, sacrificing the systematic exploration that makes BO reliable. We introduce agentic Bayesian optimization: a paradigm in which an LLM agent is the central decision maker in the BO loop while a Bayesian backend provides the uncertainty-aware optimization substrate. The agent configures the problem, queries the backend, selects and commits evaluations, and can revise the optimization strategy during the run by tightening bounds, switching acquisition functions, proposing targeted evaluations, or even reframing the problem following new instructions or observed evidence. We instantiate this idea in Sara, a surrogate-augmented autoresearch agent, and lenz, a modular BoTorch-based backend that the agent can inspect and modify through a structured interface. Across synthetic and real-world benchmarks, Sara preserves the reliability of state-of-the-art BO without prior knowledge, outperforms LLM-based baselines, and uses natural-language priors to improve beyond standard BO. We further demonstrate the practical value of agentic BO in dynamic settings, where Sara reconfigures the full optimization problem on the fly as requirements change, a capability not previously available in standard BO.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202608/07/2608.04999v1-oracle-a-multi-objective-reinforcement-learning-based-analog-circuit-design-optimizer-with-large-language-models-guided-exploration",
+      "section": "quick",
+      "title_en": "ORACLE: A Multi-Objective Reinforcement Learning-Based Analog Circuit Design Optimizer with Large Language Models-Guided Exploration",
+      "authors": "Osei Brempong, Mohammed Ayman Habib, Vivan Poddar, Morteza Fayazi",
+      "date": "2026-08-05",
+      "pdf": "https://arxiv.org/pdf/2608.04999v1",
+      "score": "6.0",
+      "evidence": "多目标强化学习模拟电路设计优化方法，可迁移至DAB变换器设计与效率优化",
+      "tldr": "模拟电路设计自动化中，现有RL方法多聚焦单目标或将多规格加权为标量奖励，难以捕获真实Pareto权衡，且目标规格变化时需从头训练，缺乏灵活性与最优性。ORACLE提出向量价值学习与偏好感知条件化，用偏好向量指定多目标相对权重，使单个模型无需重训即可覆盖不同权衡设置。进一步引入归一化权重引导、余弦对齐引导及LLM引导动作筛选，提升收敛效率。在2000个测试用例上运行时间较SOTA降低20.4-104.4倍，满足99.9%规格，输出FOM提升5.1-318.6倍，展示出显著优势。",
+      "tags": "query:reconfig-dab",
+      "abstract_en": "Analog circuit design automation using reinforcement learning (RL) has emerged as a promising approach for reducing manual effort. However, many existing RL-based methods focus on single-objective optimization. Even methods designed for multi-objective (MO) problems often reduce multiple design specifications to a single scalar reward. This simplification limits the ability to capture the true Pareto trade-off among competing objectives and often leads to suboptimal designs. Moreover, requiring the model to be retrained from scratch whenever the desired MO specifications change remains a key limitation. To address these challenges, we present ORACLE, an open-source RL-based framework for MO analog circuit design optimization that replaces scalar reward optimization with vector-valued learning and preference-aware conditioning. ORACLE represents a true MO analog circuit design optimizer that uses a preference vector to specify the relative weights of multiple objectives, enabling a single trained model to generate designs across diverse trade-off settings without retraining. We further propose two preference-guidance strategies, namely normalized-weight guidance and cosine-aligned guidance, to improve convergence. In addition, we incorporate a large language model (LLM)-guided action selection mechanism to filter actions that are likely to lead to suboptimal designs or increased runtime. Our results show that, on multiple circuit topologies with 2,000 test cases, ORACLE reduces runtime by 20.4x - 104.4x compared to state-of-the-art approaches. It also meets 99.9% of the 2,000 target specifications, and achieves 5.1x - 318.6x better figure of merit in the resulting output specs.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202608/07/2608.06183v1-microevo-knowledge-guided-llm-sampling-for-efficient-microarchitecture-design-space-exploration",
+      "section": "quick",
+      "title_en": "MicroEvo: Knowledge-Guided LLM Sampling for Efficient Microarchitecture Design Space Exploration",
+      "authors": "Jia Xiong, Runkai Li, Chenxu Niu, Guangyuan Gao, Changwen Xing, Yifan Zhang, Xinlai Wan, Jieran Cui, Chen Bai, Yusheng Hua, Ying Wang, Ming Ling, Xi Wang, Tao Xie",
+      "date": "2026-08-06",
+      "pdf": "https://arxiv.org/pdf/2608.06183v1",
+      "score": "6.0",
+      "evidence": "知识引导的多目标设计空间探索，可应用于变流器设计",
+      "tldr": "微架构设计空间探索面临搜索空间大、PPA评估昂贵且预算有限的问题，现有方法盲搜索且未利用迭代经验，导致评估浪费和Pareto收敛差。本文提出MicroEvo，融合LLM与蒙特卡洛树搜索，通过LLM驱动的进化算子、Pareto感知树策略、主动知识积累和状态感知指令，实现多目标优化。在实验中，Pareto前沿质量较NSGA-II提升36.2%，搜索效率提高10.6倍，并展现出对工业级复杂核的可扩展性。",
+      "tags": "query:reconfig-dab",
+      "abstract_en": "Microarchitecture design space exploration suffers from expansive search spaces and expensive PPA evaluation, leaving only a small simulation budget for design decision-making. Existing methods perform blind search without considering microarchitectural dependencies and fail to learn from the iterative search effectively, leading to wasted evaluations and weak Pareto convergence. In this paper, we propose MicroEvo, a knowledge-guided framework that couples off-the-shelf LLMs with Monte Carlo Tree Search (MCTS) for multi-objective microarchitecture optimization. MicroEvo combines LLM-driven evolutionary operators, a Pareto-aware tree policy that balances Pareto contribution and diversity, an active knowledge accumulation mechanism that extracts and reuses optimization insights, and state-aware directives that adapt the search behavior online. Experiments show that MicroEvo improves Pareto-front quality by up to 36.2% over NSGA-II and achieves 10.6x higher search efficiency, and also demonstrates strong scalability to a complex industrial-scale core. The code repository is available at: https://github.com/GEAR-SEU/MicroEvo-ICCAD-26.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    }
+  ],
   "errors": []
 }
