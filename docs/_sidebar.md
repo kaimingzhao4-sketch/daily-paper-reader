@@ -1,6 +1,9 @@
 * <a class="dpr-sidebar-root-link" href="#/">首页</a>
 * <a class="dpr-sidebar-root-link dpr-sidebar-noactive-link" href="javascript:void(0)" data-dpr-hash="#/tutorial/README">使用教程</a>
 * Daily Papers
+  * 2026-08-08 <!--dpr-date:20260808-->
+    * 速读区
+      * <a class="dpr-sidebar-item-link dpr-sidebar-item-structured" href="#/202608/08/2607.29416v1-hybrid-virtual-space-vector-modulation-with-extended-power-factor-range-for-coupled-eight-switch-three-phase-three-level-inverter" data-sidebar-item="{&quot;title&quot;: &quot;Hybrid Virtual Space Vector Modulation With Extended Power Factor Range for Coupled Eight-Switch Three-Phase Three-Level Inverter&quot;, &quot;link&quot;: &quot;https://arxiv.org/abs/2607.29416v1-hybrid-virtual-space-vector-modulation-with-extended-power-factor-range-for-coupled-eight-switch-three-phase-three-level-inverter&quot;, &quot;score&quot;: &quot;6.0&quot;, &quot;tags&quot;: [{&quot;kind&quot;: &quot;query&quot;, &quot;label&quot;: &quot;reconfig-dab&quot;}], &quot;evidence&quot;: &quot;变换器调制技术，扩展功率因数范围；方法可迁移至DAB变换器效率优化&quot;}">Hybrid Virtual Space Vector Modulation With Extended Power Factor Range for Coupled Eight-Switch Three-Phase Three-Level Inverter</a>
   * 2026-08-07 <!--dpr-date:20260807-->
     * 速读区
       * <a class="dpr-sidebar-item-link dpr-sidebar-item-structured" href="#/202608/07/2608.00316v1-agentic-bayesian-optimization-through-surrogate-augmented-autoresearch" data-sidebar-item="{&quot;title&quot;: &quot;Agentic Bayesian Optimization through Surrogate-Augmented Autoresearch&quot;, &quot;link&quot;: &quot;https://arxiv.org/abs/2608.00316v1-agentic-bayesian-optimization-through-surrogate-augmented-autoresearch&quot;, &quot;score&quot;: &quot;6.0&quot;, &quot;tags&quot;: [{&quot;kind&quot;: &quot;query&quot;, &quot;label&quot;: &quot;reconfig-dab&quot;}], &quot;evidence&quot;: &quot;样本高效优化方法，可迁移至DAB与可重构电池效率设计&quot;}">Agentic Bayesian Optimization through Surrogate-Augmented Autoresearch</a>

@@ -1,0 +1,24 @@
+{
+  "label": "2026-08-08",
+  "date": "2026-08-08",
+  "generated_at": "2026-08-08T19:41:00",
+  "count": 1,
+  "papers": [
+    {
+      "paper_id": "202608/08/2607.29416v1-hybrid-virtual-space-vector-modulation-with-extended-power-factor-range-for-coupled-eight-switch-three-phase-three-level-inverter",
+      "section": "quick",
+      "title_en": "Hybrid Virtual Space Vector Modulation With Extended Power Factor Range for Coupled Eight-Switch Three-Phase Three-Level Inverter",
+      "authors": "Xiaojun Deng, Hongliang Wang, Tianfu Sun, Yang Jiang, Yibo Si, Wenbo Tang, Mingrui Yang, Xiumei Yue",
+      "date": "2026-07-31",
+      "pdf": "https://arxiv.org/pdf/2607.29416v1",
+      "score": "6.0",
+      "evidence": "变换器调制技术，扩展功率因数范围；方法可迁移至DAB变换器效率优化",
+      "tldr": "针对耦合八开关三相三电平逆变器在光伏和电机驱动应用中因功率因数受限而无法满足需求的问题，提出一种混合虚拟空间矢量调制（HVSVM）。该方法通过构造虚拟矢量、检测三相电流极性切换三种基本VSVM，将功率因数角范围从约[-30°,30°]扩展至[-90°,90°]。同时设计有源中点电压控制，利用两个系数调整冗余小矢量占空比，实现精确的中点电压平衡。实验验证了所提方法的正确性与可行性，为实用化提供支撑。",
+      "tags": "query:reconfig-dab",
+      "abstract_en": "With the development of photovoltaic (PV) and motor drive, the coupled eight-switch three-phase three-level inverter (TP-TLI) is receiving more attentions. However, the previous modulation strategies for coupled eight-switch TP-TLI are suitable for high power factor (PF), which cannot satisfy the requirement for PV and motor drive. Aiming at this, this paper proposes a hybrid virtual space vector modulation (HVSVM) for the coupled eight switch TP-TLI with extended PF range. The mechanism of PF limitation is analyzed in deep. Two virtual vectors are constructed in each sector, and three basic VSVMs with different PF range are proposed according to the number of virtual small vectors used. Combined with three VSVMs, the HVSVM is proposed by detecting the three-phase current polarities. The PF angle range of the HVSVM is extended from about [-30°, 30°] to [-90°, 90°]. Besides, an active neutral-point voltage control (NPVC) is also presented by using two coefficients to adjust the dwell times of the two pairs of redundant small vectors. This approach considers the NP current and the derivation of NPV, and thereby it is accurate to control the NPV. The correctness and feasibility of the proposed HVSVM and active NPVC are verified by experiments through a 3 kVA prototype.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "errors": []
+}
