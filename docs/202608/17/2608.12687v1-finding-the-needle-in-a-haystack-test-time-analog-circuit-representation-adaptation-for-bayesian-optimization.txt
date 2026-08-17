@@ -1,0 +1,805 @@
+Title: Finding the Needle in a Haystack: Test-Time Analog Circuit Representation Adaptation for Bayesian Optimization
+
+URL Source: https://arxiv.org/pdf/2608.12687v1
+
+Published Time: Fri, 14 Aug 2026 00:28:49 GMT
+
+Number of Pages: 11
+
+Markdown Content:
+> JOURNAL OF L ATEX CLASS FILES, VOL. 14, NO. 8, AUGUST 2021 1
+
+# Finding the Needle in a Haystack: Test-Time Analog Circuit Representation Adaptation for Bayesian Optimization 
+
+Fin Amin, Sounak Dutta, and Paul D. Franzon 
+
+Abstract —Bayesian optimization (BO) is a sample-efficient framework for analog circuit topology search, where evaluating each candidate topology can require costly simulation. How-ever, representation-based BO methods typically treat circuit embeddings as fixed after encoder training. This creates amismatch between representation learning and optimization: embeddings learned to encode or reconstruct circuit structure are not necessarily organized according to the figure of merit (FoM) being optimized. This paper introduces Test-Time Analog Representation Adaptation for Bayesian Optimization (TTARO), an online deep-kernel BO framework that adapts circuit rep-resentations throughout the search process. Starting from pre-trained circuit embeddings, TTARO jointly learns a nonlinear feature transformation and a Gaussian-process surrogate using the FoM labels of the circuits evaluated so far. Following each new evaluation, TTARO updates the representation and surrogate before selecting the next candidate. We compare TTARO with conventional Gaussian Process-based BO over fixed embeddings and with Deep Kernel Learning (DKL), which learns the rep-resentation only from the initial evaluated designs and keeps it fixed throughout the remainder of the search. By continually incorporating newly observed FoM labels into representation learning, TTARO aligns the search space with the optimization objective as BO progresses. In our experiments, TTARO reduces regret AUC by 15.2% on average relative to BO and by 20.7% relative to DKL across 40 encoder/kernel/acquisition settings, outperforming prior art in most settings with reductions as large as 46.7%. 
+
+Index Terms —Analog circuit design, Bayesian optimization, representation learning, topology synthesis, electronic design automation, online adaptation. 
+
+I. I NTRODUCTION AND MOTIVATION 
+
+# ANALOG circuit topology design remains a central chal-lenge in electronic design automation because the search space is discrete, structured, and expensive to evaluate. A candidate topology must often be decoded, sized, simulated, and checked against design constraints before its quality is known. These costs make sample efficiency essential. Recent learning-assisted approaches encode circuit topolo-gies into latent spaces and perform optimization over the resulting representations [2]–[4]. This strategy makes topology search compatible with continuous black-box optimization methods such as Bayesian optimization (BO). Adjacent work further reflects the broader shift toward representation-centric analog design, including generative topology models such as AnalogGenie and circuit-level representation learning methods such as Ckt2Vec [5], [6]. However, in latent-space BO frame-works, the learned representation is usually fixed before BO begins. As a result, the optimizer must operate in whatever 
+
+This paper was produced by the Department of Electrical and Computer Engineering, North Carolina State University, Raleigh, NC, USA. Manuscript received Month DD, 2026; revised Month DD, 2026. 
+
+Fig. 1. Two-dimensional UMAP [1] visualization analog topology rep-resentations before and after TTARO adaptation, with each candidate colored by its FoM percentile. Before adaptation, high- and low-performing circuits are broadly intermixed throughout the representation space. After TTARO, the FoM exhibits substantially stronger spatial organization, with high-performing candidates concentrated within a more coherent region. This objective-aligned geometry allows the Gaussian-process kernel to assign greater similarity to circuits with comparable performance, improving surro-gate generalization and enabling the acquisition function to target promising regions more effectively. 
+
+geometry the encoder provides, even when that geometry is poorly aligned with the target FoM. This paper introduces Test-Time Analog Representation Adaptation for Bayesian Optimization (TTARO), an online deep-kernel Bayesian optimization framework that learns an objective-aware transformation of pretrained circuit embed-dings as figure-of-merit (FoM) observations accumulate. At each BO iteration, TTARO jointly refits a nonlinear feature transformation and Gaussian-process (GP) surrogate using the circuits evaluated so far, then applies an arbitrary acquisi-tion function to select the next candidate from the circuit bank. We compare TTARO against conventional GP-based BO over fixed embeddings, the celebrated Deep-Kernel Learning technique [7], which learns and freezes the transformation using only the initial evaluated designs, and an oracle fixed representation learned using all available FoM labels. To investigate if TTARO improves optimization, we perform exhaustive experiments across permutations of multiple circuit encoders, kernels and acquisition functions, using two publicly available circuit benchmark search spaces. The contributions of this paper are:  
+
+> •
+
+We introduce Test-Time Analog Representation Adapta-arXiv:2608.12687v1 [cs.LG] 13 Aug 2026 JOURNAL OF L ATEX CLASS FILES, VOL. 14, NO. 8, AUGUST 2021 2
+
+tion, an online deep-kernel Bayesian optimization frame-work that repeatedly learns an objective-aware transfor-mation of pretrained circuit embeddings as new FoM observations become available. As far as we are aware, no prior art has explored this framework for analog circuit topologies.  
+
+> •
+
+We show that TTARO is a general BO framework com-patible with expected improvement, upper confidence bound, and Thompson sampling, as well as linear and radial basis function Gaussian-process kernels.  
+
+> •
+
+We conduct a large-scale evaluation comprising 160 prin-cipal configurations across two public circuit-topology benchmarks, eight benchmark–encoder pairings, four rep-resentation regimes, and five kernel–acquisition settings, with each configuration evaluated over 20 random seeds. 
+
+To the best of our knowledge, this is the most com-prehensive evaluation ever performed concerning BO for analog circuit topology search. 
+
+II. B ACKGROUND AND RELATED WORK 
+
+A. Analog Circuit Topology Search 
+
+Analog circuit design is commonly separated into topol-ogy selection and device sizing. Device sizing has received substantial attention because, once the topology is fixed, the remaining design variables can be treated as continuous parameters and optimized with simulation-driven methods. Bayesian optimization has been used in this setting to re-duce the number of expensive circuit simulations, including neural-network-assisted BO for analog circuit synthesis [8] and transfer-oriented BO for transistor sizing across circuit designs and technology nodes [9]. Related active-learning methods also treat simulation cost as the primary bottleneck and iteratively select circuit candidates whose evaluation is expected to improve the predictive model [10], [11]. Topology search is more difficult because candidate circuits are discrete, structured, and constrained by electrical validity. One line of work represents op-amp topologies at the behav-ioral level and searches over a lower-dimensional space. Lu et al. encode op-amp behavioral topologies as directed acyclic graphs, learn continuous embeddings with a variational graph autoencoder, and perform topology search in the embedding space using BO before decoding selected points back to circuit topologies [4]. ATOM extends this direction by defining a designer-comprehensible behavior-level op-amp design space, learning continuous topological representations, and using freeze-thaw BO to allocate simulation effort efficiently across candidate topologies [2]. INTO-OA takes a different route: rather than forcing the topology space into a continuous latent space, it applies a Weisfeiler-Lehman (WL) graph kernel inside a GP surrogate and uses gradient information from the surrogate to identify performance-critical substructures and support interpretable topology refinement [12], [13]. Recent work has also framed circuit topology design as graph or sequence generation. CktGNN represents circuits using a two-level graph neural network over a predefined subgraph basis and introduces the Open Circuit Benchmark   
+
+> Fig. 2. Two-dimensional UMAP visualization of the DKL representation for Ckt-Bench-301 using CktGNN embeddings. Circuits within the top 2% of the FoM distribution are highlighted in orange, while all remaining candidates are shown in gray. Although DKL introduces localized performance structure, high- and low-performing circuits remain interspersed throughout much of the representation space. Because this representation is learned once and then frozen during DKL, it cannot incorporate the additional FoM evidence collected during Bayesian optimization. This motivates TTARO, which continually revises the surrogate geometry as new circuit evaluations become available.
+
+for reproducible topology and sizing experiments over oper-ational amplifiers [3]. AnalogGenie broadens the generative setting by building a larger analog-circuit topology dataset and representing circuits as pin-level graphs sequentialized through Eulerian circuits, enabling generation beyond a single op-amp topology family [5]. These methods show that learned circuit representations can support topology search, generation, and benchmarking, but they also create a new modeling question: how should an optimizer use a representation once circuit-level FoM observations begin to accumulate? 
+
+B. Circuit Representation Learning 
+
+Circuit representations must preserve both graph structure and circuit-relevant behavior. Generic graph encoders can capture connectivity, but analog circuits also contain direction-ality, functional substructures, device types, and continuous electrical characteristics. CktGNN addresses this by represent-ing each circuit as a composition of subgraphs from a known basis and applying inner and outer GNNs to encode local circuit motifs and global directed message passing [3]. Related circuit-graph learning work has also studied representation quality for circuit equivalence tasks to detect circuit graph iso-morphism efficiently [14]. In op-amp topology optimization, graph autoencoders have been used to map discrete behavioral topologies to continuous representations suitable for surrogate modeling and search [2], [4]. Graph-kernel methods provide an alternative representation route by measuring structural similarity directly in graph space, as in INTO-OA’s WL-kernel surrogate [13]. Other methods focus on making circuit embeddings more faithful to analog-domain semantics. Ckt2Vec argues that one-hot and text-based device encodings are limited because they do not reflect continuous electrical behavior; it instead extracts JOURNAL OF L ATEX CLASS FILES, VOL. 14, NO. 8, AUGUST 2021 3Test-Time Analog Representation Adaptation for Bayesian Optimization            
+
+> Candidate Topologies
+> = { xi}
+> Fixed Representations
+> {hi}Ni= 1
+> Select Candidate
+> xt+ 1
+> FoM Query
+> y=F(x)
+> Best Circuit Found
+> Observed FoM Data t
+> Encoder
+> TTARO
+> FoM-Aware Representation Update
+> hi↦z(t)
+> i
+> GP Surrogate Acquisition Scores
+> hi
+> Fig. 3. Overview of Test-Time Analog Representation Adaptation for Bayesian Optimization (TTARO). Candidate circuit topologies are first mapped by a pretrained encoder to fixed representations. At each BO iteration, TTARO uses the observed FoM data to adapt these representations, which are then used by the GP surrogate to compute acquisition scores and select the next circuit for evaluation. The newly observed FoM is added to the dataset, and the representation adaptation and BO procedure are repeated until the evaluation budget is exhausted. TTARO is agnostic to the choice of circuit encoder, acquisition function, and GP kernel.
+
+frequency-domain features from device I-V curves and com-bines these electrical features with graph contrastive learning for circuit-level representation learning [6]. AnalogGenie sim-ilarly emphasizes representation fidelity, but from a generative perspective: by modeling device pins rather than whole devices as graph nodes, it avoids ambiguous mappings between gener-ated graphs and valid circuit netlists [5]. Together, these works illustrate that the choice of representation is not a neutral preprocessing step. It determines which notions of circuit similarity are visible to downstream prediction, generation, and optimization models. 
+
+C. Bayesian Optimization in Learned Latent Spaces 
+
+BO is attractive for analog design because it explicitly targets expensive black-box objectives with a small evaluation budget. A GP surrogate provides both a predictive mean and uncertainty estimate, while an acquisition function such as expected improvement (EI), upper confidence bound (UCB), or Thompson sampling (TS) chooses the next candidate to evaluate [15]–[17]. In analog design, this framework has been used for device sizing and synthesis tasks where each simulation is costly [8], [9]. When the input is a structured object such as a circuit topology, BO is typically applied after mapping the object into a continuous feature or latent space [3], [4]. The effectiveness of this procedure depends strongly on the surrogate’s coordinate system and kernel. Input warping shows that learning transformations of the input space can make GP-based BO more effective on nonstationary objectives [18]. Deep kernel learning (DKL) generalizes this idea by composing a neural feature map with a GP kernel, allowing the model to learn a representation and kernel jointly through the GP marginal likelihood [7]. These methods motivate learned transformations that both represent structured inputs and im-prove the surrogate used for sequential decision-making. 
+
+D. Adaptive Representations for Bayesian Optimization 
+
+Several BO methods explicitly study how representation learning affects optimization. Deep Kernel Bayesian Opti-mization applies DKL directly inside BO, learning a deep kernel during optimization so that the GP operates in a feature space better suited to the observed objective [19]. SILBO learns a low-dimensional embedding iteratively using both labeled evaluations and unlabeled candidate points proposed by the acquisition function, addressing the difficulty of high-dimensional BO when a single initial projection is inadequate [20]. For structured search spaces, contrastive embedding methods use known structural relationships, such as subtree replacements in grammar-defined objects, to learn continu-ous spaces in which BO can exploit local similarity more effectively [21]. LOCo identifies collisions in learned latent spaces, where points with very different objective values are mapped too close together, and introduces a regularizer to discourage such collisions during BO [22]. CoBO similarly targets latent-space quality by encouraging correlation between latent-space distances and objective-value differences, with additional weighting around promising regions of the search space [23]. Taken together, these methods show that representation quality during BO has been studied across a range of structured and scientific optimization settings. Deep Kernel Bayesian Op-timization evaluates adaptive deep kernels on protein engineer-ing, antibody design, and nanophotonics tasks [19]. SILBO studies iterative embedding learning for high-dimensional BO and hyperparameter optimization [20]. Contrastive embedding and CoBO show that latent-space geometry matters in struc-tured search spaces such as molecule design and symbolic expression optimization [21], [23]. LOCo further shows that collisions in learned latent spaces can degrade BO perfor-mance and introduces a regularizer for dynamic embedding-based BO [22]. LaMBO couples a denoising autoencoder with a multi-task GP head for latent-space BO in small-molecule and fluorescent-protein design [24], and DKL has also been used as a BO surrogate for chemical reaction outcome optimization [25]. TTARO brings this representation-adaptive view to finite-bank analog topology search, where pretrained circuit embeddings are adapted as FoM labels are observed. JOURNAL OF L ATEX CLASS FILES, VOL. 14, NO. 8, AUGUST 2021 4
+
+III. P ROBLEM FORMULATION AND SETTING 
+
+Recent analog topology-search methods often begin by constructing or enumerating a set of candidate circuit topolo-gies, then mapping those candidates into a representation space suitable for learning or optimization. For example, topology-generation and topology-optimization frameworks define behavior-level or graph-based op-amp design spaces, encode each topology as a DAG or circuit graph, and use learned continuous representations to make the discrete topol-ogy space searchable by BO [2], [4]. Benchmark-driven methods such as OCB similarly provide finite banks of valid candidate circuits together with graph-based circuit represen-tations and precomputed performance labels [3]. In this paper, we assume this upstream topology-generation or benchmark-construction step has already produced a finite candidate bank. Let 
+
+X = {x1, x 2, . . . , x N } (1) denote this library of candidate analog circuit topologies. Each 
+
+xi may be viewed as a circuit graph, netlist, or topology-level design instance. Each candidate has an associated FoM 
+
+yi = F (xi), (2) which is unknown to the optimizer until that circuit is evalu-ated. In a deployed circuit-design loop, this evaluation would correspond to simulation, sizing, or measurement. In our benchmark setting, the evaluation is implemented as a label query: selecting a circuit reveals its stored FoM. Given an evaluation budget B ≪ N , the objective is to identify 
+
+x⋆ = arg max 
+
+> xi∈X
+
+F (xi) (3) using as few circuit evaluations as possible. Each candidate is also associated with a fixed initial repre-sentation 
+
+hi ∈ Rdh , (4) computed before BO begins. This representation may come from a circuit-specific encoder, a graph autoencoder, or a struc-tural graph feature map. Its purpose is to provide coordinates in which a surrogate model can compare circuits: circuits that are close in representation space are treated as similar by the kernel, and observations from evaluated circuits are general-ized to unevaluated circuits through that geometry. However, these representations are typically trained to encode circuit structure, reconstruct graphs, or capture topology semantics, not to organize circuits according to the specific FoM being optimized in the current run. At BO iteration t, let 
+
+It ⊆ { 1, 2, . . . , N } (5) denote the indices of the circuits evaluated so far. The observed dataset is 
+
+Dt = {(hi, y i) | i ∈ I t} . (6) All remaining candidates are unevaluated but already have representations. The optimizer must therefore use the observed FoMs and the representation geometry to decide which uneval-uated circuit should be queried next. Conventional representation-based BO fits a GP surrogate directly over the fixed representations: 
+
+f (h) ∼ GP (m(h), k (h, h ′)) . (7) In this setting, the kernel defines circuit similarity entirely through the original representation space. If the encoder places two circuits nearby because they are structurally similar but their FoMs differ substantially, the surrogate can make mis-leading predictions; conversely, high-performing circuits that are far apart in the initial space may not share useful statistical strength. TTARO addresses this mismatch by learning a FoM-informed transformation of the fixed input representations throughout the BO process, so that the surrogate geometry becomes increasingly aligned with the objective as circuit evaluations accumulate. IV. T EST -T IME ANALOG REPRESENTATION ADAPTATION 
+
+TTARO adapts a fixed circuit representation during BO by learning a feature map from the FoM observations collected so far. Algorithm 1 summarizes the full loop: TTARO normalizes the candidate representation bank, initializes an evaluated set, repeatedly fits a deep-kernel surrogate, scores unevaluated can-didates, and adds the newly evaluated circuit to the observed dataset. At iteration t, each initial circuit representation is first normalized feature-wise over the candidate bank: 
+
+¯hi,q = hi,q − hmin 
+
+> q
+
+hmax  
+
+> q
+
+− hmin 
+
+> q
+
+, (8) where hmin  
+
+> q
+
+and hmax  
+
+> q
+
+are computed over all candidates in X .TTARO then maps the normalized representation into a task-adapted latent space: 
+
+z(t) 
+
+> i
+
+= ϕθt (¯hi), z(t) 
+
+> i
+
+∈ Rdz . (9) Here, θt denotes the feature-map parameters learned from the FoM observations available at iteration t.
+
+Algorithm 1 Test-Time Analog Circuit Representation Adaptation (TTARO)  
+
+> 1:
+
+Input: Candidate representations {hi}Ni=1  
+
+> 2:
+
+Input: Initial sample size n0 and evaluation budget B 
+
+> 3:
+
+Input: Acquisition function a 
+
+> 4:
+
+Normalize the candidate representation bank  
+
+> 5:
+
+Randomly select an initial index set In0 with |I n0 | = n0 
+
+> 6:
+
+Evaluate the circuits in In0 
+
+> 7:
+
+Construct the initial dataset Dn0 
+
+> 8:
+
+for t = n0 to B − 1 do  
+
+> 9:
+
+Initialize the feature map and exact GP  
+
+> 10:
+
+Train the feature map and GP using Dt 
+
+> 11:
+
+Compute acquisition scores for all i / ∈ I t 
+
+> 12:
+
+Select it+1 = arg max i / ∈I t at(hi) 
+
+> 13:
+
+Evaluate circuit it+1 and observe yit+1  
+
+> 14:
+
+It+1 = It ∪ { it+1 } 
+
+> 15:
+
+Dt+1 = Dt ∪ { (¯hit+1 , y it+1 )} 
+
+> 16:
+
+end for  
+
+> 17:
+
+return The best evaluated circuit in IBJOURNAL OF L ATEX CLASS FILES, VOL. 14, NO. 8, AUGUST 2021 5  
+
+> Fig. 4. Two-dimensional UMAP visualization of analog topology representations during TTARO adaptation on Ckt-Bench-301 using CktGNN embeddings. Each candidate is colored by its FoM percentile. Panel subtitles report Top-2% KNN@5, the fraction of five nearest representation-space neighbors of top-2% FoM circuits that are also top-2% circuits. As TTARO progresses, high-FoM candidates become more locally concentrated, indicating stronger objective-aligned representation geometry.
+
+The feature map used in our experiments is a two-layer multilayer perceptron: 
+
+ϕθt (¯h) = W2 Dropout  ReLU  W1¯h + b1
+
+ + b2. (10) The hidden layer has width 128, and the transformed repre-sentation has dimension dz = 16 .A GP surrogate is defined over the transformed representa-tions: 
+
+f (h) ∼ GP  mηt
+
+ ϕθt (¯h) , k ψt
+
+ ϕθt (¯h), ϕ θt (¯h′) . (11) The experiments use either a scaled linear kernel, 
+
+klinear  
+
+> ψt
+
+(z, z ′) = σ2
+
+> f,t
+
+z⊤z′, (12) or a scaled radial basis function (RBF) kernel, 
+
+kRBF  
+
+> ψt
+
+(z, z ′) = σ2 
+
+> f,t
+
+exp − 12
+
+> dz
+
+X
+
+> q=1
+
+(zq − z′ 
+
+> q
+
+)2
+
+ℓ2
+
+> t,q
+
+!
+
+. (13) The parameters ψt include the kernel output scale, noise term, and, for the RBF kernel, the length-scale parameters. 
+
+A. Joint Representation and Surrogate Learning 
+
+Lines 9–10 of Algorithm 1 correspond to the surrogate-fitting step. At BO iteration t, TTARO trains the feature-map parameters θt together with the GP hyperparameters ψt
+
+and mean parameters ηt using the evaluated dataset Dt. Let 
+
+It = {i1, . . . , i nt } denote the evaluated circuit indices. The transformed training representations are collected as 
+
+Zt =
+
+h
+
+z(t) 
+
+> i1
+
+, z (t) 
+
+> i2
+
+, . . . , z (t)
+
+> int
+
+i⊤
+
+. (14) The observed FoMs are standardized to form ˜yt. The feature map and GP are fit by minimizing the negative log marginal likelihood: 
+
+Lt = 12 ˜y⊤ 
+
+> t
+
+K−1 
+
+> t
+
+˜yt + 12 log |Kt| + nt
+
+2 log 2 π. (15) The covariance matrix Kt is computed from the transformed representations in Zt. Its entries are 
+
+Kt[a, b ] = kψt
+
+
+
+z(t) 
+
+> ia
+
+, z (t)
+
+> ib
+
+
+
++ σ2
+
+> n,t
+
+1[a = b]. (16) Training uses only FoM observations from circuits already se-lected by BO. After fitting, TTARO applies the learned feature map to the full candidate bank, computes the GP posterior over unevaluated circuits, and evaluates the acquisition function to select the next circuit. 
+
+B. Online Representation Adaptation 
+
+Lines 11–15 of Algorithm 1 describe the online BO step. After fitting the deep-kernel surrogate, an acquisition function 
+
+at is evaluated for every unevaluated candidate. The next circuit is selected according to 
+
+it+1 = arg max 
+
+> i / ∈I t
+
+at(hi). (17) The selected circuit is evaluated, and its FoM is added to the observed set: 
+
+It+1 = It ∪ { it+1 }. (18) After the update in Line 15, the loop returns to Line 9: TTARO retrains the feature map and GP using all FoM observations accumulated so far. The procedure is agnostic to the acquisition function used to score unevaluated candidates. 
+
+C. Distinction from Deep Kernel Learning 
+
+The DKL baseline uses the same deep-kernel surrogate structure, with the feature map trained only on the initial evaluated dataset. This produces an initial transformed rep-resentation bank 
+
+Z(0) = ϕθ0 (¯hi) Ni=1 . (19) This transformed representation bank remains fixed for the rest of the optimization process. Additional FoM observations JOURNAL OF L ATEX CLASS FILES, VOL. 14, NO. 8, AUGUST 2021 60 20 40 60 80 100 050 100 150 200            
+
+> Best FoM So Far
+> 020 40 60 80 100 020 40 60 80 100
+> BO Budget (%)
+
+Best FoM Over BO Budget: Ckt-Bench-301, CktGNN, Linear Kernel        
+
+> (a) UCB (b) EI (c) TS
+> GP GP-oracle DKL TTARO
+> Fig. 5. Best observed FoM as a function of BO budget on Ckt-Bench-301 using CktGNN representations and a linear kernel. The acquisition functions are (a) upper confidence bound (UCB), (b) expected improvement (EI), and (c) Thompson sampling (TS). The curves compare GP, GP-oracle, DKL, and TTARO, while the shaded regions indicate one standard deviation across runs.
+
+update the GP posterior, while the representation supplied to the GP stays unchanged. TTARO learns a sequence of feature maps 
+
+ϕθ0 , ϕ θ1 , . . . , ϕ θB−1 , (20) using the growing set of evaluated circuits. The comparison between DKL and TTARO therefore isolates the effect of updating the representation used by the surrogate during the BO process. 
+
+D. On the Importance of Aligned Kernels 
+
+The central assumption behind GP-based BO is that the kernel encodes a useful notion of similarity for the objective being modeled. In this work, the relevant objective is the circuit FoM. The kernel should therefore assign high similarity to circuits with similar FoM values and lower similarity to circuits with substantially different FoM values. Equations (9)–(13) show how TTARO changes the co-variance structure used by the GP. Substituting the learned representation z(t) 
+
+> i
+
+= ϕθt (¯hi) into the linear kernel gives 
+
+klinear  
+
+> ψt
+
+(xi, x j ) = σ2
+
+> f,t
+
+ϕθt (¯hi)⊤ϕθt (¯hj ). (21) Thus, the linear-kernel similarity between two circuits is the scaled inner product of their TTARO-adapted representations. Updating θt rotates, rescales, and reshapes the feature coordi-nates that determine this inner product. For the RBF kernel, the same substitution gives 
+
+kRBF  
+
+> ψt
+
+(xi, x j ) = σ2 
+
+> f,t
+
+exp − 12
+
+> dz
+
+X
+
+> q=1
+
+ ϕθt,q (¯hi) − ϕθt,q (¯hj )2
+
+ℓ2
+
+> t,q
+
+!
+
+,
+
+(22) where ϕθt,q (·) denotes the qth coordinate of the learned representation. In this case, updating θt changes the pairwise distances that appear inside the exponential. Circuits placed closer together in the adapted space receive larger covariance, while circuits separated along dimensions with small length scales receive smaller covariance. These pairwise similarities enter the GP through the training covariance matrix. For the linear kernel, Eq. (16) becomes 
+
+Klinear  
+
+> t
+
+[a, b ] = σ2
+
+> f,t
+
+ϕθt (¯hia )⊤ϕθt (¯hib ) + σ2
+
+> n,t
+
+1[a = b]. (23) For the RBF kernel, the corresponding entry is 
+
+KRBF  
+
+> t
+
+[a, b ] = σ2 
+
+> f,t
+
+exp − 12
+
+> dz
+
+X
+
+> q=1
+
+∆2
+
+> abq,t
+
+ℓ2
+
+> t,q
+
+!
+
++ σ2
+
+> n,t
+
+1[a = b],
+
+(24) where 
+
+∆abq,t = ϕθt,q (¯hia ) − ϕθt,q (¯hib ). (25) Equations (23) and (24) make the dependence on θt explicit. The learned feature map determines every off-diagonal entry of Kt, which means it controls how FoM observations from one evaluated circuit influence the inferred FoM of other evaluated circuits. The same dependence appears in predictions for unevaluated candidates. For an unevaluated circuit xj , define the cross-covariance vector 
+
+kt,j = kψt (xj , x i1 ), . . . , k ψt (xj , x int )⊤ . (26) For the linear kernel, its ath entry is 
+
+klinear  
+
+> t,j
+
+[a] = σ2
+
+> f,t
+
+ϕθt (¯hj )⊤ϕθt (¯hia ). (27) For the RBF kernel, its ath entry is 
+
+kRBF  
+
+> t,j
+
+[a] = σ2 
+
+> f,t
+
+exp − 12
+
+> dz
+
+X
+
+> q=1
+
+ ϕθt,q (¯hj ) − ϕθt,q (¯hia )2
+
+ℓ2
+
+> t,q
+
+!
+
+.
+
+(28) The posterior mean and variance used by the acquisition function are 
+
+μt(xj ) = mt(xj ) + k⊤ 
+
+> t,j
+
+K−1 
+
+> t
+
+(yt − mt) , (29) 
+
+σ2 
+
+> t
+
+(xj ) = kψt (xj , x j ) − k⊤ 
+
+> t,j
+
+K−1 
+
+> t
+
+kt,j . (30) The prediction for xj is therefore controlled by two learned similarity objects: Kt, which describes similarity among eval-uated circuits, and kt,j , which describes similarity between the unevaluated candidate and the evaluated set. Updating θt
+
+changes both objects. This directly changes the posterior mean, the posterior variance, and the acquisition values used to select the next circuit. TTARO uses the accumulating FoM labels to continually revise this kernel geometry, making the surrogate increasingly aligned with the objective being optimized. JOURNAL OF L ATEX CLASS FILES, VOL. 14, NO. 8, AUGUST 2021 7Linear / EI Linear / TS Linear / UCB RBF / EI RBF / UCB    
+
+> Kernel / Acquisition
+> 05000 10000 15000 20000 25000 30000 35000 40000
+> Mean Regret AUC (Lower Is Better)  Ckt-Bench-101: Regret AUC by Kernel and Acquisition
+> GP GP-oracle DKL TTARO
+
+(a) Ckt-Bench-101. Linear / EI Linear / TS Linear / UCB RBF / EI RBF / UCB     
+
+> Kernel / Acquisition
+> 05000 10000 15000 20000 25000
+> Mean Regret AUC (Lower Is Better)  Ckt-Bench-301: Regret AUC by Kernel and Acquisition
+> GP GP-oracle DKL TTARO
+
+(b) Ckt-Bench-301. 
+
+Fig. 6. Mean Regret AUC Across Kernel and Acquisition-Function Configurations. Lower values indicate more sample-efficient optimization. Error bars denote the standard error of the mean across encoders. 
+
+V. E XPERIMENTAL SETUP 
+
+A. Benchmark Search Spaces 
+
+We evaluate TTARO on the two operational-amplifier topol-ogy libraries from the Open Circuit Benchmark (OCB) [3]. Ckt-Bench-101 contains 10,000 valid circuit candidates, while Ckt-Bench-301 contains 50,000 candidates. Each candidate is associated with circuit measurements, including gain, phase margin, bandwidth, validity, and FoM. We use the default OCB FoM definition so that the reported results remain directly comparable with future work on the same benchmark. The FoM is computed as a weighted com-bination of normalized gain, phase margin, and bandwidth: 
+
+FoM = 1 .2 |Gain |
+
+100 + 1 .6 PM 
+
+−90 + 10 |BW |
+
+10 9 . (31) During BO, selecting a candidate reveals its stored FoM. This finite-bank label-query setting allows all methods to be compared using the same candidate set, objective values, and evaluation budget. 
+
+B. Circuit Representations 
+
+For each benchmark candidate xi, TTARO takes a fixed vector representation hi as input. The reported representation sets are dataset-specific. For Ckt-Bench-101, we evaluate CktGNN, D-VAE, D-VAE-GCN, and WL representations. For Ckt-Bench-301, we evaluate CktGNN, DAGNN, D-VAE, and D-VAE-GCN representations. CktGNN is the circuit-specific encoder proposed with OCB; it represents a circuit using a predefined subgraph basis and applies a two-level GNN to encode local substructures and global circuit connectivity [3]. DAGNN provides a directed-acyclic-graph neural encoder baseline [26]. D-VAE and D-VAE-GCN provide graph autoencoding baselines, with D-VAE-GCN replacing the base message-passing component with graph-convolutional layers [27], [28]. The WL represen-tation is a fixed structural graph feature map rather than a learned neural embedding [12]. The learned encoders produce 66-dimensional vectors, giv-ing 10000 × 66 representation banks on Ckt-Bench-101 and 
+
+50000 ×66 representation banks on Ckt-Bench-301 for the cor-responding encoder/dataset pairs. The WL representation used for Ckt-Bench-101 has 1,838 dimensions. This representation set tests TTARO across compact learned circuit embeddings and a substantially higher-dimensional structural feature map. 
+
+C. Compared Methods 
+
+We compare methods that differ in how the representation used by the GP surrogate is treated during BO. All methods start from the same pretrained circuit embeddings and operate over the same finite candidate bank. The first baseline is a fixed-representation Gaussian process (GP )–the technique used by the authors of OCB. In this setting, the original embedding hi is used directly as the GP input for every candidate xi. As new FoM labels are observed, only the GP posterior is updated; the representation itself remains unchanged. The second baseline is DKL [7]. The DKL feature map is trained using only the initial evaluated set, producing transformed representations ϕθ0 (hi). For parity, we implement DKL’s feature map identically to TTARO via equation 10. This transformation is then frozen and applied to the full candidate bank for the remainder of the BO run. Subsequent evaluations update the GP posterior, but do not update the feature map. 
+
+TTARO uses the same deep-kernel surrogate structure, but keeps representation learning coupled to the online search process. After each new circuit evaluation, TTARO retrains the feature map and GP using all FoM observations collected so far. Thus, the representation used by the surrogate can adapt as the evaluated set grows. The oracle representation ( GP-oracle ) is included as an upper-reference condition. It trains the feature map using all FoM labels in the candidate bank before BO begins, including labels that would not be available in a real search. This condition is not a deployable optimization method; it measures how much improvement could be expected if the representation were fully aligned with the objective. 
+
+D. Optimization Protocol and Evaluation Metrics 
+
+All methods are evaluated under the same finite-bank BO protocol. For a given benchmark, encoder, acquisition func-tion, and random seed, the methods begin from the same initial evaluated circuit set. At each BO iteration, the surrogate is fit using the FoM labels observed so far, the acquisition function is evaluated over the remaining unevaluated candidates, and JOURNAL OF L ATEX CLASS FILES, VOL. 14, NO. 8, AUGUST 2021 8
+
+TABLE I FULL CONFIGURATION -LEVEL BAYESIAN OPTIMIZATION PERFORMANCE ON CKT -B ENCH -101. E ACH ROW CORRESPONDS TO ONE ENCODER , KERNEL ,
+
+> AND ACQUISITION
+
+-FUNCTION SETTING . R EGRET AUC IS REPORTED AS MEAN ± STANDARD ERROR ; LOWER IS BETTER . T HE BEST AND SECOND -BEST 
+
+REGRET AUC VALUES WITHIN EACH ROW ARE SHOWN IN BOLD AND UNDERLINED , RESPECTIVELY .
+
+Regret AUC ( ↓) TTARO vs. GP (%) Encoder Kernel / Acquisition GP GP-oracle DKL TTARO Regret AUC Reduction FoM Improvement CktGNN  Linear / EI 29770 .0 ± 355 .2 30998 .6 ± 2389 .1 30955 .8 ± 707 .8 24216 .1 ± 1335 .8 +18 .7% +11 .8% 
+
+Linear / TS 27133 .8 ± 1029 .9 24201 .1 ± 725 .0 29747 .8 ± 730 .4 24233 .4 ± 1308 .2 +10 .7% +4 .5% 
+
+Linear / UCB 27472 .7 ± 781 .3 28508 .1 ± 2678 .4 30563 .4 ± 1154 .1 24161 .9 ± 1433 .6 +12 .1% +12 .4% 
+
+RBF / EI 27189 .0 ± 1297 .9 25945 .1 ± 1007 .1 30056 .9 ± 500 .5 26311 .4 ± 1115 .7 +3 .2% +3 .3% 
+
+RBF / UCB 24013 .6 ± 1432 .6 30246 .8 ± 2835 .0 28967 .5 ± 804 .6 25333 .4 ± 1107 .9 −5.5% −1.4% 
+
+> WL
+
+Linear / EI 28160 .2 ± 206 .1 26814 .7 ± 591 .0 30724 .6 ± 706 .3 15412 .0 ± 4556 .1 +45 .3% +26 .6% 
+
+Linear / TS 29498 .1 ± 361 .6 25101 .0 ± 1305 .7 29766 .7 ± 492 .2 24445 .5 ± 2785 .2 +17 .1% +14 .1% 
+
+Linear / UCB 28502 .1 ± 242 .4 24795 .8 ± 1069 .7 29394 .9 ± 556 .0 23400 .4 ± 5398 .6 +17 .9% +12 .8% 
+
+RBF / EI 32120 .2 ± 281 .4 27454 .2 ± 1000 .2 29381 .5 ± 573 .3 21865 .6 ± 4634 .5 +31 .9% +14 .8% 
+
+RBF / UCB 30137 .7 ± 690 .8 31957 .3 ± 2556 .4 30398 .8 ± 565 .5 22510 .5 ± 4905 .0 +25 .3% +13 .5% 
+
+> D-VAE
+
+Linear / EI 51476 .6 ± 247 .2 18349 .3 ± 1671 .7 36975 .5 ± 1670 .0 27449 .0 ± 1892 .5 +46 .7% +30 .8% 
+
+Linear / TS 41525 .1 ± 1395 .0 13801 .4 ± 1067 .8 34733 .7 ± 1232 .3 28702 .0 ± 1548 .7 +30 .9% +6 .9% 
+
+Linear / UCB 49676 .5 ± 241 .2 14296 .1 ± 1102 .2 33257 .2 ± 1061 .2 29071 .5 ± 1206 .4 +41 .5% +10 .4% 
+
+RBF / EI 29583 .8 ± 432 .8 21193 .7 ± 1286 .4 31867 .2 ± 1084 .0 30137 .0 ± 1221 .2 −1.9% +5 .7% 
+
+RBF / UCB 29862 .4 ± 946 .9 17272 .9 ± 2200 .5 27824 .2 ± 1678 .8 29766 .0 ± 1778 .6 +0 .3% +3 .1% 
+
+> D-VAE-GCN
+
+Linear / EI 39384 .0 ± 934 .0 29984 .9 ± 895 .6 31186 .6 ± 486 .6 29766 .5 ± 436 .9 +24 .4% +2 .0% 
+
+Linear / TS 31408 .0 ± 622 .8 28338 .1 ± 316 .7 31120 .8 ± 522 .0 29726 .3 ± 930 .2 +5 .4% +2 .2% 
+
+Linear / UCB 36606 .0 ± 940 .1 32457 .1 ± 2473 .3 30514 .9 ± 475 .6 29297 .6 ± 402 .3 +20 .0% +0 .3% 
+
+RBF / EI 31107 .1 ± 415 .8 28540 .1 ± 836 .0 31561 .5 ± 565 .2 30976 .7 ± 473 .9 +0 .4% −0.3% 
+
+RBF / UCB 31925 .0 ± 624 .3 37901 .6 ± 3950 .3 30784 .3 ± 976 .1 30928 .8 ± 555 .2 +3 .1% +0 .4% 
+
+Dataset Average All 32827 .6 ± 1645 .5 25907 .9 ± 1402 .7 30989 .2 ± 459 .3 26385 .6 ± 882 .5 +19 .6% +8 .4% 
+
+the selected candidate’s stored FoM is revealed and added to the observed set. Except for the oracle representation condi-tion, no method uses FoM labels from unevaluated candidates when fitting its representation or surrogate. We evaluate two GP kernels, a linear kernel and an RBF kernel, together with five kernel/acquisition settings: Linear/EI, Linear/TS, Linear/UCB, RBF/EI, and RBF/UCB. We evaluate performance using best-so-far FoM and regret-based metrics, which are standard in BO and GP bandit optimization [16], [29]. Let 
+
+f ⋆ = max   
+
+> i∈{ 1,...,N }
+
+yi (32) denote the best FoM in the candidate bank, used only for evaluation. After t circuit evaluations, the best observed FoM is 
+
+f + 
+
+> t
+
+= max 
+
+> i∈I t
+
+yi. (33) The simple regret at iteration t is 
+
+rt = f ⋆ − f + 
+
+> t
+
+. (34) Lower regret indicates that a method has found higher-performing circuits earlier in the search. We also report Top-2% KNN@5 in the representation-geometry visualization (see Fig. 4) to help interpret the UMAP plots. For each circuit whose FoM is in the top 2% of the candidate bank, Top-2% KNN@5 measures the fraction of its five nearest representation-space neighbors that are also top-2% FoM circuits. Higher values indicate that high-performing circuits are more locally concentrated in the learned repre-sentation. This quantity is used only as a diagnostic for the visualization; the primary optimization metrics are regret AUC and final best-so-far FoM. To summarize the full optimization trajectory, we report regret AUC over the evaluation budget. For a budget of B
+
+evaluations, regret AUC is computed as the discrete area under the simple-regret curve: 
+
+AUC r =
+
+> B−1
+
+X
+
+> t=1
+
+rt + rt+1 
+
+2 . (35) Equivalently, this is the trapezoidal approximation to the regret curve when evaluations are spaced one step apart. Lower regret AUC indicates better sample efficiency across the full BO run. We also report final best-so-far FoM to measure the best circuit found by the end of the budget. For TTARO, regret AUC reduction over GP is reported as 
+
+∆AUC = AUC GP  
+
+> r
+
+− AUC TTARO 
+
+> r
+
+AUC GP 
+
+> r
+
+× 100 . (36) Final FoM improvement over GP is reported as 
+
+∆FoM = FoM TTARO  
+
+> B
+
+− FoM GP 
+
+> B
+
+FoM GP 
+
+> B
+
+× 100 . (37) VI. R ESULTS AND DISCUSSION 
+
+Tables I and II summarize the configuration-level regret AUC results. TTARO improves regret AUC relative to fixed-representation GP on both Ckt-Bench-101 and Ckt-Bench-301, JOURNAL OF L ATEX CLASS FILES, VOL. 14, NO. 8, AUGUST 2021 9
+
+TABLE II FULL CONFIGURATION -LEVEL BAYESIAN OPTIMIZATION PERFORMANCE ON CKT -B ENCH -301. E ACH ROW CORRESPONDS TO ONE ENCODER , KERNEL ,
+
+> AND ACQUISITION
+
+-FUNCTION SETTING . R EGRET AUC IS REPORTED AS MEAN ± STANDARD ERROR ; LOWER IS BETTER . T HE BEST AND SECOND -BEST 
+
+REGRET AUC VALUES WITHIN EACH ROW ARE SHOWN IN BOLD AND UNDERLINED , RESPECTIVELY .
+
+Regret AUC ( ↓) TTARO vs. GP (%) Encoder Kernel / Acquisition GP GP-oracle DKL TTARO Regret AUC Reduction FoM Improvement CktGNN  Linear / EI 22924 .1 ± 375 .6 1766 .6 ± 31 .7 26903 .2 ± 593 .8 15114 .6 ± 1118 .4 +34 .1% +27 .0% 
+
+Linear / TS 18035 .6 ± 977 .6 1848 .9 ± 56 .5 25663 .6 ± 444 .9 14526 .3 ± 1042 .7 +19 .5% +3 .9% 
+
+Linear / UCB 20303 .5 ± 847 .0 1766 .6 ± 31 .7 25786 .7 ± 638 .9 14432 .1 ± 1232 .0 +28 .9% +17 .0% 
+
+RBF / EI 17409 .3 ± 1249 .0 3469 .8 ± 478 .4 23175 .6 ± 599 .4 14037 .8 ± 1176 .5 +19 .4% +5 .9% 
+
+RBF / UCB 16808 .7 ± 1080 .1 14141 .3 ± 2534 .5 22509 .6 ± 627 .1 11851 .8 ± 1078 .7 +29 .5% +3 .9% 
+
+> DAGNN
+
+Linear / EI 12144 .2 ± 1253 .1 1977 .0 ± 153 .5 18767 .5 ± 1639 .5 11183 .7 ± 1472 .5 +7 .9% −0.0% 
+
+Linear / TS 12759 .9 ± 1509 .4 1860 .2 ± 52 .6 21115 .5 ± 1042 .7 12016 .2 ± 1487 .8 +5 .8% +2 .0% 
+
+Linear / UCB 12397 .7 ± 1418 .3 2003 .9 ± 161 .2 19685 .3 ± 1289 .4 9978 .7 ± 1195 .3 +19 .5% +1 .8% 
+
+RBF / EI 15874 .3 ± 1270 .5 3502 .8 ± 528 .8 19441 .8 ± 1418 .0 11742 .7 ± 1315 .5 +26 .0% +3 .9% 
+
+RBF / UCB 17158 .5 ± 1237 .5 11857 .9 ± 2158 .6 20436 .6 ± 1172 .2 11435 .3 ± 1413 .4 +33 .4% +8 .0% 
+
+> D-VAE
+
+Linear / EI 23815 .5 ± 120 .5 22097 .7 ± 59 .6 27820 .9 ± 1051 .0 23215 .3 ± 473 .9 +2 .5% +5 .6% 
+
+Linear / TS 23537 .2 ± 217 .9 19463 .5 ± 822 .6 25414 .4 ± 497 .4 22248 .8 ± 775 .2 +5 .5% +11 .1% 
+
+Linear / UCB 24378 .6 ± 202 .2 17761 .2 ± 1078 .4 26079 .9 ± 682 .7 23104 .9 ± 315 .3 +5 .2% +8 .5% 
+
+RBF / EI 23257 .0 ± 408 .0 21196 .8 ± 940 .5 23375 .2 ± 606 .5 22638 .4 ± 852 .9 +2 .7% +2 .4% 
+
+RBF / UCB 22114 .3 ± 1043 .6 21640 .2 ± 1222 .5 23506 .1 ± 651 .2 21583 .1 ± 898 .6 +2 .4% −2.5% 
+
+> D-VAE-GCN
+
+Linear / EI 23006 .3 ± 55 .0 22590 .7 ± 75 .4 24399 .2 ± 644 .1 23212 .5 ± 146 .3 −0.9% +0 .1% 
+
+Linear / TS 23131 .8 ± 81 .1 17468 .6 ± 683 .2 25754 .1 ± 644 .3 21442 .6 ± 941 .6 +7 .3% +14 .0% 
+
+Linear / UCB 23117 .0 ± 195 .8 20126 .8 ± 1954 .5 28162 .3 ± 1291 .0 21895 .1 ± 791 .1 +5 .3% +13 .9% 
+
+RBF / EI 23002 .8 ± 102 .2 23091 .9 ± 151 .5 22194 .6 ± 609 .7 22348 .7 ± 575 .2 +2 .8% +2 .8% 
+
+RBF / UCB 22846 .5 ± 84 .4 24660 .5 ± 866 .7 22487 .6 ± 914 .4 21605 .2 ± 552 .8 +5 .4% +22 .3% 
+
+Dataset Average All 19901 .1 ± 936 .4 12714 .6 ± 2061 .5 23634 .0 ± 628 .4 17480 .7 ± 1149 .2 +12 .2% +7 .2% 
+
+indicating that online representation adaptation improves the sample efficiency of BO. On Ckt-Bench-101, TTARO reduces the dataset-average regret AUC from 32827 .6 to 26385 .6, a 
+
+19 .6% reduction relative to GP. On Ckt-Bench-301, TTARO reduces the dataset-average regret AUC from 19901 .1 to 
+
+17480 .7, a 12 .2% reduction. These gains are consistent with the intended role of TTARO: as FoM observations accumulate, the surrogate can update the kernel geometry used to general-ize from evaluated to unevaluated circuits. The comparison with DKL highlights why online adaptation matters. On Ckt-Bench-101, DKL improves regret AUC rela-tive to GP, while its final best FoM remains slightly lower than GP. On Ckt-Bench-301, DKL degrades substantially: regret AUC increases from 19901 .1 for GP to 23634 .0, and final best FoM drops from 152 .7 to 134 .0. This suggests that a representation learned only from the initial evaluated set can be brittle, especially in the larger and more heterogeneous search space. TTARO avoids this degradation, reducing regret AUC by 14 .9% relative to DKL on Ckt-Bench-101 and by 26 .0% 
+
+on Ckt-Bench-301. The configuration-level results in Tables I and II show that these aggregate gains are broadly distributed across encoders, kernels, and acquisition functions. TTARO improves regret AUC relative to GP in 37 of the 40 evaluated settings. The three exceptions are CktGNN/RBF/UCB and D-VAE/RBF/EI on Ckt-Bench-101, where TTARO increases regret AUC rel-ative to GP by 5.5% and 1.9% , respectively, and D-VAE-GCN/Linear/EI on Ckt-Bench-301, where TTARO increases regret AUC by 0.9% .Table III reports aggregate best-so-far FoM at fixed fractions of the BO budget. This view complements regret AUC by showing how quickly each method finds high-performing circuits during the search. On Ckt-Bench-101, TTARO reaches 
+
+228 .6 FoM by 20% of the budget, compared with 210 .4 for GP and 221 .2 for DKL. By 60% of the budget, TTARO reaches 252 .8, already exceeding the final GP value of 247 .6.On Ckt-Bench-301, TTARO reaches 152 .8 by 60% of the budget, matching the final GP value of 152 .7 while still having 
+
+40% of the evaluation budget remaining. These budgeted FoM trends show that TTARO’s regret-AUC gains correspond to earlier discovery of high-performing circuits, not only lower integrated regret. The oracle representation condition provides useful context for interpreting the upper end of representation quality. It trains the feature map using all FoM labels in the candidate bank before BO begins, giving the surrogate access to the global objective landscape. This allows the learned representation to place circuits with similar FoM values closer together and separate circuits with substantially different FoM values before any sequential search decisions are made. As a result, the GP kernel begins with a more objective-aligned covariance structure, so observations from evaluated circuits can be trans-ferred more effectively to unevaluated candidates. Since the oracle representation is trained using FoM labels that are unavailable during a real BO run, it is not a deployable optimization method and should be interpreted only as an JOURNAL OF L ATEX CLASS FILES, VOL. 14, NO. 8, AUGUST 2021 10               
+
+> TABLE III AGGREGATE BEST -OBSERVED FOMACROSS CKT -B ENCH -101 AND CKT -B ENCH -301 OVER THE BO EVALUATION BUDGET . M EAN ±STANDARD ERROR IS REPORTED AT 20% INCREMENTS OF THE BUDGET ;HIGHER IS BETTER . T HE BEST VALUE WITHIN EACH DATASET AND BUDGET CHECKPOINT IS SHOWN IN BOLD ,AND THE SECOND -BEST VALUE IS UNDERLINED .
+
+Dataset Method Best FoM @ 20% Best FoM @ 40% Best FoM @ 60% Best FoM @ 80% Best FoM @ 100% Ckt-Bench 101 GP 210 .4 ± 2.0 225 .9 ± 1.5 231 .8 ± 1.6 237 .6 ± 1.5 247 .6 ± 1.3
+
+GP-oracle 231 .2 ± 2.0 249 .0 ± 2.1 255 .0 ± 2.1 261 .9 ± 2.3 271 .0 ± 2.3
+
+DKL 221 .2 ± 1.4 234 .1 ± 0.8 238 .5 ± 0.8 241 .7 ± 0.8 243 .5 ± 0.8
+
+TTARO 228 .6 ± 1.6 245 .3 ± 1.4 252 .8 ± 1.6 258 .2 ± 1.8 264 .6 ± 2.0
+
+> Ckt-Bench 301
+
+GP 124 .7 ± 0.7 132 .3 ± 1.0 141 .7 ± 1.5 147 .2 ± 1.6 152 .7 ± 1.7
+
+GP-oracle 153 .6 ± 2.0 157 .8 ± 1.9 161 .6 ± 1.9 167 .9 ± 1.8 171 .8 ± 1.8
+
+DKL 110 .7 ± 1.1 122 .2 ± 0.9 128 .5 ± 1.0 131 .9 ± 1.1 134 .0 ± 1.2
+
+TTARO 127 .0 ± 0.9 141 .9 ± 1.5 152 .8 ± 1.7 158 .5 ± 1.8 163 .7 ± 1.8
+
+upper-reference condition. 
+
+Figure 6 summarizes these configuration-level trends by kernel and acquisition setting. On Ckt-Bench-301, TTARO improves over GP in all but one encoder/kernel/acquisition setting, and every kernel/acquisition family improves on av-erage across encoders. The gains are especially important for the linear-kernel settings, where improving the representation directly changes the inner-product geometry used by the surrogate. TTARO also improves the RBF settings, showing that the method is useful when the kernel uses a nonlinear distance-based form. The detailed results also show different trends across kernels. On Ckt-Bench-101, the largest TTARO gains occur in the linear-kernel settings, with average regret AUC reductions of 33 .8% for Linear/EI, 16 .0% for Linear/TS, and 22 .9% for Linear/UCB. The RBF settings are more mixed on Ckt-Bench-101, although TTARO still improves most of them. On Ckt-Bench-301, the average gains are 10 .9% for Linear/EI, 9.5% for Linear/TS, 14 .7% for Linear/UCB, 12 .7% 
+
+for RBF/EI, and 17 .7% for RBF/UCB. The main limitation of TTARO is computational overhead. Retraining the feature map and GP after each evaluation is more expensive than updating a fixed-representation GP posterior, and this cost may matter for very large candidate banks or very short simulation times. Existing scalable GP and deep-kernel methods provide several paths for reducing this overhead. Structured kernel interpolation reduces the cost of kernel-matrix operations and enables scalable kernel learning [30]; stochastic variational deep-kernel learning supports scal-able joint training of neural feature maps and GP kernels [31]; Lanczos-based variance estimation and GPU-accelerated GP inference reduce the cost of posterior uncertainty computation and sampling [32], [33]. Online GP methods further address the sequential-update setting by reusing computations after new observations arrive [34]. These methods suggest that future TTARO implementations can reduce surrogate-update cost through structured kernels, sparse variational approxi-mations, and GPU-accelerated linear algebra. In the analog design regimes targeted here, circuit evaluation is typically the dominant cost, making additional surrogate training acceptable when it reduces the number of poor evaluations. Overall, the results support the central premise of this work: for representation-based circuit BO, the quality of the surrogate depends strongly on whether the kernel geometry is aligned with the objective being optimized. Fixed GP relies entirely on the initial circuit embedding, and DKL learns a transformation only once from the initial data. TTARO keeps the representation coupled to the online search process. This lets the surrogate revise its notion of circuit similarity as new FoM evidence becomes available, which leads to better acquisition decisions and improved sample efficiency. ACKNOWLEDGMENTS 
+
+The authors used ChatGPT-5.5 for grammatical refinements, boilerplate code generation and to improve the aesthetic as-pects of the figures. We assume full responsibility for all the content in this manuscript. We would like to thank the authors of OCB for making their code and datasets available. REFERENCES [1] L. McInnes, J. Healy, and J. Melville, “Umap: Uniform manifold approximation and projection for dimension reduction,” arXiv preprint arXiv:1802.03426 , 2018. [2] J. Shen, F. Yang, L. Shang, C. Yan, Z. Bi, D. Zhou, and X. Zeng, “ATOM: An automatic topology synthesis framework for operational amplifiers,” IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems , vol. 44, no. 3, pp. 1193–1198, 2025. [3] Z. Dong, W. Cao, M. Zhang, D. Tao, Y. Chen, and X. Zhang, “CktGNN: Circuit graph neural network for electronic design automation,” in                    
+
+> The Eleventh International Conference on Learning Representations (ICLR) ,2023. [Online]. Available: https://openreview.net/forum?id= NE2911Kq1sp [4] J. Lu, L. Lei, F. Yang, L. Shang, and X. Zeng, “Topology optimization of operational amplifier in continuous space via graph embedding,” in
+> 2022 Design, Automation & Test in Europe Conference & Exhibition (DATE) , 2022, pp. 142–147. [5] J. Gao, W. Cao, J. Yang, and X. Zhang, “AnalogGenie: A generative engine for automatic discovery of analog circuit topologies,” in
+> The Thirteenth International Conference on Learning Representations (ICLR) ,2025. [Online]. Available: https://openreview.net/forum?id= jCPak79Kev JOURNAL OF L ATEX CLASS FILES, VOL. 14, NO. 8, AUGUST 2021 11
+
+[6] P. Xu, Y. Li, T. Chen, T.-Y. Ho, and B. Yu, “Ckt2Vec: Efficient electrical encoding for analog circuit representations in vector space,” 
+
+IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems , 2025. [7] A. G. Wilson, Z. Hu, R. Salakhutdinov, and E. P. Xing, “Deep kernel learning,” in Proceedings of the 19th International Conference on Artificial Intelligence and Statistics , ser. Proceedings of Machine Learning Research, A. Gretton and C. C. Robert, Eds., vol. 51. PMLR, 2016, pp. 370–378. [Online]. Available: https://proceedings.mlr.press/ v51/wilson16.html [8] S. Zhang, W. Lyu, F. Yang, C. Yan, D. Zhou, and X. Zeng, “Bayesian optimization approach for analog circuit synthesis using neural network,” in 2019 Design, Automation & Test in Europe Conference & Exhibition (DATE) , 2019, pp. 1463–1468. [9] W. W. Xing, W. Fan, Z. Liu, Y. Yao, and Y. Hu, “KATO: Knowledge alignment and transfer for transistor sizing of different design and technology,” in Proceedings of the 61st ACM/IEEE Design Automation Conference , ser. DAC ’24. ACM, 2024, pp. 1–6. [Online]. Available: https://doi.org/10.1145/3649329.3657380 [10] T. Guo, D. R. Herber, and J. T. Allison, “Reducing evaluation cost for circuit synthesis using active learning,” in ASME 2018 International Design Engineering Technical Conferences and Computers and Information in Engineering Conference . Quebec City, Canada: American Society of Mechanical Engineers, 2018, paper No. DETC2018-85654, V02AT03A011. [Online]. Available: https://doi.org/ 10.1115/DETC2018-85654 [11] S. Dutta, F. Amin, S. Panda, J. Rabe, Y. Wen, and P. Franzon, “Can an actor-critic optimization framework improve analog design?” 2026. [Online]. Available: https://arxiv.org/abs/2603.24714 [12] B. Weisfeiler and A. Leman, “The reduction of a graph to canonical form and the algebra which appears therein,” nti, Series , vol. 2, no. 9, pp. 12–16, 1968. [13] J. Shen, F. Yang, L. Shang, Z. Bi, C. Yan, D. Zhou, and X. Zeng, “INTO-OA: Interpretable topology optimization for operational amplifiers,” in 
+
+2025 Design, Automation & Test in Europe Conference & Exhibition (DATE) , 2025, pp. 1–7. [14] F. Amin, S. Chatterjee, and P. D. Franzon, “Depthgraphnet: Circuit graph isomorphism detection via siamese-graph neural networks,” in 2023 ACM/IEEE 5th Workshop on Machine Learning for CAD (MLCAD) ,2023, pp. 1–6. [15] D. R. Jones, M. Schonlau, and W. J. Welch, “Efficient global optimiza-tion of expensive black-box functions,” Journal of Global optimization ,vol. 13, no. 4, pp. 455–492, 1998. [16] N. Srinivas, A. Krause, S. M. Kakade, and M. W. Seeger, “Information-theoretic regret bounds for gaussian process optimization in the bandit setting,” IEEE Transactions on Information Theory ,vol. 58, no. 5, pp. 3250–3265, may 2012. [Online]. Available: https://doi.org/10.1109/TIT.2011.2182033 [17] W. R. Thompson, “On the likelihood that one unknown probability exceeds another in view of the evidence of two samples,” Biometrika ,vol. 25, no. 3/4, pp. 285–294, 1933. [18] J. Snoek, K. Swersky, R. Zemel, and R. Adams, “Input warping for bayesian optimization of non-stationary functions,” in Proceedings of the 31st International Conference on Machine Learning , ser. Proceedings of Machine Learning Research, E. P. Xing and T. Jebara, Eds., vol. 32. PMLR, 2014, pp. 1674–1682. [Online]. Available: https://proceedings.mlr.press/v32/snoek14.html [19] J. Bowden, J. Song, Y. Chen, Y. Yue, and T. A. Desautels, “Deep kernel bayesian optimization,” Lawrence Livermore National Laboratory, Tech. Rep. LLNL-CONF-819001, Feb. 2021, oSTI ID: 1811769. [Online]. Available: https://www.osti.gov/biblio/1811769 [20] J. Chen, G. Zhu, C. Yuan, and Y. Huang, “Semi-supervised embedding learning for high-dimensional bayesian optimization,” 
+
+arXiv preprint arXiv:2005.14601 , 2020. [Online]. Available: https: //arxiv.org/abs/2005.14601 [21] J. Tingey, C. M. Gilligan-Lee, and Z. Dai, “Contrastive embedding of structured space for bayesian optimization,” in NeurIPS 2021 Workshop on Meta-Learning , 2021. [Online]. Available: https://openreview.net/ forum?id=xFpkJUMS9te [22] F. Zhang, B. Nord, and Y. Chen, “Learning representation for bayesian optimization with collision-free regularization,” arXiv preprint arXiv:2203.08656 , 2022. [Online]. Available: https://arxiv.org/abs/2203. 08656 [23] S. Lee, J. Chu, S. Kim, J. Ko, and H. J. Kim, “Advancing bayesian optimization via learning correlated latent space,” Advances in Neural Information Processing Systems , vol. 36, pp. 48 906–48 917, 2023. [24] S. Stanton, W. Maddox, N. Gruver, P. Maffettone, E. Delaney, P. Green-side, and A. G. Wilson, “Accelerating bayesian optimization for bio-logical sequence design with denoising autoencoders,” in International conference on machine learning . PMLR, 2022, pp. 20 459–20 478. [25] S. Singh and J. M. Hern´ andez-Lobato, “Deep kernel learning for reac-tion outcome prediction and optimization,” Communications Chemistry ,vol. 7, no. 1, p. 136, 2024. [26] V. Thost and J. Chen, “Directed acyclic graph neural networks,” arXiv preprint arXiv:2101.07965 , 2021. [27] M. Zhang, S. Jiang, Z. Cui, R. Garnett, and Y. Chen, “D-vae: A variational autoencoder for directed acyclic graphs,” Advances in neural information processing systems , vol. 32, 2019. [28] T. N. Kipf and M. Welling, “Semi-supervised classification with graph convolutional networks,” arXiv preprint arXiv:1609.02907 , 2016. [29] B. Shahriari, K. Swersky, Z. Wang, R. P. Adams, and N. De Freitas, “Taking the human out of the loop: A review of bayesian optimization,” 
+
+Proceedings of the IEEE , vol. 104, no. 1, pp. 148–175, 2015. [30] A. Wilson and H. Nickisch, “Kernel interpolation for scalable structured gaussian processes (kiss-gp),” in International conference on machine learning . PMLR, 2015, pp. 1775–1784. [31] A. G. Wilson, Z. Hu, R. R. Salakhutdinov, and E. P. Xing, “Stochas-tic variational deep kernel learning,” Advances in neural information processing systems , vol. 29, 2016. [32] G. Pleiss, J. Gardner, K. Weinberger, and A. G. Wilson, “Constant-time predictive distributions for gaussian processes,” in International Conference on Machine Learning . PMLR, 2018, pp. 4114–4123. [33] J. Gardner, G. Pleiss, K. Q. Weinberger, D. Bindel, and A. G. Wilson, “Gpytorch: Blackbox matrix-matrix gaussian process inference with gpu acceleration,” Advances in neural information processing systems ,vol. 31, 2018. [34] S. Stanton, W. Maddox, I. Delbridge, and A. G. Wilson, “Kernel interpolation for scalable online gaussian processes,” in International conference on artificial intelligence and statistics . PMLR, 2021, pp. 3133–3141.

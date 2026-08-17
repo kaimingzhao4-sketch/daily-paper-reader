@@ -1,0 +1,54 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-08-17T20:34:43.431798+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 0,
+    "deep_cap": 6,
+    "deep_selected": 0,
+    "quick_candidates": 1,
+    "quick_skim_target": 11,
+    "quick_selected": 1
+  },
+  "deep_dive": [],
+  "quick_skim": [
+    {
+      "id": "2608.12687v1",
+      "source": "arxiv",
+      "title": "Finding the Needle in a Haystack: Test-Time Analog Circuit Representation Adaptation for Bayesian Optimization",
+      "abstract": "Bayesian optimization (BO) is a sample-efficient framework for analog circuit topology search, where evaluating each candidate topology can require costly simulation. However, representation-based BO methods typically treat circuit embeddings as fixed after encoder training. This creates a mismatch between representation learning and optimization: embeddings learned to encode or reconstruct circuit structure are not necessarily organized according to the figure of merit (FoM) being optimized. This paper introduces Test-Time Analog Representation Adaptation for Bayesian Optimization (TTARO), an online deep-kernel BO framework that adapts circuit representations throughout the search process. Starting from pretrained circuit embeddings, TTARO jointly learns a nonlinear feature transformation and a Gaussian-process surrogate using the FoM labels of the circuits evaluated so far. Following each new evaluation, TTARO updates the representation and surrogate before selecting the next candidate. We compare TTARO with conventional Gaussian Process-based BO over fixed embeddings and with Deep Kernel Learning (DKL), which learns the representation only from the initial evaluated designs and keeps it fixed throughout the remainder of the search. By continually incorporating newly observed FoM labels into representation learning, TTARO aligns the search space with the optimization objective as BO progresses. In our experiments, TTARO reduces regret AUC by 15.2% on average relative to BO and by 20.7% relative to DKL across 40 encoder/kernel/acquisition settings, outperforming prior art in most settings with reductions as large as 46.7%.",
+      "authors": [
+        "Fin Amin",
+        "Sounak Dutta",
+        "Paul D. Franzon"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-08-13T01:09:58+00:00",
+      "link": "https://arxiv.org/pdf/2608.12687v1",
+      "tags": [
+        "keyword:reconfig-dab",
+        "query:reconfig-dab"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "test-time adaptation of circuit representations in BO, applicable to DAB topology and efficiency optimization",
+      "llm_evidence_cn": "贝叶斯优化中电路表示的测试时自适应，可应用于DAB拓扑与效率优化",
+      "llm_evidence": "贝叶斯优化中电路表示的测试时自适应，可应用于DAB拓扑与效率优化",
+      "canonical_evidence": "贝叶斯优化中电路表示的测试时自适应，可应用于DAB拓扑与效率优化",
+      "llm_tldr_en": "Introduces TTARO, an online deep-kernel Bayesian optimization framework that adapts circuit representations during search, addressing representation-optimization mismatch; applicable to DAB converter topology optimization for efficiency.",
+      "llm_tldr_cn": "针对模拟电路拓扑搜索中固定表示与优化目标不匹配的问题，提出测试时表示自适应贝叶斯优化（TTARO）。该方法在线调整电路嵌入，使其按优化目标（品质因数）组织，避免重新训练编码器。在多个模拟电路设计任务上，TTARO比固定表示方法更快找到更优设计。该策略可迁移到可重构电池与DAB系统的联合效率优化，作为拓扑设计与参数优化的通用方法。",
+      "llm_tldr": "针对模拟电路拓扑搜索中固定表示与优化目标不匹配的问题，提出测试时表示自适应贝叶斯优化（TTARO）。该方法在线调整电路嵌入，使其按优化目标（品质因数）组织，避免重新训练编码器。在多个模拟电路设计任务上，TTARO比固定表示方法更快找到更优设计。该策略可迁移到可重构电池与DAB系统的联合效率优化，作为拓扑设计与参数优化的通用方法。",
+      "llm_tags": [
+        "query:reconfig-dab"
+      ],
+      "matched_query_tag": "query:reconfig-dab",
+      "matched_query_text": "design and optimization of reconfigurable battery and DAB system",
+      "matched_requirement_id": "req-8",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}

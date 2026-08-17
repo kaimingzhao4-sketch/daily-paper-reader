@@ -1,0 +1,24 @@
+{
+  "label": "2026-08-17",
+  "date": "2026-08-17",
+  "generated_at": "2026-08-17T20:35:20",
+  "count": 1,
+  "papers": [
+    {
+      "paper_id": "202608/17/2608.12687v1-finding-the-needle-in-a-haystack-test-time-analog-circuit-representation-adaptation-for-bayesian-optimization",
+      "section": "quick",
+      "title_en": "Finding the Needle in a Haystack: Test-Time Analog Circuit Representation Adaptation for Bayesian Optimization",
+      "authors": "Fin Amin, Sounak Dutta, Paul D. Franzon",
+      "date": "2026-08-13",
+      "pdf": "https://arxiv.org/pdf/2608.12687v1",
+      "score": "6.0",
+      "evidence": "贝叶斯优化中电路表示的测试时自适应，可应用于DAB拓扑与效率优化",
+      "tldr": "模拟电路拓扑搜索中，基于表示的贝叶斯优化通常在编码器训练后固定电路嵌入，导致表示学习与优化目标脱节。本文提出TTARO，一种在线深度核BO框架，在搜索过程中持续调整电路表示：利用已评估电路的FoM标签，联合学习非线性特征变换与高斯过程代理，每次评估后更新表示再选下一个候选点。实验表明，TTARO在40种编码器/核/采集设置下，平均相对BO减少后悔AUC 15.2%，相对DKL减少20.7%，最高达46.7%。",
+      "tags": "query:reconfig-dab",
+      "abstract_en": "Bayesian optimization (BO) is a sample-efficient framework for analog circuit topology search, where evaluating each candidate topology can require costly simulation. However, representation-based BO methods typically treat circuit embeddings as fixed after encoder training. This creates a mismatch between representation learning and optimization: embeddings learned to encode or reconstruct circuit structure are not necessarily organized according to the figure of merit (FoM) being optimized. This paper introduces Test-Time Analog Representation Adaptation for Bayesian Optimization (TTARO), an online deep-kernel BO framework that adapts circuit representations throughout the search process. Starting from pretrained circuit embeddings, TTARO jointly learns a nonlinear feature transformation and a Gaussian-process surrogate using the FoM labels of the circuits evaluated so far. Following each new evaluation, TTARO updates the representation and surrogate before selecting the next candidate. We compare TTARO with conventional Gaussian Process-based BO over fixed embeddings and with Deep Kernel Learning (DKL), which learns the representation only from the initial evaluated designs and keeps it fixed throughout the remainder of the search. By continually incorporating newly observed FoM labels into representation learning, TTARO aligns the search space with the optimization objective as BO progresses. In our experiments, TTARO reduces regret AUC by 15.2% on average relative to BO and by 20.7% relative to DKL across 40 encoder/kernel/acquisition settings, outperforming prior art in most settings with reductions as large as 46.7%.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "errors": []
+}
