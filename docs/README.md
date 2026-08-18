@@ -6,28 +6,22 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-08-17
-- 运行时间：2026-08-17 20:35:14 UTC
+- 最新运行日期：2026-08-18
+- 运行时间：2026-08-18 20:20:55 UTC
 - 运行状态：成功
-- 本次总论文数：1
+- 本次总论文数：0
 - 精读区：0
-- 速读区：1
+- 速读区：0
 
 ### 今日简报（AI）
-今日速读1篇论文，聚焦模拟电路贝叶斯优化中的测试时表示适应问题。
-
-值得关注的方向是：针对“大海捞针”式电路搜索，通过调整表示方法提升优化效率，论文评分6.0/10。
-
-建议后续可延伸阅读贝叶斯优化与电路自动设计结合的相关工作，以获取更系统的方法对比。
-- 详情：[/202608/17/README](/202608/17/README)
+> 今日无新推荐，系统未产出可展示论文。
+- 详情：[/202608/18/README](/202608/18/README)
 
 ### 精读区论文标签
 - 本次无精读推荐。
 
 ### 速读区论文标签
-1. [Finding the Needle in a Haystack: Test-Time Analog Circuit Representation Adaptation for Bayesian Optimization](/202608/17/2608.12687v1-finding-the-needle-in-a-haystack-test-time-analog-circuit-representation-adaptation-for-bayesian-optimization)  
-   标签：评分：6.0/10、query:reconfig-dab
-   evidence：贝叶斯优化中电路表示的测试时自适应，可应用于DAB拓扑与效率优化
+- 本次无速读推荐。
 
 
 <div class="dpr-home-promo-card">
