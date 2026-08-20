@@ -1,0 +1,24 @@
+{
+  "label": "2026-08-20",
+  "date": "2026-08-20",
+  "generated_at": "2026-08-20T20:44:21",
+  "count": 1,
+  "papers": [
+    {
+      "paper_id": "202608/20/2608.18903v1-a-fem-based-surrogate-modelling-and-optimization-framework-for-physics-constrained-electromagnetic-coil-design",
+      "section": "quick",
+      "title_en": "A FEM-Based Surrogate Modelling and Optimization Framework for Physics-Constrained Electromagnetic Coil Design",
+      "authors": "Yucheng Liu",
+      "date": "2026-08-19",
+      "pdf": "https://arxiv.org/pdf/2608.18903v1",
+      "score": "6.0",
+      "evidence": "代理辅助贝叶斯优化框架可用于DAB变换器电磁设计",
+      "tldr": "针对七参数电磁线圈-铁芯设计问题，提出基于有限元与高斯过程代理的优化框架。利用Python-MPh-COMSOL构建二维轴对称FEM模型，以Matern 5/2 GP作概率代理，结合期望提升的贝叶斯优化，并逐点FEM验证。实验发现优化器排名依赖FEM预算：小预算下EI-BO进步快，COBYLA早期强，BOBYQA终端均值最高；EI不总是优于后验均值排序。该框架揭示了仿真驱动设计中不同方法的权衡，为电磁线圈优化提供参考。",
+      "tags": "query:reconfig-dab",
+      "abstract_en": "This work evaluates surrogate-assisted optimization of a seven-parameter current-excited coil--core benchmark subject to geometric, manufacturing, and separate core and copper mass constraints. A Python--MPh--COMSOL workflow couples a two-dimensional axisymmetric finite-element method (FEM) model to a Matern 5/2 Gaussian-process (GP) probabilistic surrogate. Here, physics-constrained denotes a design problem evaluated by a governing-equation FEM model and restricted by explicit physical, geometric, manufacturing, and material-allocation constraints; it does not denote a physics-informed GP architecture. Sequential Bayesian optimization (BO) ranks candidates using expected improvement (EI), and every reported incumbent is verified by FEM. Five paired runs show that optimizer ranking depends on the available FEM-evaluation budget: EI--BO improves rapidly at small continuation budgets, COBYLA is stronger at the earliest checkpoint, and BOBYQA attains the highest mean terminal response. A retrospective finite-pool study further finds no robust endpoint advantage of EI over posterior-mean ranking on this smooth response surface. The broader result is that early progress, terminal response, information use, and wall-clock cost can favor different methods in simulation-driven design. A selected-design check at a common total current preserves the observed BOBYQA--COBYLA--EI-BO ordering. The conclusions nevertheless remain conditional on this axisymmetric benchmark and do not establish a fixed-current optimum, fixed-power performance, or electrical-efficiency superiority.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "errors": []
+}

@@ -1,0 +1,673 @@
+Title: A FEM-Based Surrogate Modelling and Optimization Framework for Physics-Constrained Electromagnetic Coil Design
+
+URL Source: https://arxiv.org/pdf/2608.18903v1
+
+Published Time: Thu, 20 Aug 2026 00:53:09 GMT
+
+Number of Pages: 18
+
+Markdown Content:
+# A FEM-Based Surrogate Modelling and Optimization Framework for Physics-Constrained Electromagnetic Coil Design 
+
+Yucheng Liu 
+
+Department of Engineering Science University of Oxford 
+
+Oxford, United Kingdom yucheng.liu@st-hildas.ox.ac.uk 
+
+Abstract —This work evaluates surrogate-assisted optimization of a seven-parameter current-excited coil–core benchmark sub-ject to geometric, manufacturing, and separate core and copper mass constraints. A Python–MPh–COMSOL workflow couples a two-dimensional axisymmetric finite-element method (FEM) model to a Mat´ ern-5/2 Gaussian-process (GP) probabilistic surrogate. Here, physics-constrained denotes a design problem evaluated by a governing-equation FEM model and restricted by explicit physical, geometric, manufacturing, and material-allocation constraints; it does not denote a physics-informed GP architecture. Sequential Bayesian optimization (BO) ranks candidates using expected improvement (EI), and every reported incumbent is verified by FEM. Five paired runs show that optimizer ranking depends on the available FEM-evaluation budget: EI–BO improves rapidly at small continuation budgets, COBYLA is stronger at the earliest checkpoint, and BOBYQA attains the highest mean terminal response. A retrospective finite-pool study further finds no robust endpoint advantage of EI over posterior-mean ranking on this smooth response surface. The broader result is that early progress, terminal response, information use, and wall-clock cost can favor different methods in simulation-driven design. A selected-design check at a common total current preserves the observed BOBYQA– COBYLA–EI-BO ordering. The conclusions nevertheless remain conditional on this axisymmetric benchmark and do not establish a fixed-current optimum, fixed-power performance, or electrical-efficiency superiority. 
+
+Index Terms —Bayesian optimization, coil geometry, electro-magnetic simulation, FEM-evaluation efficiency, finite-element method, Gaussian-process surrogate, magnetic constitutive mod-elling, simulation-driven design, uncertainty quantification 
+
+I. I NTRODUCTION 
+
+Parameterized field models can require repeated geometry reconstruction, remeshing, and solution, making direct design-space exploration costly as model fidelity and dimensionality increase. Surrogate models reduce the number of required FEM evaluations by learning an approximate input–response map from a limited set of simulations [7], [8]. Gaussian-process regression is attractive in this setting because it is a probabilistic surrogate model that provides both a predictive mean and a model-based uncertainty es-timate [5]. Bayesian optimization can use that estimate to balance predicted response against uncertainty [1], [2]. Ex-isting electromagnetic-design studies establish the usefulness of Kriging and other surrogate models, but comparisons often emphasize a terminal design and do not isolate early-budget progress, information use, and elapsed implementation cost [9], [10]. This motivates the controlled seven-dimensional current-excited coil–core benchmark studied here. Beyond the particular geometry, the study addresses abroader methodological question in simulation-driven engi-neering design: how optimizer rankings change with the available FEM-evaluation budget. Early improvement, termi-nal response, use of initial observations, and wall-clock cost need not favor the same method. Moreover, high held-out surrogate accuracy does not by itself establish an incremental optimization benefit from uncertainty-aware acquisition. These observations provide evidence relevant to other finite-element and partial-differential-equation-constrained design problems; they are not claimed as a universal optimizer ranking. The present work therefore evaluates a standard GP–EI strategy rather than introducing a new kernel or acquisition function. Its contribution is an auditable implementation and budget-dependent empirical comparison on the stated bench-mark. The study makes three workflow- and evaluation-level contributions. First, it implements an automated geometry–constraint–FEM–surrogate loop through Python– MPh–COMSOL. Second, it reports held-out prediction and uncertainty diagnostics as the training size increases. Third, it compares five repeated runs of EI-BO, BOBYQA, COBYLA, EGO, and Nelder–Mead under paired seed-specific initializa-tion and explicit FEM-count accounting. The comparison sep-arates early-budget sample efficiency from terminal response instead of asserting one budget-independent optimizer rank-ing. A retrospective finite-pool ablation additionally checks whether alternative GP kernels or acquisition policies alter the observed conclusion. II. R ELATED WORK 
+
+Sequential Kriging optimization with expected improvement was established by efficient global optimization (EGO) for expensive black-box functions [1]; standard GP regression and Latin hypercube design are described in [5], [6]. In arXiv:2608.18903v1 [cs.LG] 19 Aug 2026 electromagnetic design, Kriging has been coupled with global search for large-scale field models [7], and prior studies have examined how surrogate accuracy and predictive un-certainty affect the number and placement of electromag-netic simulations [8], [9]. More recent work on electric machines combines surrogate prediction with explicit treat-ment of inexpensive geometric constraints in multi-objective search [10]. Earlier coil-specific studies used finite elements to quantify RF-field homogeneity and to combine gradient-based optimization with FEM evaluation [11], [12]. FEM-in-the-loop genetic search has also been demonstrated across several electromagnetic-device designs, including an iron-core coil [13], while a recent electromagnetic-forming study com-bined two-dimensional FEM with response-surface method-ology rather than GP uncertainty or sequential BO [14]. Recent surrogate-assisted electromagnetic studies have exam-ined sampling strategies for uncertainty analysis and opti-mization of EMC simulations [15], Bayesian-neural-network surrogates trained from LHS data generated with COMSOL [16], and neural-surrogate-assisted topology optimization of an electromagnetic-riveting coil [17]. These studies reinforce the broader interest in reducing expensive electromagnetic evaluations, while the present work focuses specifically on GP calibration, paired FEM-budget accounting, and budget-dependent optimizer rankings. Modern BO work also emphasizes that performance de-pends on modeling, constraints, and budget rather than on the acquisition label alone. Practical BO studies have shown that kernel and hyperparameter treatment can materially affect optimizer behavior [2]; constrained BO models unknown fea-sibility jointly with an expensive objective [3]; and trust-region BO replaces one global model with adaptive local models on more difficult search spaces [4]. The present benchmark differs in that its geometric and mass constraints are analytic and inexpensive, so they are screened before FEM evaluation rather than learned as black-box constraints. It also uses a single global GP and therefore does not test whether a trust-region or multi-fidelity construction would generalize better to less smooth electromagnetic responses. These studies show that space-filling initialization, Kriging uncertainty, and sequential infill are established components of simulation-driven electromagnetic optimization. The present work does not claim novelty for those components. Its scope is the implementation and evaluation of a Python–MPh– COMSOL GP–EI workflow for the stated controlled bench-mark, including held-out diagnostics, repeated initial designs, FEM-count accounting, and an explicit separation between observed FEM responses and surrogate predictions. Table I is an illustrative methodological comparison of selected sources, not a systematic literature review or evidence that no closer study exists. III. C OMPUTATIONAL METHODOLOGY 
+
+A. Optimization Problem Formulation 
+
+The benchmark maximizes the FEM-observed surface-averaged magnetic-flux-density magnitude over a prescribed region of interest (ROI). With x = [ c1, r 1, t 1, l 1, l 2, w 1, h 1]T,the complete problem is 
+
+max  
+
+> x
+
+BROI (x)
+
+s.t. Mcore (x) ≤ 200 g ,Mcoil (x) ≤ 50 g ,l1 − h1 − 2 mm ≥ 0,r1 − c1 ≥ 0,
+
+xmin ≤ x ≤ xmax .
+
+(1) The bounds are listed in Table II. The two mass limits are kept separate because magnetic-core material and copper winding are not treated as interchangeable resources. In the intended benchmark-fabrication context, powder-core material was considered comparatively accessible, whereas a separate copper allowance prevents winding volume from dominating the material allocation. The 50-g copper limit is a protective cap: within the present box bounds its analytic maximum is approximately 31.6 g, so it is not active in the reported runs. A single 250-g total-mass limit would define a different feasible domain by allowing core and copper allocations to compensate for one another; that alternative problem is not evaluated here. These limits are benchmark design choices rather than universal manufacturing limits. The excitation is held at fixed current density rather than fixed total current. Consequently, the objective measures the response of the combined geometry and its area-dependent applied current; it is not an electrical-efficiency objective. Section III-D defines the ROI response and physical model in detail. 
+
+B. Overview of the Proposed Framework 
+
+The objective of the present work is to establish a modular computational workflow for surrogate-assisted search over a controlled, parameterized current-excited coil–core benchmark with a powder core represented by a tabulated catalog B–H
+
+relation, using a finite-element reference model and Gaussian-process regression. Rather than treating optimisation as the primary contribution, the proposed workflow constructs asurrogate representation of the FEM response for candidate ranking and subsequent optimisation under the stated geomet-ric and mass constraints. The overall computational workflow, summarized in Fig. 1, consists of seven consecutive stages. They are (1) parame-terization of the benchmark geometry; (2) normalized LHS candidate generation; (3) mapping and geometric/mass screen-ing; (4) COMSOL FEM reference-model evaluation and ROI extraction; (5) GP fitting; (6) held-out accuracy and calibration assessment; and (7) sequential candidate ranking followed by FEM verification. The GP supplies point predictions and model-based uncertainty during the final stage, but every reported design and best-so-far value remains grounded in a completed FEM observation. This division does not im-ply lower end-to-end wall-clock cost than the COMSOL-embedded references. TABLE I ILLUSTRATIVE POSITIONING AGAINST SELECTED VERIFIED ELECTROMAGNETIC -DESIGN STUDIES . T HE TABLE IS NOT AN EXHAUSTIVE SURVEY .“R EPEATED ” DENOTES REPEATED OPTIMIZATION RUNS , NOT REPEATED SOLVER CALLS .Study FEM/EM GP uncertainty Sequential BO Constraints Repeated Distinguishing scope Li et al. [11] Yes No No Geometry No RF-coil B1 homogeneity evaluated with field histograms. Shi and Ludwig [12] Yes No No Application-specific No MRI gradient-coil optimization coupled directly to FEM. Petkovska et al. [13] Yes No No Application-specific No FEM-coupled genetic optimization of electromagnetic-device designs. Satonkar et al. [14] Yes No No Bounded DOE No Two-dimensional FEM with deter-ministic response-surface method-ology. This benchmark study Yes Yes Yes Geometry and mass Five EI seeds Held-out calibration, observed-FEM accounting, and a paired policy ablation.        
+
+> 1. Parameterize benchmark geometry
+> 2. Generate normalized LHS candidates
+> 3. Apply geometric and mass constraints
+> 4. Evaluate the FEM reference model
+> 5. Fit the GP surrogate
+> 6. Evaluate held-out accuracy and calibration
+> 7. Rank feasible candidates and verify selections with FEM
+
+Fig. 1. Seven-stage workflow used in the reported experiment. 
+
+C. Parameterized Coil–Core Benchmark 
+
+Tables II–IV summarize the independent design variables, fixed physical parameters, and analytically derived screening quantities, respectively. The controlled benchmark considered in this work is a parameterized current-excited coil–core geometry for localized magnetic-field evaluation. Its computational geometry consists of a stepped soft-magnetic core domain and a concentric copper coil domain, with a prescribed region of interest (ROI) above the assembly. An axial aperture is included while pre-serving geometric symmetry. The model is not presented as a validated representation of a particular commercial material or device. Instead, it provides a fixed and sufficiently structured reference problem for developing and evaluating the proposed surrogate-modelling workflow. To enable systematic exploration of the design space, the geometry is parameterized using seven independent design variables, 
+
+x = [ c1, r 1, t 1, l 1, l 2, w 1, h 1]T , (2) where c1 denotes the aperture radius, r1 the lower core radius, t1 the radial extension defining the upper core radius, 
+
+l1 and l2 the heights of the lower and upper core sections, respectively, and w1 and h1 define the radial width and axial height of the annular coil domain. These variables completely  
+
+> zrROI High Flux core copper coil
+> c1
+> r1t1
+> l1
+> l2
+> w1
+> h1
+
+Fig. 2. Meridional schematic of the axisymmetric benchmark parameter-ization (not to scale). The dashed copper-coil domain carries the current excitation and is included in the geometric and mass constraints. 
+
+describe the geometry while remaining sufficiently compact for surrogate modelling and design-space exploration. Several geometric quantities are obtained analytically from the independent variables rather than treated as additional optimisation variables. In particular, the upper core radius and coil outer radius are given by 
+
+r2 = r1 + t1, r0 = r1 + w1, (3) thereby ensuring geometric consistency throughout the pa-rameterized design space. The coil bottom is fixed at z = 2 
+
+mm; hence the axial fit constraint is 
+
+l1 − h1 − 2 mm ≥ 0. (4) The manufactured dimensions c1, t1, l2, w1, and h1 obey a 0.5-mm minimum. A separate 0.5-mm lower bound on l1 is redundant because h1 ≥ 0.5 mm and the fit constraint imply 
+
+l1 ≥ 2.5 mm. These conditions are enforced identically in LHS filtering, online candidate selection, and the COMSOL-embedded optimization step. Each regenerated FEM dataset stores a design-space fingerprint, and downstream stages reject data created under obsolete bounds or constraints. Core and coil masses are evaluated from the parameterized geometry and used for design-space screening. In the current COMSOL file, the coil physics feature and copper material are both assigned to domain 3, while the core material is assigned to domain 2 and air to domain 1. The coil is represented as a TABLE II INDEPENDENT DESIGN VARIABLES DEFINING THE PARAMETERIZED BENCHMARK GEOMETRY .
+
+Symbol Description Unit Feasible range 
+
+c1 Aperture radius mm [0 .5, 5] 
+
+r1 Lower core radius mm [10 , 20] 
+
+t1 Radial extension of upper core mm [0 .5, 10] 
+
+l1 Lower core height mm [2 .5, 20] , with l1 ≥ h1 + 2 
+
+l2 Upper core height mm [0 .5, 20] 
+
+w1 Coil radial width mm [0 .5, 5] 
+
+h1 Coil axial height mm [0 .5, 5] 
+
+> TABLE III FIXED PHYSICAL AND MATERIAL PARAMETERS FOR THE REGENERATED BENCHMARK .
+
+Symbol Description Unit Value / Assumption 
+
+ρCu Copper density kg m −3 8940 
+
+σCu Coil electrical conductivity S m −1 6.0 × 10 7
+
+Japply Applied current-density parameter A m −2 1.0 × 10 6
+
+ρcore Core density kg m −3 7000 
+
+Bsat High Flux saturation flux density T 1.5 [18] Grade Manufacturer nominal permeability grade – 125 [18] 
+
+μr, sec Low-field secant value implied by the first table interval – 120.0 
+
+μr, air Air relative permeability – 1
+
+> TABLE IV DERIVED GEOMETRIC AND SCREENING QUANTITIES .
+
+Symbol Description Unit Expression 
+
+r2 Upper core radius mm r1 + t1
+
+r0 Coil outer radius mm r1 + w1
+
+Mcore Core mass kg ρcore Vcore 
+
+Mcoil Coil mass kg ρCu Vcoil 
+
+Mtotal Total mass kg Mcore + Mcoil 
+
+Icoil Applied coil current A Japply w1h1
+
+homogenized annular current-carrying domain rather than an explicit turn-resolved winding. For the regenerated experiment, the core is modelled as an isotropic soft-magnetic High Flux 125 domain using the model-embedded 63-point effective DC magnetization table described below. The manufacturer’s published material curves provide family-level context [19], but the project archive does not independently preserve the row-level digitization provenance of the embedded table. The quoted Bsat = 1 .5 Tis a material characteristic and is not a remanent-flux-density input. The coil domain uses the configured copper properties, and the remaining electromagnetic domain is free space. Dynamic hysteresis, core loss, and coupled electro–thermal effects remain outside the steady magnetostatic benchmark. The independent design variables, fixed benchmark param-eters, and derived screening quantities are summarized in Tables II–IV. For sampling and surrogate construction, the physical design vector is associated with a dimensionless normalized represen-tation, 
+
+u = [ uc1 , u r1 , u t1 , u l1 , u l2 , u w1 , u h1 ]T ∈ [0 , 1] 7. (5) For each design variable xj , the corresponding normalized coordinate uj is mapped to the physical parameter range according to 
+
+xj = xmin  
+
+> j
+
++ uj
+
+ xmax  
+
+> j
+
+− xmin 
+
+> j
+
+ , j = 1 , . . . , 7, (6) where xmin  
+
+> j
+
+and xmax  
+
+> j
+
+denote the lower and upper bounds listed in Table II. Latin hypercube sampling is performed in the normalized unit hypercube, whereas the resulting phys-ical variables are used to construct the parameterized FEM geometry and evaluate the associated screening constraints. The normalized coordinates are retained as the numerical input features for subsequent surrogate model construction. 
+
+D. FEM Reference-Model Evaluation 
+
+The response of the parameterized coil–core geometry is evaluated using a two-dimensional axisymmetric finite-element model. The computational domain represents the meridional cross-section of the corresponding rotationally symmetric benchmark, avoiding explicit discretization of the circumferential direction. 
+
+Governing equations and physical assumptions 
+
+The benchmark is modeled under a steady magnetostatic assumption. It is not tied to a time-dependent device applica-tion; displacement currents, wave propagation, and dynamic material effects are outside its definition. In the FEM implementation, the magnetostatic problem is solved using the magnetic vector potential formulation and an isotropic nonlinear constitutive law, 
+
+B = ∇ × A, ∇ × H(B) = Je, (7) where A is the magnetic vector potential and Je denotes the impressed source associated with the active coil domain. The collinear isotropic relation ∥H∥ = f (∥B∥) is supplied by the High Flux 125 effective DC magnetization data. All simulations are performed under steady-state magnetostatic conditions. Eddy currents, displacement currents, and frequency-dependent effects are not considered in the present model. 
+
+Nonlinear core constitutive specification 
+
+High Flux is a 50% Ni–50% Fe distributed-gap powder-core family with soft saturation [20]. Magnetics specifies a saturation flux density of 15,000 gauss (1.5 T) and includes a nominal 125-permeability grade [18]. The value 125 identifies the manufacturer’s material grade; the solver does not use a constant relative permeability of 125. Instead, the core-domain Amp` ere’s Law feature uses a 63-point DC B-H curve tabulated as ∥B∥ = g(∥H∥), with H in A/m and B in tesla; COMSOL constructs the inverse relation needed by the constitutive formulation. The table begins at (0 , 0) ; its first nonzero entry is (795 .77 A /m, 0.12 T) , which implies a low-field secant relative permeability of approximately 120.0 over that first interpolation interval. Field-dependent secant and differential permeabilities are determined by the complete table. Thus the nominal grade, the tabulated low-field slope, and the field-dependent constitutive response are distinct quantities. The configured core feature uses B-H curve , not Remanent Flux Density, Nonlinear Permanent Magnet, Magnetic Losses, or Effective B-H Curve. The material remanent-flux-density magnitude is zero. The last two alternative features target time-harmonic calculations, whereas this study is stationary [21]. The quoted Bsat is not imposed as a discontinuous cap or source; the gradual roll-off is represented by the curve. The model assigns the copper material and active coil feature to domain 3, the nonlinear High Flux core material to domain 2, and air to domain 1. Table III reports the parameters that define the regenerated benchmark response or its analytic screening constraints. 
+
+Computational Domain and Boundary Conditions 
+
+The benchmark geometry is embedded within a finite rect-angular meridional air domain. In the COMSOL geometry, this domain spans 0 ≤ r ≤ 200 mm and −100 ≤ z ≤ 100 mm. This fixed domain is used for every parameterized geometry. Magnetic insulation boundary conditions, n × A = 0 , are applied at the outer boundary, where n denotes the outward unit normal vector. Enlarging the square domain from 200 to 300 and 400 mm increases the ROI response by 0.214% and 
+
+0.228% , respectively, at the selected EI design. The production experiments retain the 200-mm domain; this residual domain-size dependence is reported as a local numerical limitation. The axisymmetric formulation enforces rotational symmetry about the model axis. No additional mirror-symmetry reduction is applied in the meridional plane. 
+
+Meshing Strategy and Numerical Accuracy 
+
+An unstructured free-triangular mesh is generated over all three model domains. The stored COMSOL model uses its automatic mesh-size setting ( hauto=3 , with custom=off )rather than separately specified local-refinement regions. The same automatic meshing prescription is applied after each parameterized geometry update. At the selected feasible EI design, hauto =3, 2, and 1 generate 2574, 7029, and 26386 elements and responses of 0.00091952 , 0.00091963 , and 
+
+0.00092015 T, respectively. The production-mesh response is therefore 0.069% below the finest-mesh result in this local check. 
+
+Field Quantities and Surrogate Target Definition 
+
+For each parameterized geometry, the finite element model computes the magnetic flux density field B(r) throughout the computational domain. While the complete field solu-tion contains rich spatial information, directly constructing a surrogate model for the full magnetic field distribution is computationally inefficient and unnecessary for the present design objective. Instead, a scalar benchmark response is extracted from the FEM solution and adopted as the prediction target for surrogate modelling. A region of interest (ROI) is defined beneath the magnetic core to represent the target evaluation surface for electro-magnetic performance assessment. In the two-dimensional axisymmetric COMSOL geometry, the selected entity is the line segment from (r, z ) = (0 , −10) mm to (5 , −10) mm. Revolving this segment about the symmetry axis produces a circular surface of radius 5 mm. The 5-mm radius and 10-mm axial offset are fixed benchmark choices for a localized field metric, not application-derived standards or optimization variables. The surrogate target is the axisymmetric surface average of the magnetic-flux-density magnitude, 
+
+BROI = 1
+
+AROI 
+
+Z
+
+> ΓROI
+
+|B(r, z )| 2πr ds, (8) where ΓROI is the selected meridional line and AROI =R 
+
+> ΓROI
+
+2πr ds is the area of its surface of revolution. The numerical quadrature, axisymmetric weighting, and normal-ization are performed by COMSOL’s boundary probe through its Average dataset ( bnd1 /avh1 , intsurface=on ). No 
+
+2πr factor is introduced manually in the model or in post-processing. Compared with a single-point measurement, the surface-averaged magnetic flux density provides a more stable scalar response by reducing sensitivity to localized numerical vari-ations arising from mesh discretization and field interpola-tion. The averaging operation also reduces the influence of isolated local field extrema and provides a scalar response representative of the magnetic field magnitude within the prescribed target region. This quantity is therefore suitable as the prediction target for Gaussian-process surrogate modelling. The ROI-averaged magnetic flux density magnitude conse-quently constitutes the scalar training target adopted through-out this work. Spatial field maps and radial ROI profiles of the three selected designs are reported only as post-optimization diagnostics; they are not additional surrogate outputs or opti-mization objectives. Accordingly, the scalar surrogate target used in the subse-quent Gaussian-process modelling procedure is denoted by 
+
+y = BROI , (9) with units of tesla. 
+
+Coil Excitation Scope 
+
+The active COMSOL coil feature uses current excitation with 
+
+Icoil (x) = Japply w1h1, Japply = 10 6 A/m2. (10) Thus the applied total current changes with the coil cross-sectional area. A fresh-session diagnostic reloads the source model separately for each case, rebuilds the geometry and mesh, and executes a new stationary solve without saving the source file. At the stored geometry it gives BROI = 0 for 
+
+Japply = 0 , and BROI = 0 .000776958 T for the configured 
+
+Japply = 10 6 A/m2. The zero-current result is consistent with the absence of remanence or another impressed field source. The optimization is therefore conditional on a fixed-current-density formulation. Section V-E additionally re-evaluates the three selected geometries at one common total current, but does not re-optimize the design space under fixed current or fixed power and does not establish electrical efficiency. 
+
+FEM Dataset Generation 
+
+Latin hypercube sampling (LHS) is performed in the nor-malized seven-dimensional space. Samples are mapped to physical variables, screened against the geometric and mass constraints, evaluated by COMSOL, and stored as DFEM =
+
+{(ui, y i)}250 
+
+> i=1
+
+, where yi = BROI ,i . The following subsection describes the subsequent split and preprocessing; the physical parameters are retained for reconstruction and traceability. 
+
+E. Gaussian Process Surrogate Modelling 
+
+FEM Training Dataset Construction 
+
+The parameter table retains each physical design xi, nor-malized coordinate ui, and the associated geometric and mass-screening quantities. The COMSOL target table is keyed by the same sample identifier and stores ui together with the FEM response yi, matching the original experiment interface. The GP uses ui as input, while the paired parameter table is retained for COMSOL reconstruction and benchmark inter-pretation. The dataset is split before any training-dependent preprocessing or model fitting. The surrogate-data flow is summarized in Fig. 3. The complete dataset-generation procedure is automated through the MPh interface, which programmatically transfers 
+
+Physical design space 
+
+x ∈ [xmin , xmax ]
+
+Normalized design space 
+
+u ∈ [0 , 1] 7
+
+Latin hypercube sampling Normalized samples ui
+
+Mapping to physical geometry 
+
+ui 7 → xi
+
+Geometric and mass-constraint screening FEM reference-model evaluation (COMSOL + MPh) FEM dataset 
+
+DFEM = {(ui, y i)}250 
+
+> i=1
+
+Gaussian-process surrogate Training and inference Predictive mean and uncertainty 
+
+μ(u), σ (u)
+
+Surrogate validation                
+
+> Normalization
+> uj=xj−xmin
+> j
+> xmax
+> j−xmin
+> j
+> Denormalization
+> xi,j =xmin
+> j+ui,j (xmax
+> j−xmin
+> j)
+> Fig. 3. Data flow of the proposed surrogate-modelling framework. The bounded physical design space is represented using dimensionless coordinates in the unit hypercube, where Latin hypercube sampling is performed. Each normalized sample is mapped back to its corresponding physical geometry for constraint screening and FEM reference-model evaluation. The normalized coordinates and their associated FEM responses are subsequently paired to construct the Gaussian-process dataset.
+
+the physical geometric parameters to COMSOL, executes the required geometry, mesh, and solution sequences, and extracts the prescribed ROI response. The resulting workflow eliminates manual intervention during repeated FEM evaluation and establishes a traceable interface between parameterized electromagnetic simulation and Gaussian-process surrogate construction. 
+
+Preprocessing and Data Splits 
+
+The 250 FEM records are represented by normalized co-ordinates ui ∈ [0 , 1] 7 and scalar responses yi. For each of five random seeds, 50 records are held out before fitting and the remaining 200 form the training pool. Nested subsets of 25 , 50 , . . . , 200 training records are used for the learning curves, while the 50-sample validation set remains fixed within each split. Within every fit, each input coordinate and the target are standardized using means and sample standard devia-tions computed only from the active training subset. The same training-derived transformations are applied to vali-dation points and sequential-search candidates. Predictions are inverse-transformed to tesla before computing metrics or expected improvement; validation observations never enter preprocessing or hyperparameter estimation. 
+
+Gaussian-Process Model 
+
+The standardized response is modeled with a zero-mean Gaussian process [5] and a Mat´ ern-5/2 covariance with auto-matic relevance determination (ARD), plus a white-noise term: 
+
+k(u, u′) = σ2
+
+> f
+
+
+
+1 + √5d + 53 d2
+
+
+
+e−√5d
+
++ σ2
+
+> n
+
+δu,u′ ,d2 =
+
+> 7
+
+X
+
+> j=1
+
+(euj − eu′ 
+
+> j
+
+)2
+
+ℓ2
+
+> j
+
+.
+
+(11) Here euj denotes an input standardized using the active training subset. The implementation uses Python 3.14.6, NumPy 2.4.3, SciPy 1.17.1, and scikit-learn 1.8.0. The GaussianProcessRegressor kernel is initialized as ConstantKernel(1 , [10 −3, 10 3]) times an ARD Mat´ ern-5/2 kernel with all seven initial length scales equal to one and bounds [10 −3, 10 3], plus 
+
+WhiteKernel(10 −6, [10 −10 , 10 −1]) . Targets are standardized externally, so normalize_y=False ; the regressor uses 
+
+alpha=0 , scikit-learn’s L-BFGS-B optimizer, eight optimizer restarts, and the split seed as random_state . Thus the standardized GP has a zero prior mean rather than an independently fitted constant-mean parameter. The seven length scales ℓj , signal variance σ2 
+
+> f
+
+, and white term σ2 
+
+> n
+
+are estimated by maximizing the log marginal like-lihood. Because the FEM responses are deterministic, the white term is interpreted as a numerical nugget that absorbs solver, interpolation, and model-fit discrepancies rather than as physical measurement noise. Across the five 200-sample fits, its optimized value ranged from 1.0×10 −10 to 3.04 ×10 −5 on the standardized target scale. Two convergence warnings were recorded across these fits; some smaller-sample learning-curve fits also reached a kernel bound. For a query u∗, standard GP conditioning provides predic-tive mean μ∗(u∗) and variance σ2 
+
+> ∗
+
+(u∗):
+
+μ∗ = m∗ +kT 
+
+> ∗
+
+K−1(ey−m), σ2 
+
+> ∗
+
+= k∗∗ −kT 
+
+> ∗
+
+K−1k∗. (12) Both quantities are transformed back to the physical response scale. The predictive mean supplies the point estimate. Held-out calibration uses scikit-learn’s full predictive standard devi-ation, which includes the fitted WhiteKernel contribution at a test point. For deterministic acquisition, the corrected implementation instead uses latent-function variance: the train-ing covariance retains the fitted nugget, while the test-point diagonal and cross-covariance use only the signal kernel. 
+
+F. Surrogate Validation 
+
+Held-out validation protocol 
+
+To assess the predictive capability of the Gaussian-process surrogate, model validation is performed using an indepen-dent held-out dataset that is excluded entirely from surrogate training and hyperparameter optimization. Within each repeated experiment, 50 samples are held out before model fitting and retained as an unchanged validation set across all investigated training-set sizes. The remaining 200 samples form the corresponding training pool, from which nested training subsets are constructed. To assess sensitivity to a particular data partition, the complete procedure is repeated using five distinct random seeds. Each seed therefore produces a different train–validation partition and a separate learning curve, while preserving a fixed validation set within that repeat. During validation, each unseen design sample is first trans-formed using the standardization parameters obtained from the training dataset before being supplied to the trained Gaussian-process model. The predicted responses are subsequently converted back to the original physical units and compared directly with the corresponding FEM responses. This validation strategy evaluates the surrogate on held-out geometries and provides an out-of-sample estimate for the sampled design distribution; it does not establish performance outside the stated parameter ranges or topology. Furthermore, maintaining an identical validation dataset throughout the sample-complexity study enables fair comparison between surrogate models trained using different numbers of FEM samples. 
+
+Point Prediction Metrics 
+
+Point accuracy is summarized by RMSE, MAE, and R2,evaluated after inverse-transforming predictions to tesla. Here 
+
+yi is the FEM response and ˆyi is the GP predictive mean for held-out sample i. RMSE emphasizes larger errors, MAE reports the average absolute error, and R2 measures explained held-out variation. 
+
+Uncertainty Calibration 
+
+For held-out sample i, the inverse-transformed GP standard deviation is σi. Calibration is assessed by the empirical fractions satisfying |yi − ˆyi| ≤ σi and |yi − ˆyi| ≤ 2σi,compared descriptively with the Gaussian reference coverages of 68 .27% and 95 .45% . Standardized residuals (yi − ˆyi)/σ i
+
+are also inspected. These diagnostics test interval behavior on held-out samples; they do not establish calibrated probabilistic guarantees. The standardized-residual mean and sample stan-dard deviation summarize bias and dispersion. Negative log predictive density is computed as 
+
+NLPD := 1
+
+N
+
+> N
+
+X
+
+> i=1
+
+ 12 log(2 πσ 2 
+
+> i
+
+) + (yi − ˆyi)2
+
+2σ2
+
+> i
+
+
+
+. (13) Because this physical-scale NLPD changes under a change of output units, a standardized-target NLPD is also reported; it subtracts the logarithm of the training target scale from the tesla-scale value. Neither value is compared across different physical tasks. Reliability curves evaluate empirical central Gaussian intervals at 19 nominal levels p from 0.10 to 0.99, using half-width zpσi, where zp = Φ−1[(1 + p)/2] . The plotted band is the mean empirical coverage plus or minus the sample standard deviation across five splits; it is not a confidence band. A pooled standardized-residual Q–Q plot and an absolute-error-versus-predictive-standard-deviation scatter plot expose tail behavior that is not visible from the two coverage values alone. 
+
+Diagnostic and sample-complexity analysis 
+
+Parity, reliability, error-versus-uncertainty, and standardized-residual Q–Q plots complement the scalar metrics. The same validation protocol is applied to nested training subsets to examine how point accuracy and interval coverage change with sample size. The diagnostic figures and results are reported once in Section V. IV. O PTIMIZATION PROTOCOL 
+
+A. Protocol Summary 
+
+The objective, variables, and complete feasible domain are defined together in Section III-A. Each normalized candidate is mapped to physical units and screened analytically before FEM evaluation. The GP is used only to rank search locations: every incumbent, trajectory value, and reported final design is based on a finite FEM observation. The objective contains the combined response of the tabulated High Flux core and the active current-excited coil; the configured material remanence and external field inputs are zero. 
+
+B. COMSOL-Embedded Reference Optimizers 
+
+BOBYQA, COBYLA, EGO, and Nelder–Mead were run through the COMSOL optimization interface using the same parameterized FEM model, variable bounds, constitutive rep-resentation, active coil excitation, and analytical constraints. Each method directly evaluated BROI ; no external GP predic-tion replaced its FEM objective. For each seed, comparison accounting starts from the same 25 feasible LHS observations used by EI-BO. The embedded optimizer itself does not fit those observations; it starts from a common interior feasible design selected deterministically from that seed’s shared set. Its best-so-far continuation is combined with the shared initial incumbent. Thus the protocol shares the initial incumbent and accounted FEM history, but it does not provide equal use of the 25 observations: EI-BO fits all of them, whereas an embedded method uses one start point. The comparison is consequently an implementation-level workflow comparison rather than an equal-information algorithm experiment. Each continuation has an accounted budget of 
+
+N max cont = 50 , N max total = 25 + 50 = 75 . (14) Native solver stopping conditions remained active, so an em-bedded continuation could terminate before using all 50 calls. All five methods were repeated for seeds 42–46, permitting paired comparisons at common accounted counts. 
+
+C. Sequential Expected-Improvement Search 
+
+Five EI runs use seeds s ∈ { 42 , 43 , 44 , 45 , 46 }. Each run begins with N0 = 25 feasible LHS designs evaluated by the FEM model. Input and target transformations are fitted only to observations available within that run, and a separate Mat´ ern-
+
+5/2 ARD GP is refitted after every new observation. The initial 25 labels are selected from the regenerated 250-record FEM table; subsequent online candidate labels are obtained by new COMSOL evaluations and are never looked up from the remaining offline records. For incumbent y(n)best = max i≤n yi, the standard maximization-form expected improvement is 
+
+EI n(u) = ∆ n(u)Φ( zn) + σn(u)ϕ(zn),
+
+∆n = μn(u) − y(n)best ,zn = ∆n
+
+σn(u) .
+
+(15) with EI set to zero when σn(u) = 0 . The exploration offset is 
+
+ξ = 0 . Acquisition uses the latent-function predictive standard deviation, excluding the fitted white-noise contribution. EI is optimized by deterministic finite-candidate maxi-mization rather than a continuous or multi-start optimizer. At online iteration n, a new pool of 5000 feasible LHS candidates is generated in [0 , 1] 7 using seed s + 1009 n.Analytic geometric and mass constraints are applied during pool generation. Candidates whose Euclidean distance from any observed normalized design is at most 10 −3 are removed. The GP mean, standard deviation, and EI are then evaluated for every remaining candidate, and the point with the largest EI is selected; ties follow NumPy’s first-maximum rule. No SciPy continuous acquisition optimizer or restart procedure is used. The selected design is mapped to physical units, evaluated once by COMSOL, appended to the run-specific dataset, and used to refit the GP. This continues for 50 sequential acquisitions, giving 75 accounted FEM observations per run. Final designs and best-so-far trajectories use only observed FEM responses, never unevaluated GP predictions. 
+
+D. Paired Finite-Pool Policy Ablation 
+
+To isolate candidate-selection policy without additional solver calls, a retrospective ablation uses the 250-record FEM table as a finite candidate set. Random continuation, the current scikit-learn posterior mean and EI, and BoTorch posterior mean and logarithmic EI with screened kernels share 25 initial observations and reveal 50 additional labels per seed. The kernel screen compares Mat´ ern-1/2, Mat´ ern-3/2, Mat´ ern-
+
+5/2, and radial-basis-function covariances on five fixed 200/50 splits. Because this test can select only previously evaluated geometries, it diagnoses policy sensitivity but cannot estimate prospective continuous-domain performance. E. Comparison, Cost Accounting, and Rerun 
+
+Python controls normalization, feasibility checks, GP fitting, EI evaluation, and data logging; MPh transfers physical param-eters to COMSOL, which rebuilds the geometry and mesh, solves the axisymmetric model, and returns the axisymmetric surface average of mf.normB . The 25 initial FEM obser-vations and up to 50 retained continuation observations are included in every method’s accounted cumulative budget. An accounted FEM observation is either one shared initial observation or one retained finite continuation objective within the configured cap. A raw solver execution, a finite objective return, and a unique feasible geometry are stored separately. COMSOL can emit a terminal or restart row after the nominal cap; for example, EGO seed 43 contains 51 finite continuation rows and hence 76 raw observations, while its accounted comparison budget remains 75. Across the five EGO runs the mean raw count is 75.2. These extra rows are implementation overhead and are not silently described as unique-design budget slots. The primary horizontal axis is therefore the number of accounted FEM observations, not every low-level solver exe-cution. Performance is reported through best-so-far trajectories and the best observed response at evaluations 30, 40, 50, and 75. Across the five paired seeds, checkpoints and endpoints are summarized by their mean and sample standard deviation. Paired endpoint tests are supporting rather than definitive evidence because five seeds provide limited power. For terminal comparisons, two-sided paired t-tests are ap-plied to the five seed-matched differences, and Cohen’s dz
+
+is reported as the paired effect size. With only five pairs, a normality test would itself have little diagnostic power; ap-proximate normality is therefore not claimed. The ten pairwise 
+
+p-values are exploratory and are reported without a multiple-comparison correction, so the response differences, seed-wise consistency, and effect sizes carry more interpretive weight than thresholded significance. For a natively early-stopped run, its last FEM-observed incumbent is its terminal response; missing later checkpoints are not forward-filled for checkpoint summaries. End-to-end elapsed time is reported separately. It includes initial-data generation, Python–MPh communication, GP re-fitting, candidate selection, and COMSOL execution for EI, whereas embedded times include the corresponding internal COMSOL runs. These measurements describe implementation cost but do not provide a controlled wall-clock comparison. The best observed EI design is transferred through the same Python–MPh–COMSOL path and solved again. Agreement checks parameter reconstruction and software-path repeatabil-ity only; it is not independent physical validation. The final GP prediction and standardized residual at that design are reported as local surrogate diagnostics. V. R ESULTS AND DISCUSSION 
+
+A. Surrogate Accuracy and Calibration 
+
+The learning-curve experiment used nested training sets of 
+
+25 , 50 , . . . , 200 samples and a fixed 50-sample validation set within each split. Figure 4 shows the representative seed-42 split. Across the five splits, point accuracy improved most strongly up to approximately 100 training samples, contin-ued to improve more gradually through approximately 150 samples, and changed comparatively little thereafter. Table V reports the corresponding mean and sample standard deviation across five train–validation splits. At 200 training samples, the five-split mean R2 was 0.9996 
+
+with a sample standard deviation of 0.0002 . The corresponding mean RMSE and MAE were 3.29 and 2.09 μT. The seed-42 model used for the detailed diagnostics is reported separately in Table VI. Across the five splits, mean ±1σ coverage exceeded the Gaussian reference while mean ±2σ coverage remained below it. For the seed-42 model, one-sigma coverage was above its Gaussian reference, whereas two-sigma coverage remained below its reference. The intervals are therefore useful diagnostics rather than calibrated probability guarantees. Pooling the 250 held-out predictions from the five 200-sample fits gave a standardized-residual mean of −0.122 
+
+and sample standard deviation of 1.315 . The mean split-level NLPD was −11 .178 on the tesla scale and −2.523 
+
+on the standardized-target scale. These values describe the same within-task predictions under different output scalings and are not interpreted as absolute measures of quality. The dispersion above one and the reliability curve in Fig. 5 indicate under-dispersed uncertainty for part of the sampled design distribution, especially in the negative residual tail. Table VII shows that the fitted surrogate varied most rapidly along h1 and w1 and most slowly along c1 within the sampled, standardized design space. These descriptive ARD rankings can be affected by correlation, constraints, and kernel misspec-ification and are not interpreted as physical causal sensitivities. Across the five fits, the signal variance ranged from 70.04 to 231.72 and the optimized log marginal likelihood from 397.01 to 419.71. None of the seven length scales reached its 10 3 upper bound in these 200-sample fits. Their large values relative to the standardized coordinate span indicate a very smooth fitted response and may also reflect compensation between signal amplitude and length scale; accordingly, the very large c1 scale and the ARD table as a whole are treated as surrogate diagnostics rather than a standalone sensitivity analysis. The high held-out accuracy and large fitted length scales also show that this response surface is unusually smooth over the sampled feasible domain. The benchmark is consequently useful for studying FEM-budget allocation and workflow be-havior, but it does not demonstrate a unique advantage of uncertainty-aware BO on a strongly non-smooth or highly multimodal response. This interpretation is consistent with the finite-pool result that posterior mean, EI, and logarithmic EI reach the same endpoint. 
+
+B. Fixed-Budget Optimization 
+
+Each run begins with 25 shared LHS observations and permits up to 50 method-specific continuation evaluations. All five methods were repeated for seeds 42–46. Figure 6 (a) (b) (c) 
+
+(d) (e) 
+
+Fig. 4. Representative seed-42 learning curves: (a) R2, (b) RMSE, (c) MAE, (d) empirical ±1σ coverage, and (e) empirical ±2σ coverage. TABLE V LEARNING -CURVE METRICS ACROSS FIVE TRAIN –VALIDATION SPLITS , REPORTED AS MEAN ± SAMPLE SD. RMSE AND MAE ARE IN μT.
+
+Ntrain R2 RMSE MAE C1σ C2σ
+
+25 0.9872 ± 0.0041 20 .32 ± 2.92 14 .07 ± 1.63 0.516 ± 0.097 0.776 ± 0.085 
+
+50 0.9973 ± 0.0013 9.14 ± 2.17 6.83 ± 1.62 0.580 ± 0.110 0.856 ± 0.071 
+
+75 0.9985 ± 0.0008 6.77 ± 1.86 4.77 ± 1.14 0.572 ± 0.117 0.868 ± 0.061 
+
+100 0.9991 ± 0.0004 5.33 ± 1.12 3.61 ± 0.53 0.668 ± 0.046 0.920 ± 0.035 
+
+125 0.9992 ± 0.0004 4.96 ± 1.30 3.18 ± 0.75 0.720 ± 0.075 0.908 ± 0.030 
+
+150 0.9994 ± 0.0003 4.38 ± 1.39 2.78 ± 0.77 0.712 ± 0.083 0.908 ± 0.058 
+
+175 0.9995 ± 0.0003 3.69 ± 1.14 2.30 ± 0.41 0.732 ± 0.046 0.896 ± 0.043 
+
+200 0.9996 ± 0.0002 3.29 ± 0.84 2.09 ± 0.29 0.736 ± 0.046 0.908 ± 0.023 
+
+TABLE VI HELD -OUT PERFORMANCE OF THE 200-SAMPLE SEED -42 GP USED FOR THE DETAILED DIAGNOSTIC PLOTS .Metric Value 
+
+R2 0.9993 
+
+RMSE 4.680 μT
+
+MAE 2.235 μT
+
+C1σ 0.76 
+
+C2σ 0.90 
+
+Standardized-residual mean −0.449 
+
+Standardized-residual sample SD 1.668 
+
+Mean NLPD (tesla scale) −10 .708 
+
+and Table IX report the observed best-so-far trajectories, selected budget checkpoints, and terminal responses. At each accounted observation count, the plotted bands are pointwise two-sided 95% Student-t intervals ¯yn ±t0.975 ,4sn/√5. It is not a simultaneous confidence band over the complete trajectory. The budget-dependent behavior is more informative than a single terminal ranking. Numerical “mean ± sample SD” 
+
+TABLE VII ARD LENGTH SCALES FROM THE FIVE 200-SAMPLE FITS . V ALUES ARE MEAN ± SAMPLE SD ON STANDARDIZED INPUT COORDINATES ; LOWER VALUES INDICATE STRONGER SURROGATE -IMPLIED VARIATION , NOT CAUSAL IMPORTANCE .Variable Length scale Rank 
+
+h1 21 .10 ± 3.36 1
+
+w1 22 .56 ± 4.14 2
+
+t1 28 .74 ± 3.35 3
+
+l1 28 .84 ± 3.18 4
+
+l2 35 .29 ± 6.24 5
+
+r1 36 .58 ± 3.82 6
+
+c1 591 .41 ± 176 .53 7
+
+summaries are used in the following text, whereas Fig. 6 shows 95% confidence-interval bands. From a common mean initial incumbent of 0.675 mT, EI-BO reaches 0.883 ± 0.019 
+
+mT by n = 30 , after only five new FEM calls. It remains ahead of BOBYQA, EGO, and Nelder–Mead at n = 40 
+
+and n = 50 ; at the latter checkpoint their means are 0.893 ,(a) 
+
+(b) 
+
+(c) 
+
+(d)      
+
+> Fig. 5. Surrogate diagnostics: (a) seed-42 parity with ±1σerror bars; and five-split 200-sample diagnostics comprising (b) the reliability curve with a cross-split ±sample-SD band (not a confidence band), (c) absolute error versus predictive standard deviation, and (d) a pooled standardized-residual Q–Q plot.
+
+0.830 , 0.680 , and 0.713 mT, respectively. BOBYQA subse-quently continues improving and reaches 0.943 ± 0.027 mT at n = 75 , exceeding EI-BO’s 0.909 ± 0.012 mT. COBYLA is an important exception to the low-budget pattern: it reaches 
+
+0.938 ± 0.018 mT by n = 30 , and several runs terminate before later common checkpoints. Consequently, the evidence supports early-budget competitiveness against three references, not budget-independent superiority over every optimizer. COBYLA’s native stopping is retained rather than artificially extending a converged COMSOL run. For seeds 42–46 it stops at cumulative FEM counts 34 , 37 , 34 , 34 , and 41 , with terminal responses 0.9652 , 0.9513 , 0.9183 , 0.9182 , and 0.9494 
+
+mT, respectively. Thus all five runs contribute at n = 30 , only seed 46 reaches n = 40 , and no five-seed COBYLA summary exists at n = 50 or n = 75 . The terminal COBYLA mean uses each run’s last observed incumbent; the checkpoint table leaves unsupported later entries blank. At the terminal observation of each run, EI-BO exceeds Fig. 6. Best FEM-observed response versus cumulative accounted FEM observations over five paired seeds. Every trajectory includes the same seed-specific 25-point initial set. Bands are pointwise 95% Student-t intervals, not simultaneous confidence bands. 
+
+EGO by 0.186 mT ( dz = 5 .05 , unadjusted p = 3 .51 × 10 −4)and Nelder–Mead by 0.166 mT ( dz = 2 .42 , p = 5 .64 × 10 −3)in paired tests. BOBYQA exceeds EI-BO by 0.03385 mT (dz = 2 .02 , p = 0 .0106 ); COBYLA’s 0.0313 -mT advantage has dz = 1.09 and p = 0.0714 . These five-seed results establish neither a universal optimizer ranking nor a physical optimum. They show consistently higher paired terminal re-sponses for external GP–EI than for the tested COMSOL EGO and Nelder–Mead implementations on this benchmark, while the effect sizes and raw differences remain more informative than the exploratory p-value thresholds. 
+
+C. Paired Policy-Ablation Results 
+
+Table VIII reports the shared-initialization, finite-pool ab-lation. Kernel screening selected the lowest mean held-out NLPD over the five fixed 200/50 splits, using mean RMSE as a tie-breaker. This rule selected a BoTorch Mat´ ern-5/2 ARD model with a length-scale-prior mean of five. Its mean held-out RMSE was 3.162 μT, compared with 3.289 μT for the production scikit-learn model, but its predictive intervals were overly conservative (99.6% empirical coverage for a nominal 95% interval). All four GP policies reached the same finite-pool endpoint. BoTorch logarithmic EI found that endpoint one evaluation earlier than scikit-learn EI in seed 42 and showed no arrival-time advantage in the other four seeds. Thus kernel tuning slightly improves point prediction but does not provide evidence of a robust optimization improvement. Because this experiment reveals values from a fixed pool rather than running new online trajectories, it does not re-place a prospective continuous-domain COMSOL comparison. Three seeds already contain the pool maximum within their initial 25 observations, further limiting statistical power. The equality of the four GP endpoints must therefore be interpreted as a property of this retrospective candidate pool, not a general equivalence of their acquisition functions. 
+
+D. Evaluation Cost 
+
+Table XI distinguishes FEM-count efficiency from elapsed time. EI-BO used the early evaluation budget effectively but incurred additional Python–MPh communication, GP refitting, and candidate-management overhead. The present implemen-tation therefore does not demonstrate wall-clock superiority. The FEM solves used here take seconds rather than hours. Mean end-to-end time was 178.3 s for EI-BO, compared with 116.4 s for BOBYQA, 91.6 s for COBYLA, 109.6 s for EGO, and 122.0 s for Nelder–Mead. This experiment therefore characterizes response per FEM call rather than lower elapsed cost; the case for surrogate assistance becomes more practi-cally relevant when each FEM evaluation is substantially more expensive than in this benchmark. 
+
+E. Selected Design and Repeatability Rerun 
+
+Among the EI-BO runs, seed 45 produced the largest ob-served response, 0.919516 mT. Its geometry in Table XII satis-fies the manufacturing, mass, and axial-fit constraints. A same-model rerun reproduced the recorded response to the reported precision. Across all methods, the largest observed response was the seed-45 BOBYQA result, 0.973669 mT; neither value is claimed to be a global optimum. Table XII shows that both embedded winners drive t1, w 1, h 1 to their upper bounds and use the maximum 25-A current implied by the fixed current density. COBYLA also reaches the axial-fit boundary, while TABLE VIII PAIRED RETROSPECTIVE 25+50 POLICY ABLATION ON THE FINITE FEM POOL . V ALUES ARE MEAN ± SAMPLE SD OVER FIVE SHARED INITIALIZATIONS .                                
+
+> Policy Endpoint (mT) Improvement (mT) Random 0.713 ±0.055 0.039 ±0.053
+> scikit-learn posterior mean 0.738 ±0.000 0.063 ±0.097
+> scikit-learn latent EI 0.738 ±0.000 0.063 ±0.097
+> BoTorch posterior mean 0.738 ±0.000 0.063 ±0.097
+> BoTorch logarithmic EI 0.738 ±0.000 0.063 ±0.097
+
+BOBYQA leaves only 0.041 mm of fit margin. EI-BO remains slightly interior in these quantities. The terminal advantage of the embedded methods is therefore associated with more aggressive boundary exploitation. Because the two embedded winners also use 25.00 A whereas EI-BO uses 24.234 A, the selected-design fixed-current check below separates this small excitation difference from the response ordering without claiming to solve a new fixed-current optimization problem. Figures 7 and 8 show that the scalar ROI values arise from smooth, nonzero solved fields rather than isolated probe artifacts. At a common total current of 24.234 A, the two 25-A designs decrease by 3.064%, but the ordering remains BOBYQA, COBYLA, then EI-BO (Table XIII). Thus the selected-design ordering is not explained solely by the original 3.16% current difference. This diagnostic does not establish the optimizer ordering that would result from re-optimizing the entire feasible space at fixed current. The core-domain maximum (B) values are 0.0190, 0.0634, and 0.0194 T for EI-BO, BOBYQA, and COBYLA, respec-tively. They remain below the first nonzero input-table point at 0.12 T and far below the quoted 1.5-T saturation flux density. The selected designs therefore operate in the low-field first interpolation interval of the supplied constitutive curve rather than near saturation (Fig. 9). The EI-BO design has core and coil masses of 170 .38 
+
+and 19 .52 g, respectively, and an axial-fit margin of 0.862 
+
+mm. Its optimization-stage response and direct rerun both equal 0.000919516 T to the reported precision. The EI-BO local checks show less than 0.07% change between the production and finest meshes and a 0.228% increase when the outer-domain size is enlarged from 200 to 400 mm. Corre-sponding production-to-finest mesh differences are 0.004% for BOBYQA and 0.548% for COBYLA; production-to-400-mm domain differences are 0.239% and 0.179%, respectively. At the production, finest-mesh, and largest-domain settings, the ordering remains BOBYQA above COBYLA above EI-BO. These checks support local numerical stability at the reported winners but do not prove ranking invariance across the full design space. The feasible l1 perturbations change the EI-BO response by up to 1.15%, so the selected point should be interpreted as the best observation of the reported EI trajectory rather than a locally certified optimum. 
+
+F. Scope and Limitations 
+
+The intended conclusions are conditional on the two-dimensional axisymmetric FEM benchmark, model-embedded nonlinear B–H relation, ROI definition, and parameteriza-tion. Mesh and outer-domain checks at the three selected winners preserve their ordering, but these local tests do not prove response-ranking invariance across the complete design space. The field maps and ROI profiles improve physical interpretability of the scalar objective, yet they remain outputs of the same model rather than independent measurements. Same-model reruns check software-path repeatability but do not address modeling bias. The model uses a 63-point High Flux 125 effective DC magnetization table. The project archive retains the exact embedded values but not an independent row-level record of their extraction from the cited manufacturer’s public curves. The nominal value 125 selects the material grade and is not imposed as a constant relative permeability; the first inter-polation interval implies a low-field secant value of approx-imately 120. Saturation is represented through the nonlinear constitutive relation rather than through a separate remanent-field input, whose configured magnitude is zero. Because the public curve is an effective catalog-grade relation rather than measurements on the custom stepped specimen, the results remain a numerical benchmark and not a component-level material validation. The extracted core-domain mean-to-maximum B ranges lie below 0.064 T, but they are computed rather than experimentally measured operating states. Their placement on the input curve shows that the selected designs are far from the quoted 1.5-T saturation level. Accordingly, the nonlinear catalog relation is a feature of the reference-model configuration, but the present results do not identify nonlinear roll-off or saturation as a governing optimization mechanism. The separate 200-g core and 50-g copper limits encode non-interchangeable material allowances: powder-core material is treated as comparatively accessible in the intended fabrication context, while the copper allowance is kept separate to prevent winding volume from dominating the design. The copper cap is protective rather than active under the present box bounds, whose analytic maximum coil mass is approximately 31.6 g. A 250-g total-mass problem would have a different feasible domain and has not been evaluated; no claim is made about invariance to that alternative formulation. The current model assigns the coil feature and copper material to domain 3, and the applied current is Icoil =
+
+Japply w1h1. Because total current increases with coil cross-sectional area, the optimization trajectories remain conditional on fixed current density. Re-evaluation of the three selected Fig. 7. Fresh-solve magnetic-flux-density maps for the selected EI-BO, BOBYQA, and COBYLA geometries at the production current density. The red segment marks the meridional ROI whose revolution defines the averaging surface. A common color scale is used across panels.  
+
+> Fig. 8. Radial magnetic-flux-density profiles on the ROI line (z=-10) mm for the three selected designs. The plotted curves are interpolated from the fresh FEM solution nodes; the reported scalar objective remains COMSOL’s axisymmetrically weighted boundary average.
+
+geometries at 24.234 A preserves their ordering, but this is not a fixed-current re-optimization and no fixed-power comparison is performed. The results must therefore not be interpreted as electrical-efficiency superiority. The search applies the axial-fit condition and 0.5-mm man-ufacturing minima before every FEM call. Several optimized variables nevertheless approach bounds, and no fabrication tol-erance or robustness objective is included. The paired protocol provides a shared accounted observation history and a shared initial incumbent, but not equal use of initial information: EI-BO fits its GP to all 25 initial observations, whereas each embedded optimizer natively starts from one deterministic interior member of that set. This interface difference is part of the compared implementations and limits causal attribution of their performance differences. The finite-pool ablation controls initialization and candidate availability, yet it is retrospective and cannot establish prospective online superiority. The low-budget comparison is also method-dependent: COBYLA is  
+
+> Fig. 9. Manufacturer-sourced High Flux 125 input (B)–(H) curve and the core-domain mean-to-maximum (B) intervals from fresh solves of the selected geometries. Each interval is a field-magnitude range, not a paired (B(H)) trajectory.
+
+already stronger than EI-BO at n = 30 , while BOBYQA overtakes EI-BO only later. The results are consequently limited to the stated benchmark, implementations, and FEM budgets. The most consequential remaining extensions are experi-mental validation of a fabricated geometry, a three-dimensional and tolerance-aware model, and full re-optimization un-der fixed total current or fixed power if conclusions for those electrical formulations are required. A prospective online posterior-mean trajectory would provide a stronger acquisition-policy control than the present retrospective finite-pool ablation, but it is not required to support the narrower budget-dependent comparison reported here. TABLE IX TERMINAL FEM-OBSERVED RESPONSES . V ALUES ARE MEAN ± SAMPLE SD AND RANGE OVER FIVE PAIRED SEEDS . COBYLA TERMINAL VALUES INCLUDE NATIVE EARLY STOPPING .Method Runs Best response, mean ± SD (mT) Min–max (mT) BOBYQA 5 0.943 ± 0.027 0.910 –0.974 
+
+COBYLA 5 0.940 ± 0.021 0.918 –0.965 
+
+EI-BO 5 0.909 ± 0.012 0.890 –0.920 
+
+Nelder–Mead 5 0.743 ± 0.062 0.636 –0.780 
+
+EGO 5 0.724 ± 0.033 0.665 –0.740 
+
+TABLE X MEAN BEST -OBSERVED RESPONSE AT SELECTED CUMULATIVE FEM BUDGETS (MT), OVER FIVE PAIRED SEEDS . A DASH INDICATES THAT FEWER THAN FIVE COBYLA RUNS REMAINED ACTIVE AT THE CHECKPOINT .Method n = 25 n = 30 n = 40 n = 50 
+
+EI-BO 0.675 0.883 0.890 0.893 BOBYQA 0.675 0.675 0.685 0.830 COBYLA 0.675 0.938 – –EGO 0.675 0.675 0.680 0.680 Nelder–Mead 0.675 0.680 0.696 0.713 TABLE XI END -TO -END COSTS UNDER THE REPORTED IMPLEMENTATIONS . V ALUES ARE MEANS OVER FIVE SEEDS AND INCLUDE THE COMMON ESTIMATED 
+
+25-POINT INITIAL -FEM COST .Method Mean accounted FEM calls End-to-end time (s) EI-BO 75 178 .3 ± 28 .3
+
+BOBYQA 75 116 .4 ± 1.8
+
+COBYLA 36 91 .6 ± 27 .7
+
+EGO 75 109 .6 ± 3.8
+
+Nelder–Mead 75 122 .0 ± 5.1
+
+TABLE XII BEST FEM-OBSERVED DESIGNS FROM EI-BO, BOBYQA, AND COBYLA. D IMENSIONS ARE IN MM , MASSES IN G , CURRENT IN A, AND RESPONSE IN MT. Quantity EI-BO (seed 45) BOBYQA (seed 45) COBYLA (seed 42) 
+
+c1 1.2371 0.5000 3.0313 
+
+r1 11.8847 10.0921 10.0000 
+
+t1 9.3159 10.0000 10.0000 
+
+l1 7.7991 7.0412 7.0000 
+
+l2 14.8635 19.7206 18.0930 
+
+w1 4.9086 5.0000 5.0000 
+
+h1 4.9370 5.0000 5.0000 Core mass 170.38 190.70 169.48 Coil mass 19.52 17.68 17.55 
+
+Icoil 24.23 25.00 25.00 Axial-fit margin 0.8621 0.0412 0.0000 Response 0.9195 0.9737 0.9652 TABLE XIII SELECTED -GEOMETRY PHYSICAL DIAGNOSTICS . T HE COMMON -CURRENT CASE USES 24.234 A, THE MINIMUM PRODUCTION CURRENT AMONG THE THREE DESIGNS ; NO RE -OPTIMIZATION IS PERFORMED .
+
+Design Production 
+
+I (A) Production ROI (mT) Common-I
+
+ROI (mT) Core mean 
+
+B (mT) Core max 
+
+B (mT) Common-I
+
+rank EI-BO 24.234 0.91952 0.91952 2.858 18.981 3BOBYQA 25.000 0.97361 0.94378 2.615 63.424 1COBYLA 25.000 0.96515 0.93558 2.816 19.444 2TABLE XIV LOCAL SENSITIVITY CHECKS AROUND THE SEED -45 EI-BO DESIGN . T HE l1 ROWS USE THE PRODUCTION MESH AND 200-MM DOMAIN ; MESH AND DOMAIN ROWS RETAIN THE OPTIMIZED GEOMETRY .
+
+Check Setting BROI (T) Relative change 
+
+l1 variation 7.7991 mm (optimized) 0.00091952 reference 6.9370 mm 0.00093006 +1 .147% 
+
+7.3681 mm 0.00092518 +0 .616% 
+
+7.2991 mm 0.00092584 +0 .688% 
+
+8.2991 mm 0.00091372 −0.631% 
+
+Automatic mesh hauto =3, 2574 elements 0.00091952 −0.069% vs. finest 
+
+hauto =2, 7029 elements 0.00091963 −0.057% vs. finest 
+
+hauto =1, 26386 elements 0.00092015 reference Outer square 200 mm 0.00091952 −0.227% vs. largest 300 mm 0.00092149 −0.013% vs. largest 400 mm 0.00092161 reference 
+
+TABLE XV MESH AND OUTER -DOMAIN CHECKS AT THE SELECTED BOBYQA AND COBYLA GEOMETRIES . M ESH CHANGES ARE RELATIVE TO H A U T O =1 AT 
+
+200 MM ; DOMAIN CHANGES ARE RELATIVE TO 400 MM AT H A U T O =3. 
+
+Design Setting Elements BROI (T) Relative change BOBYQA hauto =3, 200 mm 6342 0.00097361 −0.0036% vs. finest 
+
+hauto =2, 200 mm 12166 0.00097384 +0 .0206% vs. finest 
+
+hauto =1, 200 mm 36134 0.00097364 reference 
+
+hauto =3, 300 mm 6670 0.00097540 −0.0556% vs. largest 
+
+hauto =3, 400 mm 6450 0.00097594 reference COBYLA hauto =3, 200 mm 2149 0.00096515 +0 .5478% vs. finest 
+
+hauto =2, 200 mm 6739 0.00095879 −0.1151% vs. finest 
+
+hauto =1, 200 mm 26116 0.00095989 reference 
+
+hauto =3, 300 mm 2192 0.00096706 +0 .0184% vs. largest 
+
+hauto =3, 400 mm 2281 0.00096689 reference VI. C ONCLUSION 
+
+This study implements a Python–MPh–COMSOL workflow for GP-guided optimization of a seven-parameter current-excited coil–core geometry benchmark with a High Flux core represented by a catalog B–H relation. A fresh-session diagnostic gives zero ROI field at zero applied current and 
+
+0.776958 mT at the stored geometry under the configured cur-rent density, consistent with an active coil and zero configured remanence. Under paired 25+50 accounted FEM observations, EI-BO improves rapidly during the first few continuation calls and remains ahead of BOBYQA, EGO, and Nelder–Mead through 50 cumulative observations. BOBYQA overtakes it by the 75-observation endpoint, while COBYLA is a genuine exception that performs strongly from the early budget on-ward. EI-BO nevertheless produces consistently higher paired terminal responses than the tested EGO and Nelder–Mead implementations. Because the methods do not use the 25 initial observations identically, these are implementation-level workflow results, not an equal-information optimizer ranking. The resulting contribution is therefore an auditable FEM– surrogate workflow together with a budget-dependent empiri-cal conclusion, rather than a claim of universal BO superiority. Kernel screening and retrospective LogEI tests produce no ro-bust endpoint improvement over the production Mat´ ern-5/2 EI implementation. Fresh selected-design checks show low core flux-density ranges, locally stable mesh/domain responses, and preservation of the BOBYQA–COBYLA–EI-BO ordering at a common 24.234-A total current. The conclusions remain limited to the model-embedded effective DC magnetization table and axisymmetric benchmark; they do not establish a fixed-current optimum, fixed-power performance, or electrical-efficiency superiority. DATA AND CODE AVAILABILITY 
+
+The scripts, generated FEM tables, optimization histo-ries, and COMSOL model are publicly available at https: //github.com/Haytham-Russell/fem-gp-coil-optimization. The source-model SHA-256 is 1c261222bc6281419b1b1d2b 24e510c30acc6dbff83d4ceff3f10949d66cfcd3 ; it matches the hash stored with the regenerated 250-point FEM table. Software versions, random seeds, design-space fingerprints, raw and accounted FEM counts, fresh-session model-audit scripts, selected-design physics outputs, winner mesh/domain sensitivity tables, and the exact 63-point consti-tutive table used in every reported solve are also available. The latter is stored as code/data/py16_output/bh_ curve.csv . Both new validation scripts record identical source-model hashes before and after their runs and do not save the source .mph file. The public repository enables external inspection and computational reproduction of the reported workflow, subject to access to a compatible licensed COMSOL installation. A permanent archival DOI has not yet been assigned; the repository URL therefore identifies the currently available version-controlled artifact. ACKNOWLEDGMENT 
+
+The author thanks Prof. Tao Song at the Institute of Electri-cal Engineering, Chinese Academy of Sciences, for valuable guidance and discussions during a previous summer research project on electromagnetic simulation. REFERENCES [1] D. R. Jones, M. Schonlau, and W. J. Welch, “Efficient global optimiza-tion of expensive black-box functions,” Journal of Global Optimization ,vol. 13, no. 4, pp. 455–492, 1998, doi: 10.1023/A:1008306431147. [2] J. Snoek, H. Larochelle, and R. P. Adams, “Practical Bayesian optimiza-tion of machine learning algorithms,” in Advances in Neural Information Processing Systems , vol. 25, pp. 2951–2959, 2012. [3] J. Gardner, M. Kusner, Z. Xu, K. Weinberger, and J. Cunningham, “Bayesian optimization with inequality constraints,” in Proc. 31st Int. Conf. Machine Learning , Proc. Mach. Learn. Res. , vol. 32, no. 2, pp. 937–945, 2014. [4] D. Eriksson, M. Pearce, J. Gardner, R. D. Turner, and M. Poloczek, “Scalable global optimization via local Bayesian optimization,” in Ad-vances in Neural Information Processing Systems , vol. 32, pp. 5497– 5508, 2019. [5] C. E. Rasmussen and C. K. I. Williams, Gaussian Processes for Machine Learning . Cambridge, MA, USA: MIT Press, 2006. [6] M. D. McKay, R. J. Beckman, and W. J. Conover, “A comparison of three methods for selecting values of input variables in the analysis of output from a computer code,” Technometrics , vol. 21, no. 2, pp. 239– 245, 1979, doi: 10.1080/00401706.1979.10489755. [7] E. S. Siah, M. Sasena, J. L. Volakis, P. Y. Papalambros, and R. W. Wiese, “Fast parameter optimization of large-scale electromagnetic objects using DIRECT with Kriging metamodeling,” IEEE Transactions on Microwave Theory and Techniques , vol. 52, no. 1, pp. 276–285, 2004, doi: 10.1109/TMTT.2003.820891. [8] G. Hawe and J. K. Sykulski, “Considerations of accuracy and uncertainty with Kriging surrogate models in single-objective electromagnetic de-sign optimisation,” IET Science, Measurement & Technology , vol. 1, no. 1, pp. 37–47, 2007, doi: 10.1049/iet-smt:20060035. [9] S. Xiao, M. Rotaru, and J. K. Sykulski, “Exploration versus exploitation using Kriging surrogate modelling in electromagnetic design,” COM-PEL: The International Journal for Computation and Mathematics in Electrical and Electronic Engineering , vol. 31, no. 5, pp. 1541–1551, 2012, doi: 10.1108/03321641211248291. [10] B. Khoshoo, J. Blank, T. Q. Pham, K. Deb, and S. N. Foster, “Optimal design of electric machine with efficient handling of constraints and surrogate assistance,” Engineering Optimization , vol. 56, no. 2, pp. 274– 292, 2024, doi: 10.1080/0305215X.2022.2152805. [11] S. Li, Q. X. Yang, and M. B. Smith, “RF coil optimization: Evaluation of B1 field homogeneity using field histograms and finite element calculations,” Magnetic Resonance Imaging , vol. 12, no. 7, pp. 1079– 1087, 1994, doi: 10.1016/0730-725X(94)91240-W. [12] F. Shi and R. Ludwig, “Magnetic resonance imaging gradient coil design by combining optimization techniques with the finite element method,” 
+
+IEEE Transactions on Magnetics , vol. 34, no. 3, pp. 671–683, 1998, doi: 10.1109/20.668065. [13] L. Petkovska, G. Cvetkovski, and V. Sarac, “Finite element method coupled with genetic algorithm as a design optimization tool of elec-tromagnetic devices,” in Proc. Int. Symp. Power Electronics, Electrical Drives, Automation and Motion (SPEEDAM) , 2004. [Online]. Available: https://eprints.ugd.edu.mk/10251/. Accessed: Jul. 26, 2026. [14] N. Satonkar, G. Venkatachalam, and S. V. Pitchumani, “Finite element analysis of electromagnetic forming process and optimization of process parameters using RSM,” Mathematics , vol. 12, no. 11, Art. no. 1622, 2024, doi: 10.3390/math12111622. [15] S. Huo, J. Bai, S. Gao, and Y. Liu, “Sampling strategy selection for EMC simulation surrogate model in uncertainty analysis and electromagnetic optimization design,” Progress In Electromagnetics Research C , vol. 145, pp. 83–90, 2024, doi: 10.2528/PIERC24051003. [16] J. Davalos-Guzman, J. L. Chavez-Hurtado, and Z. Brito-Brito, “In-tegrative BNN–LHS surrogate modeling and thermo-mechanical-EM analysis for enhanced characterization of high-frequency low-pass filters in COMSOL,” Micromachines , vol. 15, no. 5, Art. no. 647, 2024, doi: 10.3390/mi15050647. [17] H. Sun, J. Cui, G. Li, and H. Jiang, “Genetic sampling for surrogate-assisted topology optimization in electromagnetic riveting device de-sign,” Materials & Design , vol. 237, Art. no. 112527, 2024, doi: 10.1016/j.matdes.2023.112527. [18] Magnetics, “High Flux cores: High saturation flux density for high power applications,” [Online]. Available: https://www.mag-inc.com/products/ powder-cores/high-flux-cores. Accessed: Jul. 24, 2026. [19] Magnetics, “High Flux material curves: DC magnetization curves,” [Online]. Available: https://www.mag-inc.com/products/powder-cores/ high-flux-cores/high-flux-material-curves. Accessed: Jul. 24, 2026. [20] Magnetics, “Selecting a distributed air-gap powder core for fly-back transformers,” [Online]. Available: https://www.mag-inc.com/ design/design-guides/selecting-distributed-air-gap-core. Accessed: Jul. 24, 2026. [21] COMSOL AB, “Amp` ere’s Law,” COMSOL Multiphysics 6.3 Doc-umentation . [Online]. Available: https://doc.comsol.com/6.3/doc/com. comsol.help.acdc/acdc ug magnetic fields.08.032.html. Accessed: Jul. 24, 2026.

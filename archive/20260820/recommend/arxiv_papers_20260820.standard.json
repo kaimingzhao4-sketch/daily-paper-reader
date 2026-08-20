@@ -1,0 +1,52 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-08-20T20:43:09.877299+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 0,
+    "deep_cap": 6,
+    "deep_selected": 0,
+    "quick_candidates": 1,
+    "quick_skim_target": 11,
+    "quick_selected": 1
+  },
+  "deep_dive": [],
+  "quick_skim": [
+    {
+      "id": "2608.18903v1",
+      "source": "arxiv",
+      "title": "A FEM-Based Surrogate Modelling and Optimization Framework for Physics-Constrained Electromagnetic Coil Design",
+      "abstract": "This work evaluates surrogate-assisted optimization of a seven-parameter current-excited coil--core benchmark subject to geometric, manufacturing, and separate core and copper mass constraints. A Python--MPh--COMSOL workflow couples a two-dimensional axisymmetric finite-element method (FEM) model to a Matern 5/2 Gaussian-process (GP) probabilistic surrogate. Here, physics-constrained denotes a design problem evaluated by a governing-equation FEM model and restricted by explicit physical, geometric, manufacturing, and material-allocation constraints; it does not denote a physics-informed GP architecture. Sequential Bayesian optimization (BO) ranks candidates using expected improvement (EI), and every reported incumbent is verified by FEM. Five paired runs show that optimizer ranking depends on the available FEM-evaluation budget: EI--BO improves rapidly at small continuation budgets, COBYLA is stronger at the earliest checkpoint, and BOBYQA attains the highest mean terminal response. A retrospective finite-pool study further finds no robust endpoint advantage of EI over posterior-mean ranking on this smooth response surface. The broader result is that early progress, terminal response, information use, and wall-clock cost can favor different methods in simulation-driven design. A selected-design check at a common total current preserves the observed BOBYQA--COBYLA--EI-BO ordering. The conclusions nevertheless remain conditional on this axisymmetric benchmark and do not establish a fixed-current optimum, fixed-power performance, or electrical-efficiency superiority.",
+      "authors": [
+        "Yucheng Liu"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-08-19T13:27:15+00:00",
+      "link": "https://arxiv.org/pdf/2608.18903v1",
+      "tags": [
+        "keyword:reconfig-dab",
+        "query:reconfig-dab"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "surrogate-assisted Bayesian optimization framework for electromagnetic design, applicable to DAB converters",
+      "llm_evidence_cn": "代理辅助贝叶斯优化框架可用于DAB变换器电磁设计",
+      "llm_evidence": "代理辅助贝叶斯优化框架可用于DAB变换器电磁设计",
+      "canonical_evidence": "代理辅助贝叶斯优化框架可用于DAB变换器电磁设计",
+      "llm_tldr_en": "A FEM-based surrogate modeling and optimization framework with Bayesian optimization and expected improvement is evaluated on a seven-parameter coil-core design, showing efficient constraint handling.",
+      "llm_tldr_cn": "在电磁线圈设计中，昂贵的三维有限元仿真阻碍了大规模优化。本文将二维轴对称FEM模型与高斯过程代理结合，利用贝叶斯优化和期望改进策略进行七参数线圈-磁芯设计，在满足几何、制造与质量约束下高效搜索最优参数。该框架通用性强，可推广到DAB变换器中的电感或变压器效率优化。",
+      "llm_tldr": "在电磁线圈设计中，昂贵的三维有限元仿真阻碍了大规模优化。本文将二维轴对称FEM模型与高斯过程代理结合，利用贝叶斯优化和期望改进策略进行七参数线圈-磁芯设计，在满足几何、制造与质量约束下高效搜索最优参数。该框架通用性强，可推广到DAB变换器中的电感或变压器效率优化。",
+      "llm_tags": [
+        "query:reconfig-dab"
+      ],
+      "matched_query_tag": "query:reconfig-dab",
+      "matched_query_text": "reconfigurable battery dual active bridge efficiency optimization",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}
