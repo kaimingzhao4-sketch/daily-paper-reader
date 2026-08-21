@@ -6,26 +6,22 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-08-20
-- 运行时间：2026-08-20 20:44:16 UTC
+- 最新运行日期：2026-08-21
+- 运行时间：2026-08-21 20:34:55 UTC
 - 运行状态：成功
-- 本次总论文数：1
+- 本次总论文数：0
 - 精读区：0
-- 速读区：1
+- 速读区：0
 
 ### 今日简报（AI）
-今日速读论文1篇，聚焦物理约束电磁线圈设计的有限元代理建模与优化框架。  
-该研究结合代理模型与优化算法，为线圈设计提供高效且满足物理约束的求解思路，值得关注。  
-建议后续可精读原文，并进一步探索代理建模在电磁器件优化中的实际应用效果。
-- 详情：[/202608/20/README](/202608/20/README)
+> 今日无新推荐，系统未产出可展示论文。
+- 详情：[/202608/21/README](/202608/21/README)
 
 ### 精读区论文标签
 - 本次无精读推荐。
 
 ### 速读区论文标签
-1. [A FEM-Based Surrogate Modelling and Optimization Framework for Physics-Constrained Electromagnetic Coil Design](/202608/20/2608.18903v1-a-fem-based-surrogate-modelling-and-optimization-framework-for-physics-constrained-electromagnetic-coil-design)  
-   标签：评分：6.0/10、query:reconfig-dab
-   evidence：代理辅助贝叶斯优化框架可用于DAB变换器电磁设计
+- 本次无速读推荐。
 
 
 <div class="dpr-home-promo-card">
