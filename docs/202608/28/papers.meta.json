@@ -1,0 +1,24 @@
+{
+  "label": "2026-08-28",
+  "date": "2026-08-28",
+  "generated_at": "2026-08-28T04:06:45",
+  "count": 1,
+  "papers": [
+    {
+      "paper_id": "202608/28/2608.26780v1-ai-control-scientist-llm-driven-agentic-system-for-automated-control-design",
+      "section": "quick",
+      "title_en": "AI Control Scientist: LLM-driven Agentic System for Automated Control Design",
+      "authors": "Haiteng Wang, Weihao Li, Jing Zhang, Lei Ren",
+      "date": "2026-08-27",
+      "pdf": "https://arxiv.org/pdf/2608.26780v1",
+      "score": "6.0",
+      "evidence": "LLM驱动的智能体系统可从语言需求自动生成并调优控制器，可迁移用于DAB变换器效率优化控制设计",
+      "tldr": "传统控制系统设计依赖专家知识与手动调参，效率低且难以扩展。本文提出AI Control Scientist（AICS），一种由LLM驱动的智能体系统，通过任务建模、控制器设计与参数调优三个代理，从自然语言需求自动生成优化控制器。实验结果显示，该系统在多种代表性控制任务中优于现有自动基线，且设计成功率和优化效率更高。该工作有望将控制设计从人工驱动转为智能体驱动，为先进控制系统设计开辟新路径。",
+      "tags": "query:reconfig-dab",
+      "abstract_en": "Control system design is critical for modern industry, such as chemical process temperature regulation and aero-engine control. However,traditional control design workflows rely heavily on expert knowledge and extensive manual parameter tuning, resulting in limited efficiency and scalability. To this end, this paper proposes AI Control Scientist (AICS), the first large language model (LLM)-driven agent capable of automatically generating optimized controller from language design requirements. Specifically, a Task Modeling Agent interprets user requirements to engineering constraints; a Controller Design Agent generate candidate controller structures and executable code; and a Parameter Tuning Agent refine controller parameters under closed-loop performance criteria. Experiments demonstrate that the proposed agentic system can automatically generate multiple representative control systems, outperforms existing automated baselines in both design success rate and optimization efficiency. This work has the potential to transform control system design from human-driven to agent-driven, paving the way for model predictive control and other advanced control systems design.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "errors": []
+}

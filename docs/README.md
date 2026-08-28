@@ -6,22 +6,26 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-08-26
-- 运行时间：2026-08-26 22:05:50 UTC
+- 最新运行日期：2026-08-28
+- 运行时间：2026-08-28 04:06:40 UTC
 - 运行状态：成功
-- 本次总论文数：0
+- 本次总论文数：1
 - 精读区：0
-- 速读区：0
+- 速读区：1
 
 ### 今日简报（AI）
-> 今日无新推荐，系统未产出可展示论文。
-- 详情：[/202608/26/README](/202608/26/README)
+今日精选1篇论文：聚焦AI控制科学家系统，用大模型驱动自动化控制设计。  
+最值得关注：LLM智能体在控制设计中的应用，评分6.0，适合快速了解方向。  
+建议普通读者先读摘要与关键方法，后续可关注实验对比部分。
+- 详情：[/202608/28/README](/202608/28/README)
 
 ### 精读区论文标签
 - 本次无精读推荐。
 
 ### 速读区论文标签
-- 本次无速读推荐。
+1. [AI Control Scientist: LLM-driven Agentic System for Automated Control Design](/202608/28/2608.26780v1-ai-control-scientist-llm-driven-agentic-system-for-automated-control-design)  
+   标签：评分：6.0/10、query:reconfig-dab
+   evidence：LLM驱动的智能体系统可从语言需求自动生成并调优控制器，可迁移用于DAB变换器效率优化控制设计
 
 
 <div class="dpr-home-promo-card">

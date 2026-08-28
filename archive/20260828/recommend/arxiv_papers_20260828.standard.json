@@ -1,0 +1,54 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-08-28T04:06:02.214746+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 0,
+    "deep_cap": 6,
+    "deep_selected": 0,
+    "quick_candidates": 1,
+    "quick_skim_target": 11,
+    "quick_selected": 1
+  },
+  "deep_dive": [],
+  "quick_skim": [
+    {
+      "id": "2608.26780v1",
+      "source": "arxiv",
+      "title": "AI Control Scientist: LLM-driven Agentic System for Automated Control Design",
+      "abstract": "Control system design is critical for modern industry, such as chemical process temperature regulation and aero-engine control. However,traditional control design workflows rely heavily on expert knowledge and extensive manual parameter tuning, resulting in limited efficiency and scalability. To this end, this paper proposes AI Control Scientist (AICS), the first large language model (LLM)-driven agent capable of automatically generating optimized controller from language design requirements. Specifically, a Task Modeling Agent interprets user requirements to engineering constraints; a Controller Design Agent generate candidate controller structures and executable code; and a Parameter Tuning Agent refine controller parameters under closed-loop performance criteria. Experiments demonstrate that the proposed agentic system can automatically generate multiple representative control systems, outperforms existing automated baselines in both design success rate and optimization efficiency. This work has the potential to transform control system design from human-driven to agent-driven, paving the way for model predictive control and other advanced control systems design.",
+      "authors": [
+        "Haiteng Wang",
+        "Weihao Li",
+        "Jing Zhang",
+        "Lei Ren"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI"
+      ],
+      "published": "2026-08-27T08:11:13+00:00",
+      "link": "https://arxiv.org/pdf/2608.26780v1",
+      "tags": [
+        "keyword:reconfig-dab"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "LLM-driven agentic system automates control design and parameter tuning from language requirements; transferable to DAB converter efficiency optimization",
+      "llm_evidence_cn": "LLM驱动的智能体系统可从语言需求自动生成并调优控制器，可迁移用于DAB变换器效率优化控制设计",
+      "llm_evidence": "LLM驱动的智能体系统可从语言需求自动生成并调优控制器，可迁移用于DAB变换器效率优化控制设计",
+      "canonical_evidence": "LLM驱动的智能体系统可从语言需求自动生成并调优控制器，可迁移用于DAB变换器效率优化控制设计",
+      "llm_tldr_en": "An LLM-driven agent automatically generates and tunes optimized controllers from language requirements, covering task modeling, controller design, and closed-loop parameter tuning; transferable to DAB converter efficiency optimization, though not battery/DAB specific.",
+      "llm_tldr_cn": "针对传统控制设计依赖专家经验和繁琐手动调参、效率低的问题，本文提出AI控制科学家(AICS)，一个由LLM驱动的智能体系统。它通过任务建模代理把语言需求转为工程约束，控制器设计代理生成候选控制器结构与可执行代码，参数调优代理在闭环性能下自动整定参数。所提方法可自动化控制设计流程，具备跨领域迁移能力，可用于双有源桥变换器的效率优化控制，但未直接面向可重构电池与DAB系统。",
+      "llm_tldr": "针对传统控制设计依赖专家经验和繁琐手动调参、效率低的问题，本文提出AI控制科学家(AICS)，一个由LLM驱动的智能体系统。它通过任务建模代理把语言需求转为工程约束，控制器设计代理生成候选控制器结构与可执行代码，参数调优代理在闭环性能下自动整定参数。所提方法可自动化控制设计流程，具备跨领域迁移能力，可用于双有源桥变换器的效率优化控制，但未直接面向可重构电池与DAB系统。",
+      "llm_tags": [
+        "query:reconfig-dab"
+      ],
+      "matched_query_tag": "query:reconfig-dab",
+      "matched_query_text": "design and optimization of reconfigurable battery and DAB system",
+      "matched_requirement_id": "req-8",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}

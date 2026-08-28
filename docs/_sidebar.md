@@ -1,6 +1,9 @@
 * <a class="dpr-sidebar-root-link" href="#/">首页</a>
 * <a class="dpr-sidebar-root-link dpr-sidebar-noactive-link" href="javascript:void(0)" data-dpr-hash="#/tutorial/README">使用教程</a>
 * Daily Papers
+  * 2026-08-28 <!--dpr-date:20260828-->
+    * 速读区
+      * <a class="dpr-sidebar-item-link dpr-sidebar-item-structured" href="#/202608/28/2608.26780v1-ai-control-scientist-llm-driven-agentic-system-for-automated-control-design" data-sidebar-item="{&quot;title&quot;: &quot;AI Control Scientist: LLM-driven Agentic System for Automated Control Design&quot;, &quot;link&quot;: &quot;https://arxiv.org/abs/2608.26780v1-ai-control-scientist-llm-driven-agentic-system-for-automated-control-design&quot;, &quot;score&quot;: &quot;6.0&quot;, &quot;tags&quot;: [{&quot;kind&quot;: &quot;query&quot;, &quot;label&quot;: &quot;reconfig-dab&quot;}], &quot;evidence&quot;: &quot;LLM驱动的智能体系统可从语言需求自动生成并调优控制器，可迁移用于DAB变换器效率优化控制设计&quot;}">AI Control Scientist: LLM-driven Agentic System for Automated Control Design</a>
   * 2026-08-20 <!--dpr-date:20260820-->
     * 速读区
       * <a class="dpr-sidebar-item-link dpr-sidebar-item-structured" href="#/202608/20/2608.18903v1-a-fem-based-surrogate-modelling-and-optimization-framework-for-physics-constrained-electromagnetic-coil-design" data-sidebar-item="{&quot;title&quot;: &quot;A FEM-Based Surrogate Modelling and Optimization Framework for Physics-Constrained Electromagnetic Coil Design&quot;, &quot;link&quot;: &quot;https://arxiv.org/abs/2608.18903v1-a-fem-based-surrogate-modelling-and-optimization-framework-for-physics-constrained-electromagnetic-coil-design&quot;, &quot;score&quot;: &quot;6.0&quot;, &quot;tags&quot;: [{&quot;kind&quot;: &quot;query&quot;, &quot;label&quot;: &quot;reconfig-dab&quot;}], &quot;evidence&quot;: &quot;代理辅助贝叶斯优化框架可用于DAB变换器电磁设计&quot;}">A FEM-Based Surrogate Modelling and Optimization Framework for Physics-Constrained Electromagnetic Coil Design</a>
