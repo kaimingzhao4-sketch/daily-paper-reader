@@ -1,0 +1,24 @@
+{
+  "label": "2026-08-29",
+  "date": "2026-08-29",
+  "generated_at": "2026-08-29T03:32:40",
+  "count": 1,
+  "papers": [
+    {
+      "paper_id": "202608/29/2608.22416v1-a-simple-and-extremely-efficient-predictive-control-for-power-converters",
+      "section": "deep",
+      "title_en": "A Simple and Extremely Efficient Predictive Control for Power Converters",
+      "authors": "Guangze Chen, Zhenbin Zhang",
+      "date": "2026-08-23",
+      "pdf": "https://arxiv.org/pdf/2608.22416v1",
+      "score": "8.0",
+      "evidence": "提出极高效的电力变换器预测控制方法，可直接服务于DAB变换器的效率优化",
+      "tldr": "经典有限控制集模型预测控制(FCS-MPC)通过枚举搜索求解最优问题，虽简单有效但计算量大、硬件成本高。本文提出一种无需枚举的极简预测控制方法，仅通过重排代价函数和简单拟合规则，直接依据可视化地图选取最优电压矢量。在实验室功率变换器及低成本数字控制器上的实验表明，所提方法控制性能与经典MPC相当，且计算负担显著降低（两电平变换器单步预测最高减少88%）。该方法为功率变换器预测控制提供了一条高效低成本的新路径。",
+      "tags": "query:reconfig-dab",
+      "abstract_en": "Classical finite control set based model predictive control (FCS-MPC) reduces the optimal problems to an enumerated searching algorithm, which is very simple and effective to control power converters. However, it requires a large amount of enumeration operations, increasing its computational load and hardware costs. In this work, we propose a new and simple predictive control technique with extreme efficiency. The proposal directly selects the optimal vector via determined visual maps, abstained solely requiring a rearrangement of the cost function and a simple fitting law, without any enumeration. It has been validated under a lab-constructed power converter and a set of commercialized low-cost digital controllers. Experimental data confirm that the proposal achieves the same control performance as classical MPC, with significant computational burden reduction (up to 88\\% for one-step prediction of two-level converters)",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "errors": []
+}

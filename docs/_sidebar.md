@@ -1,6 +1,9 @@
 * <a class="dpr-sidebar-root-link" href="#/">首页</a>
 * <a class="dpr-sidebar-root-link dpr-sidebar-noactive-link" href="javascript:void(0)" data-dpr-hash="#/tutorial/README">使用教程</a>
 * Daily Papers
+  * 2026-08-29 <!--dpr-date:20260829-->
+    * 精读区
+      * <a class="dpr-sidebar-item-link dpr-sidebar-item-structured" href="#/202608/29/2608.22416v1-a-simple-and-extremely-efficient-predictive-control-for-power-converters" data-sidebar-item="{&quot;title&quot;: &quot;A Simple and Extremely Efficient Predictive Control for Power Converters&quot;, &quot;link&quot;: &quot;https://arxiv.org/abs/2608.22416v1-a-simple-and-extremely-efficient-predictive-control-for-power-converters&quot;, &quot;score&quot;: &quot;8.0&quot;, &quot;tags&quot;: [{&quot;kind&quot;: &quot;query&quot;, &quot;label&quot;: &quot;reconfig-dab&quot;}], &quot;evidence&quot;: &quot;提出极高效的电力变换器预测控制方法，可直接服务于DAB变换器的效率优化&quot;}">A Simple and Extremely Efficient Predictive Control for Power Converters</a>
   * 2026-08-28 <!--dpr-date:20260828-->
     * 速读区
       * <a class="dpr-sidebar-item-link dpr-sidebar-item-structured" href="#/202608/28/2608.26780v1-ai-control-scientist-llm-driven-agentic-system-for-automated-control-design" data-sidebar-item="{&quot;title&quot;: &quot;AI Control Scientist: LLM-driven Agentic System for Automated Control Design&quot;, &quot;link&quot;: &quot;https://arxiv.org/abs/2608.26780v1-ai-control-scientist-llm-driven-agentic-system-for-automated-control-design&quot;, &quot;score&quot;: &quot;6.0&quot;, &quot;tags&quot;: [{&quot;kind&quot;: &quot;query&quot;, &quot;label&quot;: &quot;reconfig-dab&quot;}], &quot;evidence&quot;: &quot;LLM驱动的智能体系统可从语言需求自动生成并调优控制器，可迁移用于DAB变换器效率优化控制设计&quot;}">AI Control Scientist: LLM-driven Agentic System for Automated Control Design</a>
