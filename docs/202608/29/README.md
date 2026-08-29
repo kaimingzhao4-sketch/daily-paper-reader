@@ -1,20 +1,21 @@
 # 日报 · 2026-08-29
 
-- 生成时间：2026-08-29 03:32:35 UTC
-- 当次推荐总数：1
-- 精读区：1
-- 速读区：0
+- 生成时间：2026-08-29 22:39:43 UTC
+- 当次推荐总数：2
+- 精读区：0
+- 速读区：2
 
 ## 今日简报（AI）
-今日精读1篇电力变换器预测控制论文，整体评价8.0/10，属高效简洁方法。
-核心亮点：提出一种极简且高效的预测控制策略，兼顾性能与计算负担，适合功率变换器实时控制场景。
-建议下一步可对比该方案在更多拓扑或工况下的鲁棒性，或探索与模型预测控制的混合应用。
+今日速读2篇电力电子方向论文，无精读。  
+最值得看的是《A Simple and Extremely Efficient Predictive Control for Power Converters》（7.0/10），另一篇为事件驱动仿真方法（6.0/10）。  
+建议下一步精读高分论文，重点关注其控制效率提升的具体实现。
 
 ## 精读区
-1. [A Simple and Extremely Efficient Predictive Control for Power Converters](/202608/29/2608.22416v1-a-simple-and-extremely-efficient-predictive-control-for-power-converters) （8.0/10）
+- 本次无精读推荐。
 
 ## 速读区
-- 本次无速读推荐。
+1. [A Simple and Extremely Efficient Predictive Control for Power Converters](/202608/29/2608.22416v1-a-simple-and-extremely-efficient-predictive-control-for-power-converters) （7.0/10）
+2. [Event-Driven Simulation of Power Electronics Rich Grid Models](/202608/29/2608.22226v1-event-driven-simulation-of-power-electronics-rich-grid-models) （6.0/10）
 
 ---
 使用键盘方向键可在日报/论文之间快速切换。

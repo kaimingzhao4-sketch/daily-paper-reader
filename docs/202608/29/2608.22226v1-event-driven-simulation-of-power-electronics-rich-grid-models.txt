@@ -1,0 +1,170 @@
+Title: Event-Driven Simulation of Power Electronics Rich Grid Models
+
+URL Source: https://arxiv.org/pdf/2608.22226v1
+
+Published Time: Tue, 25 Aug 2026 00:57:55 GMT
+
+Number of Pages: 3
+
+Markdown Content:
+# Event-Driven Simulation of Power Electronics Rich Grid Models 
+
+Ajay Pratap Yadav 
+
+Computational Sciences & Engineering Division Oak Ridge National Laboratory 
+
+Oak Ridge, TN, USA yadavap@ornl.gov 
+
+James J. Nutaro 
+
+Computational Sciences & Engineering Division Oak Ridge National Laboratory 
+
+Oak Ridge, TN, USA nutarojj@ornl.gov 
+
+Abstract —Power-electronics systems should be treated accord-ing to their natural mathematical structure—inherent switching and discontinuities with piecewise continuous states. Therefore, the simulator should be organized around events, switching topologies, and topology intervals, rather than only around a continuous-time solver that later corrects or smooths dis-continuities. This paper presents a simple, event-driven EMT architecture using native C kernels with Python orchestration. With this method, we distill the essential elements of discrete-event simulation applied to power electronics problems and thereby point toward a broad research thrust wherein mature ideas from discrete-event simulation are adapted for use in simulating power electronics circuits. 
+
+Index Terms —Electromagnetic transients, power electronics, inverter-based resources, event-driven simulation, hybrid sys-tems, EMT acceleration. 
+
+I. I NTRODUCTION 
+
+In the last several years there have been several research efforts demonstrating the advantages of event-driven simula-tion algorithms for power electronics models. Some of the most prominent efforts in this direction are the Discrete State Event-Driven Framework proposed by [1], [2] and the use of quantized state numerical integration methods as described by [3]. The effectiveness of these methods is both remarkable and a fundamental break from the time-driven methods that predominate at the present. The radical shift in perspective inherent in these event-driven proposals, combined with the complexity of the al-gorithms involved, may hide their underlying similarities as discrete-event simulations [4]. Our aim is to distill the essence of discrete-event simulation when it is adapted for power electronics. Our approach resembles the split system method, in which a variable step numerical scheme is combined with a discrete-event simulation [5], [6]. This framework makes explicit the two pieces of the simulation problem: locating 
+
+This manuscript has been authored by UT-Battelle, LLC, under contract DE-AC05-00OR22725 with the US Department of Energy (DOE). The US government retains and the publisher, by accepting the article for publication, acknowledges that the US government retains a nonexclusive, paid-up, irre-vocable, worldwide license to publish or reproduce the published form of this manuscript, or allow others to do so, for US government purposes. DOE will provide public access to these results of federally sponsored research in ac-cordance with the DOE Public Access Plan (http://energy.gov/downloads/doe-public-access-plan). 0 25 50 75 100 125 150 175 200 time (us)   
+
+> small EMT time step
+> time step + edge interpolation
+> event-driven intervals
+> event
+> carrier reference PWM state
+
+Fig. 1: PWM events partition EMT dynamics into piecewise-continuous intervals. Fixed-step methods sample through the edge, interpolation corrects it, and event-driven simulation advances directly between topology events. events that cause discontinuous change in the circuit and solv-ing the circuit equations between events. Although simple, our event-driven algorithm shows significant speed up over state of the art approaches to time-driven simulation. This provides evidence that it is the event-driven approach to algorithm creation, more than its specific algorithmic features, that is the primary factor in speeding up the simulation. We also hope that a simplistic, but effective, algorithm will demystify the event-driven approach, making it more accessible to a power electronics focused research community. II. E VENT -D RIVEN EMT M ETHOD 
+
+A converter-rich EMT model can be written as 
+
+E ˙x = Aσ x + bσ (u, t ), (1) where x contains electrical and controller states, E may be singular, and Aσ and bσ change with switching topology σ
+
+and input u. A minimal switched-converter example is 
+
+L˙i = sv dc − vgrid − Ri, (2) 
+
+C ˙vdc = ipv − si − vdc 
+
+R , (3) arXiv:2608.22226v1 [eess.SY] 23 Aug 2026 where i is an inductor current, vdc is the dc-link voltage, 
+
+s ∈ {− 1, 0, 1} is the switching state, and vgrid and ipv are the grid voltage and PV-side current. Switching events change 
+
+s, or equivalently σ, and start new piecewise-continuous trajectory segments. Switch-level EMT therefore requires both accurate topology-event timing and stable propagation of the continuous dynamics between events. 
+
+A. Event Calendar 
+
+A time-driven EMT method advances by 
+
+tk+1 = tk + h. (4) An event-driven method instead advances to the next physical or numerical event: 
+
+tk+1 = min( tgate , t diode , t control , t protection , t sync ). (5) Between events, topology is fixed, so a local converter can be advanced without crossing an event boundary. For a linear or locally linear interval, the local state equation is 
+
+˙x = Aσ x + bσ (t), (6) and the solution over ∆t is 
+
+x(t + ∆ t) = eAσ ∆tx(t) + 
+
+Z ∆t
+
+> 0
+
+eAσ (∆ t−τ )bσ (τ )dτ. (7) Thus, once the next switching instant is known, the module need not take small intermediate steps simply to reach it. Fig. 1 illustrates this idea for a PWM carrier/reference crossing. 
+
+B. Event-Exact Update 
+
+This paper uses an event-exact local update. If bσ is constant over ∆t = tk+1 − tk,
+
+xk+1 = eAσ ∆txk + A−1 
+
+> σ
+
+(eAσ ∆t − I)bσ . (8) The implementation may use an augmented matrix exponential to avoid forming A−1 
+
+> σ
+
+. This is practical here because each PV-module interval has fixed topology and small local dimension. The computational distinction is 
+
+Cstepped ≈ Nsteps Coptimized step , (9) where Coptimized step includes discretization, aggregation, re-duced solves, and native execution. An event-driven method has cost 
+
+Cevent ≈
+
+> N
+
+X
+
+> m=1
+
+Nevents ,m Clocal ,m + Nsync Cnetwork . (10) The event-driven method is useful when local event advances plus occasional network synchronizations are cheaper than updating every module at every fixed step. Data models / events scenarios Python harness compile / launch sweeps / checks Outputs errors figures / tables 
+
+> event-driven propagation layer
+> Time-stepped EMT acceleration baselines global EMT step Single-A / matrix splitting Proposed event-driven EMT kernels topology intervals event-exact QSS/LIQSS hybrid-solver path quantized state events sparse dependency propagation
+
+Fig. 2: Python handles orchestration while native C kernels carry the timed event-driven simulation. 
+
+C. Event-Driven Execution Stack 
+
+The implementation handles deterministic PWM events directly rather than through a general priority or calendar queue. Sampled feedback controllers update the duty cycles and inverter modulation references, and those held values are used to predict the next carrier boundary or duty/reference crossing inside the current synchronization window. The mod-ule then advances from one switching/topology event to the next using the event-exact update. This gives constant work per scheduled local event and avoids queue insertion, cancellation, and rescheduling overhead for the PWM cases studied here. General event queues remain the natural extension for irregular diode crossings, protection actions, faults, and asynchronous controls [5]. Fig. 2 summarizes the software structure. Python builds cases, compiles kernels, launches sweeps, and processes out-puts; native C kernels carry the timed simulation loop. The benchmark is implemented as a distributed local/global model: each PV module owns its states and switching schedule, receives a bus voltage, and returns a current injection. During a synchronization window, bus voltages are held fixed while modules advance event to event. At the boundary, currents are accumulated at connected buses, the collector network is updated using a pre-factored solve or matrix-splitting path, and the new bus voltages are returned to the modules. III. N UMERICAL RESULTS 
+
+Simulations are conducted on a MacBook Pro with 16 GB RAM and a 2.3 GHz quad-core Intel Core i7. The timed simulation loop is implemented in native C, with Python used for orchestration and post-processing. The benchmark follows the high-granularity IBR system in [7]: 125 PV inverter mod-ules behind 25 unit transformers and a multi-feeder collector network. The switched model has 1806 states: 306 collector-network states plus 125 converter modules with 12 states each. The network uses three-phase PI-line currents and bus-capacitance voltages, while each module includes PV-side, dc-link, LCL-filter, and sampled PWM feedback-control states. Choi et al. compare a standard PSCAD Baseline with a matrix-splitting configuration, and the matrix-splitting case still takes about 0.18 h for a 0.25 s simulation [7]. This motivates 0.0 0.1 0.2 0.3 0.4 0.5              
+
+> Time (s)
+> 0.4
+> 0.6
+> 0.8
+> 1.0
+> iL pv , [ k A]
+> 0.0 0.1 0.2 0.3 0.4 0.5
+> Time (s)
+> 1.0
+> 1.1
+> 1.2
+> 1.3
+> Vdc  [ k V]
+> 0.0 0.1 0.2 0.3 0.4 0.5
+> Time (s)
+> 0.4
+> 0.6
+> 0.8
+> 1.0
+> Pinv  [ M W ]
+> 0.26 0.28
+> 0.4
+> 0.5
+> 0.6
+> 0.26 0.28
+> 1.2
+> 1.3
+> 0.26 0.28
+> 0.25
+> 0.50
+> 0.75
+
+RK4 Matrix split Event exact Event + split Fig. 3: First-module waveforms during the 1.0-to-0.5 pu power-reference step at 0.25 s. TABLE I: Performance and error for the power-reference-step case following [7]. 
+
+Method Time Speedup Local adv. Network updates NRMS iL NRMS vdc 
+
+(s) (M) (k) (%) (%) Native RK4 reference 41.102 1.0 × 62.50 50.0 0 0Matrix splitting 14.803 2.8 × 62.50 50.0 0.27 0.22 Event exact 9.336 4.4 × 10.62 50.0 0.15 0.12 Event exact + split 3.531 11.6 × 10.62 50.0 0.16 0.13 
+
+our approach of retaining the high-granularity matrix-splitting setting while keeping the timed simulation path in native C kernels. We compare four native implementations: RK4, matrix splitting, event exact, and event exact + split. RK4 and matrix splitting use a 1 μs fixed local step; matrix splitting uses the collector-network update idea from [7] while keeping fixed-step local propagation. Event exact advances each module over PWM-bounded topology intervals and synchronizes the collector every 10 μs. Event exact + split combines event-local module propagation with the matrix-splitting network path. Errors are normalized RMS values, 100 ∥y−yRK4 ∥2/∥yRK4 ∥2,for the sampled first-module waveform. Fig. 3 shows that all methods produce the same power-step transient: the event-driven traces follow RK4 closely in current, dc-link voltage, and inverter power. Table I shows that matrix splitting gives 2.8 × speedup, event exact gives 4.4 ×,and event exact + split gives 11.6 ×. Local module advances drop from 62.5 million fixed-step updates to 10.6 million event-interval advances, with current and dc-link voltage NRMS errors below 0.2%. For event exact + split, increasing the synchronization period from 10 μs to 20 μs reduces runtime from 3.531 s to 2.684 s, improving speedup from 11.6 × to 15.3 ×, while the error increases. Fig. 4 compares the first module current waveform for different synchronization periods. IV. C ONCLUSION 
+
+Discrete-event methods can accelerate EMT simulation by advancing converter models only at switching events and syn-0.0 0.1 0.2 0.3 0.4 0.5    
+
+> Time (s)
+> 0.4
+> 0.6
+> 0.8
+> 1.0
+> iL pv , [ k A]
+> 0.26 0.27 0.28 0.29
+> 0.4
+> 0.6
+> RK4 10 us 15 us 20 us
+
+Fig. 4: Effect of synchronization period on first-module iL,pv 
+
+for event exact + split. chronizing the network at interface boundaries. Native C ker-nels and event-exact updates reduce computational effort while preserving system-level behavior. Future work will integrate production sparse solvers for the network update and connect the local propagation layer to QSS/LIQSS infrastructure for asynchronous state events and sparse dependency propagation [3]. REFERENCES [1] B. Li, Z. Zhao, Y. Yang, Y. Zhu, and Z. Yu, “A novel simulation method for power electronics: discrete state event driven method,” CES Transactions on Electrical Machines and Systems , vol. 1, no. 3, pp. 273– 282, 2017. [2] Y. Zhu, Z. Zhao, B. Shi, and Z. Yu, “Discrete state event-driven frame-work with a flexible adaptive algorithm for simulation of power electronic systems,” IEEE Transactions on Power Electronics , vol. 34, no. 12, pp. 11 692–11 705, 2019. [3] R. Castro, M. Bergonzi, E. P. Marcosig, J. Fern´ andez, and E. Kofman, “Discrete-event simulation of continuous-time systems: evolution and state of the art of quantized state system methods,” SIMULATION , vol. 100, no. 6, pp. 613–638, Jun. 2024. [4] B. P. Zeigler, A. Muzy, and E. Kofman, Theory of Modeling and Simulation, 3rd edition . Academic Press, 2018. [5] J. Nutaro, Building software for simulation . Wiley, 2010. [6] J. Nutaro, P. T. Kuruganti, V. Protopopescu, and M. Shankar, “The split system approach to managing time in simulations of hybrid systems having continuous and discrete event components*,” 
+
+Simulation , vol. 88, no. 3, p. 281–298, Mar. 2012. [Online]. Available: https://doi.org/10.1177/0037549711401000 [7] J. Choi, Y. Xue, and H. Wang, “Electromagnetic transient simulation of large-scale inverter-based resources with high-granularity,” IEEE Open Access Journal of Power and Energy , vol. 12, pp. 664–677, 2025.

@@ -1,12 +1,12 @@
 {
   "label": "2026-08-29",
   "date": "2026-08-29",
-  "generated_at": "2026-08-29T03:32:40",
-  "count": 1,
+  "generated_at": "2026-08-29T22:39:46",
+  "count": 2,
   "papers": [
     {
       "paper_id": "202608/29/2608.22416v1-a-simple-and-extremely-efficient-predictive-control-for-power-converters",
-      "section": "deep",
+      "section": "quick",
       "title_en": "A Simple and Extremely Efficient Predictive Control for Power Converters",
       "authors": "Guangze Chen, Zhenbin Zhang",
       "date": "2026-08-23",
@@ -16,6 +16,21 @@
       "tldr": "经典有限控制集模型预测控制(FCS-MPC)通过枚举搜索求解最优问题，虽简单有效但计算量大、硬件成本高。本文提出一种无需枚举的极简预测控制方法，仅通过重排代价函数和简单拟合规则，直接依据可视化地图选取最优电压矢量。在实验室功率变换器及低成本数字控制器上的实验表明，所提方法控制性能与经典MPC相当，且计算负担显著降低（两电平变换器单步预测最高减少88%）。该方法为功率变换器预测控制提供了一条高效低成本的新路径。",
       "tags": "query:reconfig-dab",
       "abstract_en": "Classical finite control set based model predictive control (FCS-MPC) reduces the optimal problems to an enumerated searching algorithm, which is very simple and effective to control power converters. However, it requires a large amount of enumeration operations, increasing its computational load and hardware costs. In this work, we propose a new and simple predictive control technique with extreme efficiency. The proposal directly selects the optimal vector via determined visual maps, abstained solely requiring a rearrangement of the cost function and a simple fitting law, without any enumeration. It has been validated under a lab-constructed power converter and a set of commercialized low-cost digital controllers. Experimental data confirm that the proposal achieves the same control performance as classical MPC, with significant computational burden reduction (up to 88\\% for one-step prediction of two-level converters)",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202608/29/2608.22226v1-event-driven-simulation-of-power-electronics-rich-grid-models",
+      "section": "quick",
+      "title_en": "Event-Driven Simulation of Power Electronics Rich Grid Models",
+      "authors": "Ajay Pratap Yadav, James Nutaro",
+      "date": "2026-08-23",
+      "pdf": "https://arxiv.org/pdf/2608.22226v1",
+      "score": "6.0",
+      "evidence": "电力电子事件驱动仿真；适用于DAB变换器设计与效率评估",
+      "tldr": "电力电子系统天然具有开关与不连续性，状态分段连续，传统连续时间求解器需修正或平滑这些不连续，导致处理复杂。本文提出事件驱动EMT架构，围绕事件、开关拓扑和拓扑区间组织仿真，采用本地C内核计算与Python统一编排。该架构直接基于系统自然数学结构，避免对断续的平滑处理，能够高效准确模拟开关暂态过程。这一工作将成熟离散事件模拟思想引入电力电子电路仿真，指出新的研究方向和广阔前景。",
+      "tags": "query:reconfig-dab",
+      "abstract_en": "Power-electronics systems should be treated according to their natural mathematical structure---inherent switching and discontinuities with piecewise continuous states. Therefore, the simulator should be organized around events, switching topologies, and topology intervals, rather than only around a continuous-time solver that later corrects or smooths discontinuities. This paper presents a simple, event-driven EMT architecture using native C kernels with Python orchestration. With this method, we distill the essential elements of discrete-event simulation applied to power electronics problems and thereby point toward a broad research thrust wherein mature ideas from discrete-event simulation are adapted for use in simulating power electronics circuits.",
       "source": "arxiv",
       "selection_source": "fresh_fetch"
     }
