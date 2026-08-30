@@ -6,29 +6,22 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-08-29
-- 运行时间：2026-08-29 22:39:43 UTC
+- 最新运行日期：2026-08-30
+- 运行时间：2026-08-30 22:09:59 UTC
 - 运行状态：成功
-- 本次总论文数：2
+- 本次总论文数：0
 - 精读区：0
-- 速读区：2
+- 速读区：0
 
 ### 今日简报（AI）
-今日速读2篇电力电子方向论文，无精读，重点覆盖预测控制与事件驱动仿真。  
-最值得关注的是《A Simple and Extremely Efficient Predictive Control for Power Converters》（7.0/10），提出面向变换器的简洁高效预测控制方案。  
-建议普通读者优先浏览该文，后续可补充精读或扩展同类控制方法对比。
-- 详情：[/202608/29/README](/202608/29/README)
+> 今日无新推荐，系统未产出可展示论文。
+- 详情：[/202608/30/README](/202608/30/README)
 
 ### 精读区论文标签
 - 本次无精读推荐。
 
 ### 速读区论文标签
-1. [A Simple and Extremely Efficient Predictive Control for Power Converters](/202608/29/2608.22416v1-a-simple-and-extremely-efficient-predictive-control-for-power-converters)  
-   标签：评分：7.0/10、query:reconfig-dab
-   evidence：高效的功率变换器预测控制；可用于DAB实时效率优化
-2. [Event-Driven Simulation of Power Electronics Rich Grid Models](/202608/29/2608.22226v1-event-driven-simulation-of-power-electronics-rich-grid-models)  
-   标签：评分：6.0/10、query:reconfig-dab
-   evidence：电力电子事件驱动仿真；适用于DAB变换器设计与效率评估
+- 本次无速读推荐。
 
 
 <div class="dpr-home-promo-card">
