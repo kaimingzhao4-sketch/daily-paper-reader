@@ -1,0 +1,54 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-08-31T23:13:01.835341+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 0,
+    "deep_cap": 6,
+    "deep_selected": 0,
+    "quick_candidates": 1,
+    "quick_skim_target": 11,
+    "quick_selected": 1
+  },
+  "deep_dive": [],
+  "quick_skim": [
+    {
+      "id": "2608.22391v1",
+      "source": "arxiv",
+      "title": "Grid-Constrained State-Adaptive Particle Swarm Optimization: A Discrete and Efficient Heuristic Solver for Precise Harmonic Programming",
+      "abstract": "Harmonic programmed pulse width modulation (HPPWM), offering flexible harmonic regulation, is a promising solution for high-power energy conversion systems. However, most existing methods solve HPPWM in a continuous space while ignoring the finite timer resolution of practical digital controllers. This leads to a potential optimality deviation during deployment. Motivated by this, this paper proposes a Grid-Constrained State-Adaptive Particle Swarm Optimization (GCSA-PSO) strategy. By matching the solution space with practical timer constraints, GCSA-PSO directly searches for implementable pulse sequences in the discrete solution space, thereby improving deployment consistency while reducing the search burden. Moreover, a state-adaptive evaluation strategy is developed to assign different cost evaluations according to particle states, avoiding unnecessary evaluations and improving computational efficiency. Experimental data confirm that, compared with the classical method, the proposed method reduces the computational time while achieving higher control accuracy under practical digital-controller deployment.",
+      "authors": [
+        "Guangze Chen",
+        "Zhenbin Zhang",
+        "Yafei Yin"
+      ],
+      "primary_category": "eess.SY",
+      "categories": [
+        "eess.SY"
+      ],
+      "published": "2026-08-23T12:38:15+00:00",
+      "link": "https://arxiv.org/pdf/2608.22391v1",
+      "tags": [
+        "keyword:reconfig-dab",
+        "query:reconfig-dab"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Heuristic solver for discrete harmonic programming in high-power converters, transferable to DAB efficiency optimization",
+      "llm_evidence_cn": "面向高功率变换器离散谐波编程的启发式求解器，可迁移至DAB效率优化",
+      "llm_evidence": "面向高功率变换器离散谐波编程的启发式求解器，可迁移至DAB效率优化",
+      "canonical_evidence": "面向高功率变换器离散谐波编程的启发式求解器，可迁移至DAB效率优化",
+      "llm_tldr_en": "This paper proposes a grid-constrained state-adaptive particle swarm optimization (GCSA-PSO) to directly search implementable pulse sequences in the discrete solution space for harmonic programmed PWM, improving deployment consistency of high-power converters.",
+      "llm_tldr_cn": "针对现有谐波编程脉宽调制多在连续解空间求解而忽略数字控制器定时器分辨率、导致实际部署时最优性偏差的问题，本文提出网格约束的自适应状态粒子群优化策略GCSA-PSO，将解空间与实际定时器约束匹配，直接在离散解空间中搜索可实现脉冲序列，从而提升部署一致性并简化求解。该策略为高功率电能变换系统的精确谐波编程提供了一种高效且可直接移植的启发式优化工具，可推广到双有源桥等变换器的效率优化。",
+      "llm_tldr": "针对现有谐波编程脉宽调制多在连续解空间求解而忽略数字控制器定时器分辨率、导致实际部署时最优性偏差的问题，本文提出网格约束的自适应状态粒子群优化策略GCSA-PSO，将解空间与实际定时器约束匹配，直接在离散解空间中搜索可实现脉冲序列，从而提升部署一致性并简化求解。该策略为高功率电能变换系统的精确谐波编程提供了一种高效且可直接移植的启发式优化工具，可推广到双有源桥等变换器的效率优化。",
+      "llm_tags": [
+        "query:reconfig-dab:composite"
+      ],
+      "matched_query_tag": "query:reconfig-dab:composite",
+      "matched_query_text": "Papers central to 可重构电池与DAB联合效率优化相关论文, especially work that connects or combines: reconfigurable battery dual active bridge efficiency optimization; efficiency optimization of reconfigurable battery and DAB converter; reconfigurable battery system integrated with dual active bridge for efficiency; dual active bridge converter for reconfigurable battery efficiency improvement; integrated reconfigurable battery and dual active bridge converter efficiency; joint efficiency optimization of reconfigurable battery and dual active bridge converter; papers on reconfigurable battery with dual active bridge for energy efficiency; design and optimization of reconfigurable battery and DAB system.",
+      "matched_requirement_id": "req-composite-reconfig-dab",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}

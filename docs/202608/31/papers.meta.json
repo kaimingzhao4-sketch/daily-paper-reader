@@ -1,0 +1,24 @@
+{
+  "label": "2026-08-31",
+  "date": "2026-08-31",
+  "generated_at": "2026-08-31T23:13:43",
+  "count": 1,
+  "papers": [
+    {
+      "paper_id": "202608/31/2608.22391v1-grid-constrained-state-adaptive-particle-swarm-optimization-a-discrete-and-efficient-heuristic-solver-for-precise-harmonic-programming",
+      "section": "quick",
+      "title_en": "Grid-Constrained State-Adaptive Particle Swarm Optimization: A Discrete and Efficient Heuristic Solver for Precise Harmonic Programming",
+      "authors": "Guangze Chen, Zhenbin Zhang, Yafei Yin",
+      "date": "2026-08-23",
+      "pdf": "https://arxiv.org/pdf/2608.22391v1",
+      "score": "6.0",
+      "evidence": "面向高功率变换器离散谐波编程的启发式求解器，可迁移至DAB效率优化",
+      "tldr": "谐波编程脉冲宽度调制（HPPWM）在连续空间中求解，忽略数字控制器有限定时器分辨率，导致部署时最优性偏差。提出网格约束状态自适应粒子群优化（GCSA-PSO），在离散解空间中直接搜索可执行脉冲序列，匹配实际定时约束，提升部署一致性并减少搜索负担。采用状态自适应评估策略，按粒子状态分配不同代价评估，避免无效计算。实验表明，相比经典方法，所提方法在数字控制器部署下计算时间更短，控制精度更高。",
+      "tags": "query:reconfig-dab",
+      "abstract_en": "Harmonic programmed pulse width modulation (HPPWM), offering flexible harmonic regulation, is a promising solution for high-power energy conversion systems. However, most existing methods solve HPPWM in a continuous space while ignoring the finite timer resolution of practical digital controllers. This leads to a potential optimality deviation during deployment. Motivated by this, this paper proposes a Grid-Constrained State-Adaptive Particle Swarm Optimization (GCSA-PSO) strategy. By matching the solution space with practical timer constraints, GCSA-PSO directly searches for implementable pulse sequences in the discrete solution space, thereby improving deployment consistency while reducing the search burden. Moreover, a state-adaptive evaluation strategy is developed to assign different cost evaluations according to particle states, avoiding unnecessary evaluations and improving computational efficiency. Experimental data confirm that, compared with the classical method, the proposed method reduces the computational time while achieving higher control accuracy under practical digital-controller deployment.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "errors": []
+}

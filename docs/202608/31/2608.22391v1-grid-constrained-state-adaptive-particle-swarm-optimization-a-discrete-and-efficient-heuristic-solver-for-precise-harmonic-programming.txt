@@ -1,0 +1,688 @@
+Title: Grid-Constrained State-Adaptive Particle Swarm Optimization: A Discrete and Efficient Heuristic Solver for Precise Harmonic Programming
+
+URL Source: https://arxiv.org/pdf/2608.22391v1
+
+Published Time: Tue, 25 Aug 2026 01:26:47 GMT
+
+Number of Pages: 10
+
+Markdown Content:
+> XXX 1
+
+# Grid-Constrained State-Adaptive Particle Swarm Optimization: A Discrete and Efficient Heuristic Solver for Precise Harmonic Programming 
+
+Guangze Chen, Zhenbin Zhang, Yafei Yin 
+
+Abstract — Harmonic programmed pulse width modula-tion (HPPWM), offering flexible harmonic regulation, is a promising solution for high-power energy conversion sys-tems. However, most existing methods solve HPPWM in a continuous space while ignoring the finite timer resolution of practical digital controllers. This leads to a potential opti-mality deviation during deployment. Motivated by this, this paper proposes a Grid-Constrained State-Adaptive Particle Swarm Optimization (GCSA-PSO) strategy. By matching the solution space with practical timer constraints, GCSA-PSO directly searches for implementable pulse sequences in the discrete solution space, thereby improving deployment consistency while reducing the search burden. Moreover, a state-adaptive evaluation strategy is developed to as-sign different cost evaluations according to particle states, avoiding unnecessary evaluations and improving computa-tional efficiency. Experimental data confirm that, compared with the classical method, the proposed method reduces the computational time while achieving higher control ac-curacy under practical digital-controller deployment. 
+
+Index Terms — Direct solving capability, computationally efficient, intelligent algorithm, particle swarm optimization (PSO), high-power energy conversion. 
+
+I. I NTRODUCTION 
+
+# AS traditional fossil fuels decline and environmental chal-lenges intensify, wind power, particularly high-power wind energy installations, has emerged as one of the key solutions to energy issues [1]. In order to reduce the con-siderable power loss during energy conversion, high-power converters typically operate at low switching frequencies, which inevitably degrades output power quality. Harmonic programmed pulse width modulation (HPPWM), owing to its exceptional capability to optimize harmonic distri-butions, has become a promising solution [2]. Based on Fourier theory, HPPWM establishes an explicit relationship between switching pulses and harmonic components, through which the desired switching angles can be obtained by solving the corresponding optimization problem or algebraic equations. This enables flexible allocation of the harmonic spectrum. Ow-ing to its flexibility, various HPPWM variants have been de-veloped for different objectives, including selective harmonic elimination [3]–[5], total harmonic distortion [6]–[8], dc-link voltage ripple [9], torque ripple [10]–[12], grid codes [13]– [15]. However, the nonlinear solving process introduced by Fourier-based formulation remains a major challenge, making the determination of HPPWM switching angles quite diffi-cult [16]. To address the above challenges, substantial research efforts have been devoted to the efficient determination of HPPWM switching angles over the past few decades. From a method-ological perspective, existing approaches can generally be classified into three categories: 1) numerical gradient-based methods, 2) algebraic-based methods, and 3) intelligence-based methods. Numerical gradient-based methods, as the earliest solving branch, have been utilized since the birth of HPPWM [17]. The basic principle of this class of methods is to update the candidate solution iteratively along the direction determined by mathematical gradients until convergence is achieved. Ben-efiting from the well-defined search direction, these methods usually exhibit fast convergence [18]. However, their perfor-mance is highly dependent on the initial values, i.e., once the initial value is chosen, the final solution is determined. Their lesser capability to escape local optima remains a major limitation [19]. Algebraic-based methods provide another important route for solving HPPWM by reformulating the original trigono-metric equations into a purely algebraic problem [20]. Typ-ically, these methods transform the trigonometric equations into polynomial forms through Chebyshev theory, and then determine the analytical solutions using dedicated algebraic techniques. Owing to their rigorous mathematical foundation, algebraic-based methods are able to identify feasible solutions of specific HPPWM formulations with high accuracy. How-ever, these methods are fundamentally designed for solving equation systems rather than optimization problems, making them difficult to apply to multi-objective scenarios such as THD optimization. With the rapid advancement in processors, intelligent-based solving methods have gained significant traction [21]–[28]. By constructing flexible cost functions, these methods can incorporate different optimization objectives into the HPPWM formulation and provide enhanced global search capability compared with conventional gradient-based methods. Repre-sentative examples include genetic algorithms [21], particle swarm optimization [22]–[24], bee algorithm [25], whale op-timization [26], gray wolf optimization [27], and gravitational search algorithm [28], colonial competitive algorithm [29], etc. These methods have shown strong applicability in solving non-linear HPPWM problems, especially when multiple objectives or complex constraints are involved [30]. Building on these intelligent optimization methods, hybrid schemes have been further developed to improve the trade-off between global exploration and local convergence [31]–[33]. A representative example is the hybrid PSO–Newton-Raphson (PSO–NR) method [31], where PSO is first used to locate a arXiv:2608.22391v1 [eess.SY] 23 Aug 2026 2 XXX (a) (b) (c) Auto-reload register Compare 1 register CK_PSC TIMxCLK 
+
+> Grid Grid Side
+
+Approximation Loss optima-lity in discrete space Machine Side Machine Side Wind     
+
+> DC Bus Continuous space Internal clock General-purpose Timer CK_INT Trigger controller PSC prescaler Particle generation Cost evaluation Update velocity Lattice position Optimal sequence Judgement Iteration Discretization
+
+(d) (e) (f) Micro-processor  
+
+> Calculated Real optimal Mode: CNT counter CK_CNT OC1REF Stop, clear or up/down UU UI HPPWM -- LUT Compare 2 register Output control Compare 3 register Output control Output control OC2REF OC3REF TIMx_CH1 TIMx_CH2 TIMx_CH3 OC1 OC2 OC3 CK_INT Value_con Value_con CK_CNT Value_con Up mode Down mode HPPWM Modulation Inner loop (PI or MPC) Gate driver Grid Side
+> Balance control
+> NS
+> Encoder Circuit topology Transformation PLL Power
+
+Fig. 1. Deployment diagram of HPPWM under high-power energy conversion systems. (a) High-power offshore wind energy generation systems. (b) Topology for power circuits. (c) Typical control scheme. (d) Calculation of HPPWM. (e) Diagram of a general timer used to generate a HPPWM (STM32F103). (f) Optimality deterioration under discrete transformation. 
+
+promising solution region, and NR is then applied as a local refinement step to improve the convergence accuracy. Simi-larly, the asynchronous particle swarm optimization–genetic algorithm (APSO–GA) combines asynchronous particle evo-lution with genetic operations to enhance population diversity and convergence performance [32]. The aforementioned three categories and related hybrid schemes have improved HPPWM solving from different per-spectives and have achieved satisfactory performance. Never-theless, these methods are generally formulated in an assumed continuous solution space, whereas practical digital controllers can only generate switching instants with finite timer reso-lution. As shown in Fig. 1, the obtained continuous switch-ing angles must therefore be discretized before deployment. During this process, the rounded pulse sequence may not strictly coincide with the optimum in the practical discrete solution space, which can introduce an optimality deviation under digital implementation. Motivated by this, a Grid-Constrained State-Adaptive Par-ticle Swarm Optimization (GCSA-PSO) method is proposed in this work. By aligning the solution space with practical discrete constraints, the proposed method can directly search for the optimum in the discrete space, thereby preserving the optimality in practice while reducing the search space. In addition, a state-adaptive cost evaluation strategy is designed, in which different cost evaluations are assigned to particles under different constraint conditions. This avoids unnecessary computations and further improves the efficiency and compu-tation speed. The major advantages include: 1) Direct discrete solving capability: GCSA-PSO directly solves HPPWM in the practical discrete solution space, thereby avoiding the post-discretization process required by conventional continuous-space methods and improv-ing consistency with practical digital deployment. 2) Reduced search load: By restricting the candidate switching angles to practical timer-grid points, the grid-constrained solution space excludes infeasible regions that cannot be realized under practical digital-controller constraints, thereby reducing the search domain. 3) Improved computational efficiency: By assigning state-adaptive cost evaluations to particles under different states, GCSA-PSO avoids redundant cost evaluations and reduces unnecessary computational burden, leading to shorter solving time. The rest is structured as follows. Sec. II describes the basic principles of HPPWM. Sec. III introduces the proposed GCSA-PSO solving algorithm. Experimental verification, con-ducted under both general computational test benches and hardware-in-the-loop platforms, is provided in Sec. IV. Finally, Sec. V concludes the paper. 
+
+II. C ONSTRUCTION OF HARMONIC PROGRAMMED 
+
+PULSE WIDTH MODULATION 
+
+A. Basic Principle 
+
+Over the past few decades, harmonic programmed modu-lation has been widely developed to improve power quality under low-switching-frequency operation. Although the opti-mized targets of HPPWM can be diverse, a basic root can be traced to construct the whole theory, i.e. Fourier series decomposition, as given by: 
+
+FN (t) = a0
+
+2 +
+
+> N
+
+X
+
+> n=1
+
+
+
+an cos 
+
+ 2πnt T
+
+
+
++ bn sin 
+
+ 2πnt T
+
+ 
+
+,
+
+(1) where FN describes the pulse sequence and a0, an, bn
+
+represent the coefficients of DC-, cosine-, sin-component, respectively. Through mathematical manipulation of Eq. (1), the coefficients can be expressed as 
+
+an = 2
+
+T
+
+Z t0+Tt0
+
+FN(t) cos( nωt )dt (2a) 
+
+bn = 2
+
+T
+
+Z t0+Tt0
+
+FN(t) sin( nωt )dt. (2b) Take HPPWM with the target of harmonic elimination as a case study (refer to S-HPPWM in the following). The case AUTHOR et al. : TITLE 3 
+
+> Fig. 2. Three-level & quarter and half wave symmetric pulse sequence (N=5).
+
+waveform is shown in Fig. 2, which has three-level and quarter and half wave symmetry(QaHWS). Due to the QaHWS of the pulse sequence, the dc component, cosine terms, and even-order harmonics are naturally eliminated. Therefore, the fundamental and harmonic voltages of the case pulse sequence can be expressed as 
+
+
+
+> 2Udc
+> π
+> N
+
+P
+
+> i=1
+
+(−1) i+1 cos( ϑi) = Vbasic 2Udc 
+
+> n1π
+> N
+
+P
+
+> i=1
+
+(−1) i+1 cos( n1ϑi) = Vh,1
+
+...
+
+> 2Udc
+> nN−1π
+> N
+
+P
+
+> i=1
+
+(−1) i+1 cos( nN−1ϑi) = Vh,N−1,
+
+(3) where N represents the number of switching angles under QaHWS, n denotes the harmonic order, Vh denotes the har-monic voltage of the pulse sequence, which is expected to be eliminated, and ϑi denotes the switching angle. For ease of notation, define MI as the equivalent modulation index, 
+
+MI = πV basic 
+
+2Udc 
+
+, (4) where Vbasic is the amplitude of the fundamental voltage component, and Udc is the dc-link voltage. Due to the nature of time series shown in Fig. 2, the switching angles needs to meet the following constraints: 
+
+0 < ϑ 1 < ϑ 2 < ϑ 3 < . . . < ϑ N−1 < ϑ N < π
+
+2| {z }
+
+> sequence constraint
+
+. (5) 
+
+Example: For clarity, a three-level QaHWS S-HPPWM with three degrees of freedom, i.e., three switching instants within a quarter period, is considered. In this case, two selected harmonic orders can be eliminated while the desired funda-mental component is maintained. Therefore, the corresponding equation set can be established as 
+
+
+
+cos( ϑ1) − cos( ϑ2) + cos( ϑ3) = MI  
+
+> 2Udc
+> 3π
+
+[cos(3 ϑ1) − cos(3 ϑ2) + cos(3 ϑ3)] = 0  
+
+> 2Udc
+> 5π
+
+[cos(5 ϑ1) − cos(5 ϑ2) + cos(5 ϑ3)] = 0 .
+
+0 < ϑ 1 < ϑ 2 < ϑ 3 < π
+
+2
+
+(6) 
+
+B. Optimization Problem 
+
+To enhance the flexibility of HPPWM, the original equation-solving problem is often reformulated as an optimization problem, so that different control objectives and practical constraints can be incorporated in a unified manner [16]. For this purpose, the nonlinear equations can be converted into a comprehensive cost function through simple mathematical manipulation, as 
+
+
+
+δ0 = NP
+
+> i=1
+
+(−1) i+1 cos( ϑi) − MI 
+
+δ1 = 1
+
+> n1
+> N
+
+P
+
+> i=1
+
+(−1) i+1 cos( n1ϑi)
+
+...
+
+δN −1 = 1 
+
+> nN−1
+> N
+
+P
+
+> i=1
+
+(−1) i+1 cos( nN −1ϑi),
+
+(7) 
+
+J = γf × δ20
+
+| {z }
+
+> fund .
+
++ γh × (δ21 + δ22 + . . . + δ2N−1)
+
+| {z }
+
+> harmonic
+
+, (8) where δ represents the cost terms derived from the original nonlinear equations, and γf and γh denote the weighting coefficients for the fundamental and harmonic components, respectively. In addition, the sequence constraint in Eq. (5) should be considered to ensure the practical feasibility of the obtained switching angles. 
+
+III. T HE PROPOSED GCSA-PSO A LGORITHM 
+
+To obtain switching angles with the desired harmonic char-acteristics, the optimization problem formulated in Eq. (8) needs to be solved. Existing HPPWM solving methods usually operate in a continuous solution space, whereas practical digi-tal controllers can only generate switching instants with finite timer resolution. Therefore, continuously optimized switching angles need to be discretized before implementation. This discretization may affect the relative optimality of the obtained switching angles and influence the harmonic performance under practical deployment, as illustrated in Fig. 1. Meanwhile, conventional intelligent optimization methods usually evaluate all iterative individuals using the same cost function. For HPPWM solving, however, the contribution of different particles to the search process is not identical. Particles that violate the sequence constraints are already infeasible, and their cost values are mainly determined by the constraint item. Similarly, particles that remain unchanged during the iteration do not provide new cost information. Therefore, applying the full harmonic cost evaluation to all particles may introduce unnecessary trigonometric calcula-tions. This observation motivates the design of a state-adaptive cost evaluation strategy to improve computational efficiency while maintaining the effectiveness of the search process. Motivated by the above, a Grid-Constrained State-Adaptive Particle Swarm Optimization (GCSA-PSO) strategy is pro-posed in this section. In the proposed GCSA-PSO framework, each particle represents a candidate HPPWM pulse sequence and is described by its position x and velocity v. The position corresponds to the switching angles in the pulse sequence, i.e., 
+
+x = ϑ = [ ϑ1, ϑ 2, . . . , ϑ N ], while the velocity determines the update direction and step size during the iterative search. For example, a particle with x = [15 , 30 , 55] and v = [1 , 2, 5] 
+
+represents the current switching-angle solution [ϑ1, ϑ 2, ϑ 3] = [15 , 30 , 55] , which is updated to [16 , 32 , 60] in the next step. 4 XXX 
+
+As shown in Fig. 3, the overall procedure of GCSA-PSO consists of three main modules corresponding to the following subsections. 1) Grid plotting and initialization: the finite timer resolution is mapped into the solution space, and the initial particles are generated directly on realizable grid points. 2) State-adaptive cost evaluation: the full cost function and constraint item are formulated, and particles are classified into different states according to their update status and constraint satisfaction, so that state-specific cost evaluations can be assigned. 3) Update and reposition: the personal best and global best solutions are updated, followed by the velocity-position update and grid adhesion, which projects the updated particles back onto practical grid points. The detailed implementation of each step is introduced in the following subsections, and the overall pseudo-code is provided in Algorithm 1. 
+
+A. Grid Plotting and Initialization 
+
+To embed the finite timer resolution of practical digital con-trollers into the solution space, grid plotting is introduced so that GCSA-PSO directly searches over implementable switch-ing angles. The corresponding grid interval is determined by the timer basic clock and the fundamental frequency as 
+
+dgrid = fb
+
+fp
+
+× ξcv × 360 , (9) where fp represents the basic timer clock frequency, fb is the fundamental frequency of the desired pulse sequence, and ξcv 
+
+denotes the conversion coefficient for the computational unit of the solution space. For example, ξcv = 1 when the solution space is expressed in degrees, while ξcv = π/ 180 when it is expressed in radians. Through this grid plotting process, the proposed method initializes particles directly on grid points and searches for the optimum in the practical discrete solution space. This allows the obtained switching angles ϑ to preserve its optimality under practical digital-controller deployment. 
+
+B. State-Adaptive Cost Evaluation Strategy 
+
+Considering the priority of fundamental tracking, harmonic suppression, and sequence constraints, the full evaluation function is formulated as 
+
+Jfull = γf × δ20 + γh × 
+
+> N−1
+
+X
+
+> j=1
+
+δ2 
+
+> j
+
++ γc × δc, (10) where δ0 represents the fundamental-amplitude deviation, δj
+
+denotes the deviation of the selected jth harmonic compo-nent. The constraint item δc is introduced to penalize pulse sequences that violate the switching-angle order in (5), which is expressed as 
+
+δc =
+
+"
+
+u(−ϑ1) +  
+
+> N−1
+
+X
+
+> i=1
+
+u(ϑi − ϑi+1 ) + u
+
+
+
+ϑN − π
+
+2
+
+#
+
+, (11) where u(·) is the step function used to represent inequality violations. Therefore, δc = 0 indicates that the particle satisfies Initialize the Algorithm Related Coefficients Initialize Particle Swarm on the Grid Points Grid Plotting of the Solution Space YNOutput the Optimal Switching Angles End Start Identify Particle States Ba-sed on Constraint Satisfac-tion and Position Update Optimal Sequence Continuous Space Cost Evaluation State Identification Stopping Criterion Particle Initialization 
+
+> Update Particles Grid Adhesion Evaluate Particle Cost and Update Personal /Global Best Update Particle Velocity and Particle Position Perform Grid Adhesion and Project Particles to Nearest Grid Points Update Inertia Weight and Individual Learning Factor Grid Plotting
+> Module 1 Module 2 Module 3
+> Fig. 3. Overall diagram of the proposed GCSA-PSO algorithm.
+
+the sequence constraint in Eq. (5), whereas δc > 0 indicates an infeasible pulse sequence. In conventional algorithms, all particles are usually evalu-ated using the same full cost function. For HPPWM solving, however, the contribution of different particles to the search process is not identical. Particles satisfying the sequence constraints provide valid harmonic information and therefore require full evaluation. In contrast, particles violating the sequence constraints are already infeasible, and their cost values are mainly determined by the constraint item. For these particles, evaluating the harmonic terms introduces additional trigonometric calculations but contributes little to the final judgment. Similarly, particles that remain unchanged during the iteration can directly inherit their previous cost values. Based on this observation, a state-adaptive cost evaluation AUTHOR et al. : TITLE 5
+
+Algorithm 1 Proposed GCSA-PSO Solving Algorithm 
+
+Input: ωmax , ωmin , c1,max , c2, P , vmax , tmax , MI , fp, fb,etc. 
+
+Output: ϑ = [ ϑ1, ϑ 2, . . . , ϑ N ]. 
+
+> 1:
+
+Calculate the grid interval dgrid according to Eq. (9).  
+
+> 2:
+
+for each particle i = 1 , 2, . . . , P do  
+
+> 3:
+
+Initialize x0 
+
+> i
+
+on the grid points and initialize v0 
+
+> i
+
+. 
+
+> 4:
+
+Set P 0Best ,i = x0 
+
+> i
+
+and evaluate J0 
+
+> i
+
+. 
+
+> 5:
+
+end for  
+
+> 6:
+
+Set G0Best as the particle with the minimum cost value.  
+
+> 7:
+
+for t = 1 to tmax do  
+
+> 8:
+
+for each particle i = 1 , 2, . . . , P do  
+
+> 9:
+
+Calculate the constraint item δc according to Eq. (11).  
+
+> 10:
+
+if ∥vt−1 
+
+> i
+
+∥∞ < d grid /2 then  
+
+> 11:
+
+Set Si = 2 // virtual state  
+
+> 12:
+
+else if δc > 0 then  
+
+> 13:
+
+Set Si = 1 // semi-virtual state  
+
+> 14:
+
+else  
+
+> 15:
+
+Set Si = 0 // effective state  
+
+> 16:
+
+end if  
+
+> 17:
+
+if Si = 0 then  
+
+> 18:
+
+Evaluate the full cost Jti = Jfull according to Eq. (10).  
+
+> 19:
+
+else if Si = 1 then  
+
+> 20:
+
+Evaluate the simplified cost Jti = γc × δc. 
+
+> 21:
+
+else  
+
+> 22:
+
+Inherit the cost Jti = Jt−1 
+
+> i
+
+. 
+
+> 23:
+
+end if  
+
+> 24:
+
+Update P t 
+
+> Best ,i
+
+and Gt 
+
+> Best
+
+according to Jti . 
+
+> 25:
+
+Update ωt and ct 
+
+> 1
+
+according to Eq. (15) and Eq. (16).  
+
+> 26:
+
+Update the velocity vti according to Eq. (12).  
+
+> 27:
+
+Limit each element of vti within [vmin , v max ]. 
+
+> 28:
+
+Update the position xti according to Eq. (13).  
+
+> 29:
+
+Attach xti to the nearest grid points through the grid adhesion process.  
+
+> 30:
+
+end for  
+
+> 31:
+
+if the stopping criterion εx is satisfied then  
+
+> 32:
+
+break  
+
+> 33:
+
+end if  
+
+> 34:
+
+end for  
+
+> 35:
+
+return ϑ = GBest .strategy is proposed. Here, GCSA-PSO classifies particles into three states ac-cording to their status and constraint satisfaction, as shown in Fig. 4: 1) Effective state: the particle is updated and satisfies the constraint, i.e., ∥vt−1 
+
+> i
+
+∥∞ > d grid /2 and δc = 0 .2) Semi-virtual state: the particle is updated but violates the constraint, i.e., ∥vt−1 
+
+> i
+
+∥∞ > d grid /2 and δc > 0.3) Virtual state: the particle remains unchanged after grid adhesion, i.e., ∥vt−1 
+
+> i
+
+∥∞ < d grid /2.For effective particles, the full cost function in Eq. (10) is evaluated to assess both harmonic performance and constraint satisfaction. For semi-virtual particles, only the constraint item is used, i.e., J = γc × δc, because their infeasibility has Speed Constraint Constraint Effective Virtual Semi-Virtual 
+
+Full Evaluation Constraint Item Cost Inheritance 0 Unsatisfied Speed 0 
+
+> Fig. 4. Particle states and the corresponding state-adaptive cost evaluation strategies.
+
+already been identified by the sequence constraint. For virtual particles, the cost value is inherited from the previous iteration, i.e., Jti = Jt−1 
+
+> i
+
+, since their positions remain unchanged. In this way, the evaluation is assigned according to the particle state, reducing unnecessary trigonometric calculations and improving the computational efficiency of the solving process. 
+
+C. Update and Reposition Strategy 
+
+After cost evaluation, the personal best solution and the global best solution are updated. The particle velocity is then updated according to the inertia term, individual learning term, and social learning term, as 
+
+vti =ωtvt−1 
+
+> i
+
++ ct
+
+> 1
+
+r1
+
+ P t 
+
+> Best ,i
+
+− xt−1
+
+> i
+
+
+
++ c2r2
+
+ Gt 
+
+> Best
+
+− xt−1
+
+> i
+
+ , (12) where xi and vi are the position and velocity of the ith particle, respectively. P Best ,i is the best position historically found by the ith particle, and GBest is the best position found by the entire swarm. r1 and r2 are independent random numbers within [0 , 1] , and t denotes the current iteration index. Subsequently, the position is updated as 
+
+xti = xt−1 
+
+> i
+
++ vti. (13) Since the random terms in the velocity update may drive the updated position away from the predefined discrete grid points, a grid adhesion operation is further applied, i.e., 
+
+xti ← dgrid · round 
+
+ xti
+
+dgrid 
+
+
+
+. (14) This operation projects each updated particle onto the nearest realizable grid point, ensuring that every candidate pulse sequence remains implementable by the digital controller. To balance the global exploration capability and conver-gence speed, the inertia weight is dynamically adjusted as 
+
+ωt = ωmax − ωmax − ωmin 
+
+tmax 
+
+t. (15) Therefore, a relatively large inertia weight is assigned in the early iterations to enhance global exploration, while a smaller inertia weight is achieved in the later iterations to improve convergence. In addition, the individual learning factor is gradually re-duced after a threshold iteration, so as to weaken the influence of local personal-best directions in the later stage: 
+
+ct 
+
+> 1
+
+=
+
+
+
+c1,max , t < t tv ,c1,max − c1,max (t − ttv )
+
+tmax − ttv 
+
+, t ≥ ttv . (16) 6 XXX 
+
+TABLE I PARAMETERS OF THE IMPLEMENTED GCSA-PSO 
+
+Symbol Description Value Unit 
+
+γf Weighting of fundamental term 50 -
+
+γh Weighting of harmonic term 1 -
+
+γc Weighting of constraint violation 10 5 -
+
+c1,max Maximum individual learning factor 0.5 -
+
+c2 Social learning factor 0.5 -
+
+P Population size 300 -
+
+ωmin Minimum inertia weight 0.4 -
+
+ωmax Maximum inertia weight 1.5 -
+
+tmax Maximum iteration count 200 -
+
+ttv Threshold iteration for c1 adjustment 100 -
+
+εx Position convergence tolerance 10 −4 -
+
+vmax Particle velocity upper limit 3.6 deg 
+
+vmin Particle velocity lower limit -3.6 deg 
+
+fp Timer frequency 1 MHz 
+
+fb Fundamental frequency 50 Hz 
+
+ξcv Conversion coefficient 1 -
+
+where ttv is the threshold iteration for learning-factor ad-justment. Through the above update and reposition strategy, GCSA-PSO ensures that the switching angles obtained during the search process remain consistent with practical discrete implementation. Meanwhile, the dynamic weighting mecha-nism achieves a balance between solution-space exploration and convergence speed. 
+
+IV. P ERFORMANCE VALIDATION 
+
+To validate the effectiveness of the proposed GCSA-PSO, a general computational test bench and a hardware-in-the-loop (HIL) platform were constructed in the laboratory. The platform consists of one general computation unit with an Intel i5-14490F CPU and two RT-Box3 produced by PLECS. The general computation unit is used to deploy the solving algorithms and evaluate their computational speed. For the HIL test, one RT-Box3 is used as the digital controller to implement the calculated HPPWM lookup-tables (LUTs), while the other RT-Box3 is used to emulate the power converter. The main parameters of GCSA-PSO are listed in Table I. For a fair comparison, the common parameters, including population size, maximum iteration number, and initial conditions, are kept identical for the compared methods. The validation is organized into three parts: 1) optimality verification, which demonstrates that the optimum obtained by classical continuous-space methods may become non-optimal after deployment on a practical digital controller, whereas the proposed GCSA-PSO can preserve the discrete optimality; 2) computational-speed test, which compares the solving time of different methods under the same initial conditions, iteration number, and population size; and 3) controller-deployment test, which verifies the harmonic regulation accuracy of the obtained pulse patterns under practical digital-controller im-plementation. The deployment diagram is illustrated in Fig. 5, and the experimental results are shown in Figs. 6–9. The corresponding analysis is provided in the following. Real-Time Controller (RT-Box-3) Hardware-in-the-Loop Platform (RT-Box-3) Single Phase Power Converters FPGA & ARM Controller Control Signals Measurement Signals     
+
+> Connectors
+> Ethernet Cable
+> Sampling Interval (  )Single Phase Converter D/A Conversion Analog Signals -10V ~ +10V Gain Digital Signals -5V ~ +5V Parameters Configuration Personal Computer Particle Swarm Generation Cost Evaluation Update & Judgment Particle State Judgment Memory LUTs None : Symbol :Symbol :Core 0 Core 1 Core 2 A/D Conversion -10V ~ +10V Signals Distribution
+> GUI Connector: RJ45 Communication Timers Ethernet Pulse Generator
+> Pre-stored RT-Box-3  FPGA & ARM Controller Stored Lookup-Table Connector: 37 Pin Male D-SUB
+
+Fig. 5. Deployment diagram for the constructed test bench. 
+
+A. Optimality Verification 
+
+To verify the discrete optimality of the pulse sequences solved by the proposed method, a comparative test was conducted between GCSA-PSO and PSO-NR. In this test, S-HPPWM cases with three and five degrees of freedom were calculated and the basic timer clock of the digital controller is set at 1 MHz. The results are shown in Fig. 6, where Figs. 6(a) and (b) present the solved switching angles under different modulation indices for N = 3 and N = 5 ,respectively. Figs. 6(c) and (d) show the corresponding cost values Jbest of the pulse sequences under practical discrete implementation conditions. It can be observed that GCSA-PSO consistently reaches the discrete global optimum, whereas the solutions obtained by PSO-NR exhibit optimality deterioration after discretization. This is because GCSA-PSO embeds the timer-resolution constraint into the search space and directly optimizes the pulse sequence on realizable grid points, thereby avoiding the post-discretization approximation required by continuous-space methods. To quantify the control capability over each selected com-AUTHOR et al. : TITLE 7
+
+(a) (b) (c) 
+
+(d) (e) (f)  
+
+> Fig. 6. [PC and HIL Results] Optimal discrete pulse sequence and associated performance. (a) Discrete pulse sequence (N=3). (b) Discrete pulse sequence (N=5). (c) Optimal cost value (N=3). (d) Optimal cost value (N=5). (e) Harmonics and WTHD (N=3). (f) Harmonics and WTHD (N=5).
+
+ponent, this work utilizes a weighted total harmonic distortion (WTHD): 
+
+WTHD = 
+
+q
+
+z2n1 + . . . + z 2nN−1
+
+MI × 100% , (17) where zn represents the amplitudes of the selected harmonics that are expected to be eliminated. Fig. 6 (e) and (f) demon-strate the amplitudes of selected orders and the overall WTHD of the pulse sequence obtained by GCSA-PSO. As shown, the components are all controlled within a small range, and the fundamental deviations in the pulse sequence obtained by GCSA-PSO exhibit better control accuracy under practical digital-controller implementation. To further confirm the effectiveness of the proposal, the cost landscape around the optimum is visualized in Fig. 7. To represent the four-dimensional data (ϑ1, ϑ 2, ϑ 3, J ) in a three-dimensional coordinate system, color is used to indicate the cost value. Specifically, yellow corresponds to a lower cost value, whereas blue corresponds to a higher cost value. It can be observed that directly rounding the continuous-space optimum to the nearest timer grid point does not necessarily yield the global optimum in the discrete solution space. As shown in Fig. 7 (b), under a timer frequency of 1 MHz, the discrete optimum may differ from the rounded continuous-space solution by up to two grid intervals. 
+
+B. Computational Analysis 
+
+To further evaluate the computational efficiency of the pro-posed method, a comparative test is conducted among GCSA-PSO, PSO-NR, and classical PSO. For a fair comparison, the same initial conditions, maximum iteration number, population size, and algorithm parameters are adopted for all methods. Each case is independently repeated 100 times to reduce the influence of randomness, and the averaged results are shown in Fig. 8. As observed, PSO-NR requires the longest computational time among the compared methods. This is because the NR refinement is further applied after the PSO search to improve the solution accuracy, which inevitably in-troduces additional computational burden. Nevertheless, PSO-NR can achieve very high convergence accuracy in the con-tinuous solution space, with the final cost value reduced to the order of 10 −31 in the tested cases. However, such a continuous-space optimum does not necessarily correspond to the discrete-space optimum after timer-grid discretization. Consequently, the resulting pulse sequence may still suffer from implementation-induced optimality deterioration under practical digital-controller deployment, as shown in Fig. 7. The dark-blue curve in Fig. 8 represents the computational time of GCSA-PSO under different population sizes. It can be observed that GCSA-PSO requires less computational time than both classical PSO and PSO-NR under the tested condi-tions. This improvement mainly comes from the state-adaptive cost evaluation strategy. Unlike classical PSO and PSO-NR, which evaluates all particles using the full cost function, GCSA-PSO avoids full harmonic evaluation for particles that violate the sequence constraints or remain unchanged after grid adhesion. Moreover, the reduction in computational burden becomes more pronounced as the population size increases, since a larger population generally leads to more particles for which full cost evaluation is unnecessary. 8 XXX Higher Lower x1:1873 x2:3007 x3:4083 J: 9.7e-7 x1:1872.46.. x2:3007.29.. x3:4083.32.. J: 4.9e-32 x1:1872 x2:3007 x3:4083 J: 2.3e-6 Discrete Optimal Inside Inside Rounded Solution Continuous Solution 
+
+(a) N = 3 , MI = 0 .53 .3021.5 2578 3022 2577.5 3022.5 1453 3023 1452.5 2577 3023.5 2576.5 1451.5 2576 
+
+Higher Lower x1:1452 x2:2575 x3:3021 J: 8.5e-7 x1:1452.08.. x2:2577.03.. x3:3022.5.. J: 4.8e-33 x1:1452 x2:2577 x3:3023 J: 1.6e-6 Discrete Solution Inside Inside Rounded Solution Continuous Solution 
+
+(b) N = 3 , MI = 0 .79 .
+
+Fig. 7. [PC Results] Cost distribution around the continuous-space optimum and the corresponding discrete grid points. (a) N = 3 ,
+
+MI = 0 .53 . (b) N = 3 , MI = 0 .79 .
+
+Fig. 8. [PC Results] Computational-speed comparison among PSO, PSO-NR, and GCSA-PSO for S-HPPWM with N = 5 . Each operating condition is tested 100 times, and the averaged results are reported. 
+
+C. Implementation Verification under Various Scenarios 
+
+In this subsection, the pulse sequences solved by GCSA-PSO under different modulation indices are organized into a LUT and deployed on the RT-Box3 controller. The test is con-ducted to evaluate the performance of the obtained HPPWM patterns under various operating conditions, including different modulation indices MI , different numbers of switching angles 
+
+N , and different fundamental frequencies fb.Fig. 9(a) presents the voltage and current waveforms when the modulation index changes from 0.15 to 0.81 with N = 3 
+
+under an RL load of 1 Ω + 10 mH . Fig. 9(b) illustrates the transition from three switching angles (MI = 0 .81 , N = 3) 
+
+to five switching angles (MI = 0.77 , N = 5) . Fig. 9(c) shows the output waveforms when the fundamental frequency changes from fb = 50 Hz to fb = 100 Hz . Due to the increased inductive reactance at higher frequencies, the output current decreases accordingly. Figs. 9(d)–(f) present the current spectra under the above operating conditions, while Figs. 9(g)–(i) compare the deviations of the controlled har-monic components between GCSA-PSO and the continuous-space solving method PSO-NR. It can be observed that, under the tested operating conditions, the pulse sequences obtained by GCSA-PSO achieve more accurate regulation of the selected harmonic components than those obtained by the conventional continuous-space solving method. This is because GCSA-PSO directly solves the pulse sequence in the practical discrete solution space, avoiding the additional approximation introduced by post-discretization. 
+
+V. C ONCLUSION 
+
+Harmonic programmed pulse width modulation (HPPWM) is a promising technique to tackle the harmonic issues for high-power systems operating at low switching frequencies. To achieve accurate solutions aligned with practical discrete digital controllers, this article proposes a Grid-Constrained State-Adaptive Particle Swarm Optimization (GCSA-PSO) strategy. By embedding the discrete timer constraints into the solution space and assigning state-adaptive cost evaluation strategy to particles, the proposed method directly obtains implementable pulse sequences while reducing unnecessary evaluations. Experimental results demonstrate that GCSA-PSO provides implementation-consistent HPPWM pulse sequences with improved computational efficiency and harmonic con-trol accuracy under practical digital-controller implementation. The features are summarized as follows: 1) The proposed method can be conveniently extended to different HPPWM formulations by modifying the corresponding cost function and constraint terms. 2) The proposed method assigns different cost functions according to particle states, thereby avoiding unneces-sary computational burden and offering shorter compu-tational time. 3) The proposed method can directly obtain the discrete pulse sequence without additional discretization, thereby preserving optimality in practical deployment. Future work will focus on reducing the storage burden associated with HPPWM lookup tables. 
+
+REFERENCES 
+
+[1] F. Blaabjerg and K. Ma, “Future on power electronics for wind turbine systems,” IEEE J. Emerging Sel. Top. Power Electron. , vol. 1, no. 3, pp. 139–152, 2013. [2] A. Edpuganti and A. K. Rathore, “A survey of low switching frequency modulation techniques for medium-voltage multilevel converters,” IEEE Transactions on Industry Applications , vol. 51, no. 5, pp. 4212–4228, 2015. [3] F. G. Turnbull, “Selected harmonic reduction in static d-c — a-c inverters,” IEEE Trans. Commun. , vol. 83, no. 73, pp. 374–378, 1964. AUTHOR et al. : TITLE 9(a) (b) (c) (d) (f) (g) (h) (i) 
+
+(e) 
+
+Fig. 9. [HIL Results] Performance of HPPWM under various scenarios. (a) Change of MI (0.15 to 0.81). (b) Change of MI (0.81 to 0.77). (c) Change of frequency from 50 to 100 Hz. (d) Current FFT (MI=0.34, N=3). (e) Current FFT (MI=0.81, N=3). (f) Current FFT (MI=0.77, N=5). (g) Control bias (MI=0.34, N=3). (h) Control bias (MI=0.81, N=3). (i) Control bias (MI=0.77, N=5). 
+
+[4] M. Wu, C. Xue, Y. W. Li, and K. Yang, “A generalized selective harmonic elimination pwm formulation with common-mode voltage reduction ability for multilevel converters,” IEEE Transactions on Power Electronics , vol. 36, no. 9, pp. 10 753–10 765, 2021. [5] S. Kundu and S. Banerjee, “An improved shm-pam technique for three-phase five-level chb inverter utilizing both quarter-wave and half-wave symmetry waveforms to fulfill some important voltage harmonic standards,” IEEE Transactions on Industry Applications , vol. 57, no. 6, pp. 6246–6260, 2021. [6] G. Chen and Z. Zhang, “Global-synchronized optimized pulse patterns,” 
+
+IEEE Transactions on Power Electronics , vol. 41, no. 2, pp. 2658–2673, 2026. [7] E. Tsekouras, R. P. Aguilera, and T. Geyer, “Real-time optimized pulse patterns to compensate for distorted grid voltages,” IEEE Transactions on Power Electronics , vol. 41, no. 3, pp. 4288–4299, 2026. [8] A. Birth, T. Geyer, H. d. T. Mouton, and M. Dorfling, “Generalized three-level optimal pulse patterns with lower harmonic distortion,” IEEE Transactions on Power Electronics , vol. 35, no. 6, pp. 5741–5752, 2020. [9] I. Hilden, P. Karamanakos, and T. Geyer, “Gradient-based predictive pulse pattern control of five-level medium-voltage drives with dc-link voltage ripple minimization,” IEEE Transactions on Power Electronics ,pp. 1–18, 2026. [10] I. Koukoula, P. Karamanakos, and T. Geyer, “Optimal modulation for suppression of low-order torque harmonics in induction motor drives,” 
+
+IEEE Transactions on Power Electronics , pp. 1–14, 2026. [11] C. Wang, Q. Zhang, H. Yang, M. Wu, K. Wang, Y. Li, S. Ge, and K. Yang, “Selective harmonic elimination-based torque ripple optimiza-tion for pmsms with model predictive pulse pattern control,” IEEE Transactions on Power Electronics , vol. 40, no. 9, pp. 12 350–12 364, 2025. [12] M. Gu, Z. Wang, and B. Wang, “Optimization of torque ripple for low-carrier-ratio dual three-phase pmsm with pulse pattern control,” IEEE Transactions on Power Electronics , vol. 38, no. 12, pp. 15 091–15 096, 2023. [13] V. Cabezas, P. Acuna, R. P. Aguilera, P. Lezana, C. Garcia, and E. H. Watanabe, “Selective harmonic mitigation model predictive control for grid-connected converters working with a very low apparent switching frequency,” IEEE Transactions on Power Electronics , pp. 1–13, 2026. [14] L. G. Franquelo, J. Napoles, R. C. P. Guisado, J. I. Leon, and M. A. Aguirre, “A flexible selective harmonic mitigation technique to meet grid codes in three-level pwm converters,” IEEE Trans. Ind. Electron. ,vol. 54, no. 6, pp. 3022–3029, 2007. [15] S. Rahmanpour, P. Karamanakos, T. Geyer, A. Ruusila, and G. Pa-pafotiou, “Harmonic-constrained optimal modulation for converters con-nected to a distorted grid,” IEEE Transactions on Power Electronics , pp. 1–14, 2026. [16] Z. Zhang, G. Chen, and D. Xu, “Harmonic programmed modulation for high-power medium voltage energy conversion: Formulation, solving ap-proach, and implementation,” IEEE Transactions on Power Electronics ,vol. 40, no. 6, pp. 7872–7892, 2025. [17] H. S. Patel and R. G. Hoft, “Generalized techniques of harmonic elimination and voltage control in thyristor inverters: Part i–harmonic elimination,” IEEE Trans. Ind. Appl. , vol. IA-9, no. 3, pp. 310–317, 1973. [18] P. Kujan, “Numerical iterative methods solving three-phase multilevel voltage converter,” in 2010 IEEE Int. Symp. Comput. Aid. Control Syst. Des. , 2010, pp. 1801–1806. [19] M. A. Memon, S. Mekhilef, M. Mubin, and M. Aamir, “Selective har-monic elimination in inverters using bio-inspired intelligent algorithms for renewable energy conversion applications: A review,” Renewable Sustainable Energy Rev. , vol. 82, pp. 2235–2253, 2018. [20] C. Wang, Q. Zhang, W. Yu, and K. Yang, “A comprehensive review of solving selective harmonic elimination problem with algebraic al-gorithms,” IEEE Trans. Power Electron. , vol. 39, no. 1, pp. 850–868, 2024. [21] B. Ozpineci, L. Tolbert, and J. Chiasson, “Harmonic optimization of multilevel converters using genetic algorithms,” IEEE Power Electron. Lett. , vol. 3, no. 3, pp. 92–95, 2005. [22] H. Taghizadeh and M. T. Hagh, “Harmonic elimination of cascade multilevel inverters with nonequal dc sources using particle swarm optimization,” IEEE Trans. Ind. Electron. , vol. 57, no. 11, pp. 3678– 3684, 2010. 10 XXX 
+
+[23] Y. Jiang, X. Li, C. Qin, X. Xing, and Z. Chen, “Improved particle swarm optimization based selective harmonic elimination and neutral point balance control for three-level inverter in low-voltage ride-through operation,” IEEE Transactions on Industrial Informatics , vol. 18, no. 1, pp. 642–652, 2022. [24] M. Sadoughi, A. Pourdadashnia, M. Farhadi-Kangarlu, and S. Galvani, “Pso-optimized she-pwm technique in a cascaded h-bridge multilevel inverter for variable output voltage applications,” IEEE Transactions on Power Electronics , vol. 37, no. 7, pp. 8065–8075, 2022. [25] A. Kavousi, B. Vahidi, R. Salehi, M. K. Bakhshizadeh, N. Farokhnia, and S. H. Fathi, “Application of the bee algorithm for selective har-monic elimination strategy in multilevel inverters,” IEEE Trans. Power Electron. , vol. 27, no. 4, pp. 1689–1696, 2011. [26] P. Kumar Kar, A. Priyadarshi, and S. Bhaskar Karanki, “Selective harmonics elimination using whale optimisation algorithm for a single-phase-modified source switched multilevel inverter,” IET Power Elec-tron. , vol. 12, no. 8, pp. 1952–1963, 2019. [27] A. Routray, R. K. Singh, and R. Mahanty, “Harmonic reduction in hybrid cascaded multilevel inverter using modified grey wolf optimization,” 
+
+IEEE Trans. Ind. Appl. , vol. 56, no. 2, pp. 1827–1838, 2019. [28] P. Kala and S. Arora, “Implementation of hybrid gsa she technique in hybrid nine-level inverter topology,” IEEE Journal of Emerging and Selected Topics in Power Electronics , vol. 9, no. 1, pp. 1064–1074, 2021. [29] M. H. Etesami, N. Farokhnia, and S. Hamid Fathi, “Colonial competitive algorithm development toward harmonic minimization in multilevel inverters,” IEEE Transactions on Industrial Informatics , vol. 11, no. 2, pp. 459–466, 2015. [30] H. Yi˘ git, S. ¨ Urg¨ un, and S. Mirjalili, “Comparison of recent metaheuristic optimization algorithms to solve selective harmonic elimination prob-lem,” Neural Computing and Applications , 2023. [31] K. Shen, D. Zhao, J. Mei, L. M. Tolbert, J. Wang, M. Ban, Y. Ji, and X. Cai, “Elimination of harmonics in a modular multilevel converter using particle swarm optimization-based staircase modulation strategy,” 
+
+IEEE Trans. Ind. Electron. , vol. 61, no. 10, pp. 5311–5322, 2014. [32] M. A. Memon, M. D. Siddique, S. Mekhilef, and M. Mubin, “Asyn-chronous particle swarm optimization-genetic algorithm (apso-ga) based selective harmonic elimination in a cascaded h-bridge multilevel in-verter,” IEEE Trans. Ind. Electron. , vol. 69, no. 2, pp. 1477–1487, 2021. [33] S. Padmanaban, C. Dhanamjayulu, and B. Khan, “Artificial neural net-work and newton raphson (ann-nr) algorithm based selective harmonic elimination in cascaded multilevel inverter for pv applications,” IEEE Access , vol. 9, pp. 75 058–75 070, 2021.
