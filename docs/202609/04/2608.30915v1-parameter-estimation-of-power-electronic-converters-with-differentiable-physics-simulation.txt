@@ -1,0 +1,1096 @@
+Title: Parameter Estimation of Power Electronic Converters with Differentiable Physics Simulation
+
+URL Source: https://arxiv.org/pdf/2608.30915v1
+
+Published Time: Tue, 01 Sep 2026 02:51:21 GMT
+
+Number of Pages: 16
+
+Markdown Content:
+> 1
+
+# Parameter Estimation of Power Electronic Converters with Differentiable Physics Simulation 
+
+Pingjunjin Tan, Student Member, IEEE, Chunlin Lv, Member, IEEE, Jinjun Liu, Fellow, IEEE, 
+
+and Yang Li, Student Member, IEEE 
+
+Abstract —This article proposes a differentiable physics simula-tion (DP simulation)-based parameter estimation method for the condition monitoring of power electronic converters. In the pro-posed method, the time-domain simulation of converter dynamics is embedded into a differentiable computational graph, directly linking device parameters to observed voltage and current tra-jectories. By formulating differentiable time-stepping operators, the nonlinear dynamics of the converter across different circuit topologies are simulated in a unified, differentiable manner. A dc—dc buck converter is used as a representative case study. Using sparse transient samples from existing sensing channels, the method enables noninvasive parameter estimation without additional sensing hardware. Comprehensive simulation studies are conducted to evaluate the impacts of time-stepping schemes, regularization constraints, and various uncertainty sources on estimation accuracy and robustness. Subsequently, 30 distinct hardware configurations are experimentally tested for validation. The results show that the proposed method can effectively track the relative variations of health-related parameters across the critical components. This DP simulation framework provides a novel perspective for physics-informed machine learning in power electronic applications. 
+
+Index Terms —buck converter, condition monitoring, differ-entiable physics simulation, physics-informed machine learning, predictive maintenance 
+
+I. I NTRODUCTION 
+
+# SWITCHED-MODE power supplies (SMPS) have been widely deployed across diverse applications over the past three decades. As service time increases, components progres-sively degrade, resulting in reduced electrothermal stress toler-ance and higher maintenance requirements [1]. Consequently, reliability has emerged as a considerable practical challenge in power electronics, particularly in safety-critical applications such as electrified transportation, renewable energy genera-tion, and data centers. Failure of key components in SMPSs can result in severe safety hazards and substantial economic losses. According to industrial surveys reported in [2] and [3], condition monitoring is expected to become a crucial tool in reliability engineering by tracking the degradation of fragile components and enabling timely intervention before catastrophic failures occur. Component aging often stems from micro-scale deteriora-tion of materials and structures that is difficult to observe directly [4]. Fortunately, micro-scale degradation manifests as measurable macroscopic changes in electrical, thermal, and structural behavior. In practice, most fielded power elec-tronic converters are only instrumented with electrical sensors. Therefore, an implementation-friendly approach for condition monitoring is to track the variations of intrinsic electrical Model Based Method Hybrid Method Data driven Method 
+
+> Data  Physics
+> No physics
+> Some data Lots of physics
+
+Feature: parameters are directly obtained from explicit, analytically derived physics relations. Big data 
+
+> Some physics
+> Small data
+
+A1: directly measurement scheme [5]~[7] (e.g., add dedicated sensing circuitry for direct measurements) 
+
+A2: analytical model derivation scheme [8]~[10] 
+
+> (e.g., apply model simplifications to derive analytical
+> parameter relations )
+
+Feature: parameters are estimated by optimizing a physics-constrained model to match observations 
+
+Feature: parameters are completely inferred by learning a mapping from measured signals/features to 
+
+> parameter labels from a training dataset
+
+B1: frequency domain scheme [11]~[12] (e.g., inject 
+
+> signals and extract frequency response signatures)
+
+B2: time domain scheme[13]~[22] (e.g., use time-domain switching dynamics as constraints of model) 
+
+C: supervised learning scheme [23]~[27] (e.g., use intelligent algorithm to learn a direct mapping from labeled datasets using raw signals/extracted features) 
+
+Fig. 1. Classification of typical parameter estimation methods for power electronic converter. 
+
+parameters of critical components as health indicators, such as the on-state resistance of MOSFET and capacitance value of capacitor. In recent years, significant progress has been made in online estimation of health indicators for critical components in SMPSs. From the perspective of the degree of physics model constraint and data-driven integration, they can be categorized into three types: model-based [5], [6], [7], [8], [9], [10], hybrid [11], [12], [13], [14], [15], [16], [17], [18], [19], [20], [21], [22], and data-driven [23], [24], [25], [26], [27]. Fig. 1 outlines the key features and subcategories of these three types of methods. The typical implementation schemes for parameter estimation of power electronic converters are further summarized in Table I. Ideally, the most effective strategy for parameter estimation of SMPS involves establishing explicit analytical mappings between component parameters and observed signals. How-ever, constructing such expressions is non-trivial due to the high nonlinearity inherent in SMPS operation. As detailed in Table I, direct measurement schemes (i.e., category A1) address this challenge by employing auxiliary sensing circuits to capture terminal information, such as customized Rogowski coils for capacitor currents [5] or isolated detection circuits for the drain-source voltage of power semiconductors [6], [7]. While intuitively straightforward and universally applicable, arXiv:2608.30915v1 [eess.SY] 31 Aug 2026 2
+
+TABLE I TYPICAL IMPLEMENTATION SCHEMES FOR PARAMETER ESTIMATION OF POWER CONVERTERS 
+
+Type Ref Topology Target Component fsw (N) Used Signal Additional Sampling Circuits / Devices Estimation Error Advantages and limitations 
+
+A1 [5] Inverter Cap. 12.5 kHz (N = 8) vdc , i cap Rogowski coil sensor RC : < 2.8% ✓ Realize individual capacitor monitoring 
+
+✗ Specially designed current sensor [6] Inverter Mos. 10.11 kHz (N/A) vds , i s, T sink 
+
+on-state voltage measurement circuit Rdson : < 1% 
+
+✓ High accuracy, temperature effects considered 
+
+✗ Extra dedicated sampling circuit [7] MMC Mos. N/A vds , i s, T sink 
+
+on-state voltage measurement circuit Rdson : < 1.5% 
+
+A2 [8] Boost Cap. 200 kHz ( N = 1 ) vo, i o, d Load current sensor C: < 3% ✓ Low sampling frequency 
+
+✗ Additional sensors and circuits, long transient period data needed [9] Boost PFC Cap. 60 kHz ( N = 53 .3) vo, i L, Voltage ripples extraction circuits RC : < 10% ✓ No additional current sensor 
+
+✗ Extra hardware circuits, high frequency sampling [10] Inverter IGBT, Cap. 4 kHz ( N/A ) vdc , i sc N/A RC : < 6% 
+
+IGBT:(unspecific) ✓ No additional hardware circuits 
+
+✗ Require special operating condition, quasi-online B1 [11] Boost Mos. 100 kHz (N/A) vo, i L Not required Rdson : < 5% ✓ No extra measurement circuit; low-sampling and multiparameter estimation [12] 
+
+✗ Require signal / PRBS injection [12] Buck Ind., Cap. 20 kHz (N ≈0.14) iL, v o, d Not required L: < 5.2% 
+
+C: < 7.5% , RC : < 0.4% 
+
+B2 [13] Buck, Boost Buck-boost Mos., Ind., Cap. 200 / 500 kHz (N > 10000 ) iin , v in , v o Oscilloscope (HF sampling) C: < 17 .5% ,RC : < 31% 
+
+L: < 7.3% ,RL: < 21 .9% ✓ Multiparameter estimation, including components and control-loop parameters 
+
+✗ High sampling frequency (up to GHz), commercial simulator or toolbox needed [14] Buck, Boost Mos., Ind., Cap. 200 / 480 kHz (N > 5000 ) iin , v in , v o, i o Oscilloscope (HF sampling) C: < 15 .1% ,RC : < 3.4% 
+
+L: < 7.0% ,RL: < 21 .9% 
+
+[15] Buck Mos., Ind., Cap. 20 kHz (N=2.5) vin , v o, i L, s Not required C: < 5.7% 
+
+✓ Multiparameter estimation, noninvasive, moderate computational cost; low sampling frequency [15][17] [18], electrothermal effects considered [16] 
+
+✗ Well-defined search ranges and hyperparameters needed; require transient data [15], simulation-only validation [18], commercial simulator needed [17][18] [16] Buck Mos., Cap. 100 kHz (N=100) vin , v o, i L, s Oscilloscope (HF sampling) C: < 6% , RC : < 0.8% 
+
+Rdson :< 0.6% 
+
+[17] Buck Mos., Ind., Cap. 20 kHz (N= 4 ∼ 8) vin , v o, i L, s Not required C: < 1.3% , RC : < 5.4% 
+
+L: < 2.7% , RL: < 1.5% 
+
+[18] Boost Mos., Dio. Ind., Cap. 20 kHz ( N = 5 ) vin , v o, i L Not required C: < 0.48% , RC : < 5% 
+
+L: < 0.7% , RL: < 20% 
+
+Ron : < 20% , Rdson : < 44 .8% 
+
+[19] Buck Ind., Cap. 300 kHz ( N/A ) vin , v o, i L, s NI CompactRIO C: < 5% ,L: < 5% ✓ Multiparameter estimation, fault detection available 
+
+✗ Hyperparameter sensitive [20] Buck Mos., Dio. Ind., Cap. 20 kHz ( N = 2 ) vo, i L, s Not required C: < 1.6% , RC : < 11 .5% ,
+
+Rdson + RL: < 18 .5% ✓ No labeled pre-training, data-light 
+
+✗ high computational cost, hard to converge, require transient data; limited peak-sampling accuracy [20], simulation-only validation [21] [21] Buck Mos., Dio. Ind., Cap. 20 kHz ( N = 2 ) vin , v o, i L, s Not required C: < 5% , RC : < 11% 
+
+L: < 7% 
+
+[22] Buck Mos., Dio. Ind., Cap. 20 kHz ( N = 2 ) vo, i L, s Not required C: < 1.1% , RC : < 0.8% 
+
+L: < 4.4% , VF : < 19 .1% ✓ Multiparameter estimation, applicable to DCM 
+
+✗ higher computational cost C[23] Buck Mos., Dio. Ind., Cap. 20 kHz ( N = 10 ) vo, i L N/A C: < 3.0% , RC : < 1.7% 
+
+L: < 1.6% , RL: < 4.9% ,
+
+∆Rdson : < 2.5% 
+
+✓ Very high accuracy, multiparameter estimation, reduced training data demand 
+
+✗ Need pre-training, specific topology [24] STATCOM Ind., Cap. N/A vpcc , i s, i t Power Quality Analyzer 
+
+Cdc : < 0.12% 
+
+Ls: < 4.2% , Rs: < 0.062% ,
+
+Lf : < 7.5% , Rf : < 1.56% ✓ Very high accuracy, multiparameter estimation, fast NN-based inference, only simulation training data needed [24] 
+
+✗ Need pre-training, features preprocessing needed, specific topology, high sampling frequency [25] Buck Ind., Cap. 40 kHz ( N = 25 ) vo N/A C: < 2.1% , RC : < 2.7% 
+
+L: < 2.5% , RL: < 2.9% 
+
+[26] Inverter Cap. 5 kHz ( N = 50 ) vC , i C Oscilloscope (HF sampling) C: < 0.11% , RC : < 0.11% 
+
+[27] Inverter Cap. N/A io, ∆vdc Oscilloscope (HF sampling) C: < 0.5% 
+
+Proposed method Buck Mos., Dio. Ind., Cap. 20 kHz ( N = 2 ) vo, i L, s Not required Exp. variation deviation: 
+
+C < 3.2% , R C < 18 .8% 
+
+L < 4.5% , VF : poor accuracy 
+
+Rdson + RL < 12 .2% 
+
+✓ Noninvasive, low sampling burden, fast convergence, multiparameter estimation, physically interpretable 
+
+✗ Require transient data and known switching instants 
+
+Note: Errors are reported according to the metrics used in the original papers and are not directly comparable due to different test conditions, parameter definitions, and validation platforms. (Mos. = MOSFET, Dio. = Diode, Ind. = inductor, Cap. = capacitor; N/A indicates not available or not applicable in the original paper.) 
+
+these extra sensing circuits introduce potential failure points, thereby compromising system reliability and complicating integration into mature converter designs. Alternatively, another category of model-based strategies (i.e., A2) leverages simplified models [8], [9] or specific operating conditions [10] to deduce parameters without addi-tional sensors. Although this reduces hardware overhead, such methods often necessitate the assumption that other circuit parameters remain constant and known. However, in practi-cal scenarios, degradation could occur concomitantly across multiple components [28]. Therefore, given the ’weakest-link’ nature of reliability, it is critical to prioritize whole-converter monitoring over isolated component estimation. In contrast to model-based methods, data-driven methods (i.e., category C) estimate parameters without any prior knowl-edge of circuit topology, control strategies, or operating modes. Extensive research has focused on dataset construction (e.g., synthetic data and experimental measurements) [23], [24] and feature extraction (e.g., time-domain and frequency-domain features) [25], [26], [27]. Once trained, these models enable single-pass inference, facilitating low computational costs and execution time. However, purely data-driven methods face two inherent limitations in power electronics. First, unlike image recognition or natural language processing, power electronics 3
+
+remains a data-scarce field [29]. Second, despite their high accuracy shown in Table I, these methods struggle with data distribution shifts. Mismatches between training and testing data can lead to catastrophic prediction errors. Such unreliable predictions, owing to extrapolation or observational biases, may be physically inconsistent [30] and therefore unacceptable for practical engineering. To mitigate the aforementioned limitations, hybrid methods have emerged as a promising compromise. Depending on the type of embedded physical constraints, these hybrid methods are categorized into frequency-domain response and time-domain dynamics schemes. In frequency-domain schemes (i.e., Category B1) [11], [12], perturbation signals like Pseudo-Random Binary Sequences (PRBS) are injected into the control loop to extract frequency characteristics. However, this method hinges on an indirect inference chain, where errors in transfer function identification propagate to the final parameters. In addition, the required signal injection may compromise system stability. Conversely, time-domain strategies (i.e., Category B2) di-rectly leverage the converter’s inherent switching dynamics as physical constraints. These methods typically construct a parallel physical model to track the actual hardware, encom-passing implementations such as circuit simulators [13], [14], numerical propagation [15], [16], [17], [18], adaptive ob-servers [19], or physics-informed neural networks (PINNs) [20], [21], [22]. Minimizing the deviation between the model-predicted trajectories and measured sensor data subsequently enables accurate parameter identification. In [13] and [14], commercial simulation platforms (e.g., MATLAB/Simulink and PSIM) serve as the prerequisite for model construction and data generation. This reliance limits deployment flexi-bility, compounded by the prohibitive time overhead from mandatory model recompilation. Alternatively, adaptive ob-servers [19] utilize Lyapunov stability theory to derive update laws, allowing for real-time parameter convergence based on state estimation errors. Consequently, parasitic elements are typically ignored to avoid the excessive complexity associated with high-dimensional gain matrix design. To circumvent these modeling complexities, a more direct strategy involves explicitly reconstructing the discrete-time evolution dynamics of the converter via classical numerical analysis. In [15], [16], [17], and [18], explicit Runge–Kutta methods are utilized to formulate the analytical relationship between key electrical parameters and voltage/current trajec-tories. Subsequently, derivative-free optimization algorithms, such as Particle Swarm Optimization (PSO) and Bayesian Op-timization (BO), are employed to iteratively search for optimal parameters by minimizing the model prediction error. While this paradigm boasts excellent versatility across arbitrary topologies, these derivative-free search mechanisms typically necessitate extensive function evaluations. Consequently, they incur a prohibitive computational burden in high-dimensional parameter identification tasks and exhibit extreme sensitivity to hyperparameter settings [31]. Similar to numerical propagation scheme [15], [16], [17], [18], PINNs formulate physical constraints via explicit [21] or implicit [20], [22] Runge–Kutta discretization. These con-straints are then explicitly embedded into the training loss. Since the loss function is differentiable with respect to the neural network weights and the embedded physical parame-ters, the training process can be optimized via gradient-based algorithms. Compared to heuristic searches, gradient-based methods leverage directional derivative information to achieve significantly faster convergence and higher computational effi-ciency. However, the Runge–Kutta constraints used in existing PINN-based formulations are typically constructed for a single continuous dynamical model [32]. In switching converters, such constraints are therefore valid only within topology-invariant intervals and cannot naturally relate samples across switching transitions. To maximize data efficiency, sampling is therefore forced to align with switching instants [20]. Unfortunately, measurements at these transitions are inherently susceptible to high-frequency switching noise and ringing. Furthermore, the neural network architecture introduces avast parameter space. Co-optimizing these weights alongside the target component parameters creates a highly non-convex landscape that severely compromises convergence stability [33]. In recent years, the concept of Physics-Informed Machine Learning (PIML) has garnered increasing attention, with deep learning techniques being a primary focal point. However, classical numerical solvers have evolved over decades, estab-lishing a mature and rigorous theoretical foundation for system simulation. It is imprudent to disregard this accumulated domain knowledge by blindly adopting generic deep learn-ing frameworks [34]. Acting as a bridge between scientific computing and modern deep learning, Differentiable Physics (DP) offers a transformative solution [35]. By reformulating the discrete numerical integration into a differentiable compu-tational graph, this paradigm enables end-to-end gradient back-propagation directly through the physical evolution dynamics. Intrinsic circuit parameters can be optimized via gradient descent without relying on neural network surrogates, ensuring both physical consistency and computational efficiency. This article aims to deliver these benefits of DP to the power electronic field. As an exemplary application, it proposes a new method of parameter estimation of a dc—dc buck converter based on DP simulation. The code and data accompanying this article are available in the Supplementary Material and also on a GitHub repository 1. The presented study has the following contributions and advantages. 1) The proposed framework reformulates numerical inte-gration as a differentiable computational graph, enabling end-to-end parameter optimization directly through the converter dynamics. 2) Seamless integration across topological transitions per-mits flexible sampling away from noise-prone switching instants, ensuring high accuracy even with sparse data. 3) The framework realizes the simultaneous estimation of all critical circuit parameters, featuring a topology-agnostic design readily extensible to other architectures like dc–ac inverters. The rest of this article is organized as follows. Section 
+
+> 1Available online: https://github.com/TPjj 4
+
+II presents the methodology, including the physical model of a dc—dc buck converter, idea and framework of the DP simulation, and data preparation procedure. Section III and Section IV verify the proposed method in the simulation and experiment testing, respectively. Finally, Section V concludes this article. II. M ETHODOLOGY 
+
+A. Dynamic Modeling of the Buck Converter in CCM 
+
+The inherent nonlinearity in the dynamic behavior of power electronic converters primarily stems from the periodic alter-ation of circuit topologies dictated by semiconductor switches. The dc–dc buck converter serves as the most fundamental and ubiquitous topology in power electronics. Operating in Continuous Conduction Mode (CCM), the switching actions of the MOSFET divide the converter into two distinct linear circuit stages, depicted in Fig. 2 (a) and Fig. 2 (b), respectively. Fundamentally, the Pulse Width Modulation (PWM) tech-nique employed to regulate the converter governs these semi-conductor switching behaviors. To mathematically unify the system dynamics across different topologies, a discrete switch-ing function S ∈ { 0, 1} is introduced to represent the on/off state of the active switch. In a buck converter, the inductor current iL and output voltage vo are typically sampled and fed back to the control loop. Consequently, considering all relevant parasitic parameters and control loop design, the comprehensive state-space formulation of the buck converter can be expressed as: 
+
+"di L/dt dv o/dt 
+
+#
+
+= MS
+
+"iL
+
+vo
+
+#
+
++ dS ,
+
+MS =
+
+
+
+− SR dson + RL
+
+L − 1
+
+LLR − CRR C (SR dson + RL)
+
+LC (R + RC ) − CRR C + LLC (R + RC )
+
+ ,
+
+dS =
+
+
+
+SL vin − 1 − SL vF
+
+RR C
+
+R + RC
+
+ SL vin − 1 − SL vF
+
+ ,
+
+(1) where the inductor current iL and output voltage vo are selected as state variables to directly align with the sparsely sampled observational data. vin denotes the input DC voltage, and vF represents the forward voltage drop of the freewheeling diode. Rdson signifies the MOSFET on-state resistance. L and 
+
+C denote the inductance and dc-link capacitance, alongside their respective equivalent series resistances RL and RC . R
+
+denotes the load resistance. 
+
+B. Generalized Runge–Kutta Time-stepping Scheme 
+
+The continuous-time state-space model presented in (1) is a system of linear ordinary differential equations (ODEs). Given the initial conditions of the inductor current and output (a) dson RLRCCRLFvRovLiin v
+
+(b) dson RLRCCRLFvRovLiin v 
+
+> Fig. 2. Equivalent circuits of the buck converter under two switching states. (a) MOSFET off-state operation; (b) MOSFET on-state operation.
+
+voltage, an analytical closed-form solution can theoretically be obtained. However, deriving this exact analytical expression necessitates complex algebraic operations, such as eigende-composition and matrix inversion. Such analytical forms are highly rigid and intractable to be formulated in a manner suitable for converter parameter identification. A more practical alternative is to employ a time-stepping strategy based on numerical analysis methods. This approach transforms the continuous dynamic behavior into a time-discrete representation within an acceptable accuracy margin. Formally, consider a dynamic system governed by a general ordinary differential equation: 
+
+u′ = f (t, u), t ≥ t0, u(t0) = u0. (2) As illustrated in (3), the unknown state vector at the 
+
+(n + 1) th time step un+1 can be iteratively deduced from the known state vector un at the nth step. h is the numerical integration step size and Φ represents a generic increment function determined by the specific numerical method. 
+
+un+1 = un + h Φ( un, t n, h, f ). (3) There is a multitude of methods for the numerical solution of the ODE system. The Runge–Kutta (RK) family of methods stands out as one of the most widely adopted numerical algorithms. The idea behind RK methods is to replace an integral with a finite sum. They evaluate the system states at multiple intermediate stages within the step interval. A weighted algebraic sum of these approximations then yields the numerical solution. The scheme can be derived as: 5
+
+ξj = un + h
+
+> ν
+
+X
+
+> i=1
+
+aj,i f (tn + cih, ξ i),
+
+un+1 = un + h
+
+> ν
+
+X
+
+> j=1
+
+bj f (tn + cj h, ξ j ),
+
+(4) where ν is the number of stages in the RK scheme. ξj is the intermediate state approximation at each respective stage. The matrix A = ( ai,j ) is called the RK coefficient matrix, while 
+
+bj and cj are the RK weights and RK nodes respectively [36]. All of these coefficients can be displayed in a Butcher tableau with the following form: 
+
+c AbT =
+
+c1 a11 a12 · · · a1v
+
+c2 a21 a22 · · · a2v
+
+... ... ... . . . ...
+
+cv av1 av2 · · · avv 
+
+b1 b2 · · · bv
+
+(5) The Butcher tableau elegantly encompasses both explicit Runge–Kutta (ERK) method and implicit Runge–Kutta (IRK) method. For the ERK scheme, the matrix A is strictly lower triangular (i.e., aj,i = 0 for i ≥ j). The intermediate state approximation ξj is thus explicitly formulated as: 
+
+ξj = un + h
+
+> j−1
+
+X
+
+> i=1
+
+aj,i f (tn + cih, ξ i). (6) This strict forward-dependency allows the stages to be evaluated sequentially. Consequently, exactly ν independent function evaluations are required, yielding a linear time com-plexity of O(ν) per step. In the IRK method, A is a dense matrix, which couples the intermediate stages ξ1, ξ 2, . . . , ξ ν , as illustrated in (4). Typically, resolving these implicit equations involves com-putationally demanding nonlinear iterative solvers. However, within a specific switching interval, the buck converter op-erates as a Linear Time-Invariant (LTI) system, described by 
+
+f (t, u) = MS u + dS . This linearity allows the coupled stages to be directly analytically solved via Gaussian elimination as a single linear system. Since the computational cost of Gaussian elimination scales cubically with the matrix dimension [37], the time complexity for the IRK scheme becomes O(ν3).
+
+C. Differentiable Physics Simulation for Buck Converter 
+
+The aforementioned numerical integration schemes readily enable the forward simulation of the converter’s dynamic states, such as iL and vo. However, parameter estimation essentially solves the inverse problem. It aims to iteratively calibrate and optimize the physical parameters of interest by minimizing the discrepancy between the model-derived dynamic behaviors and the actual observations. To enable gradient-based optimization for this task, the numerical sim-ulation must be fully differentiable with respect to the target parameters. In the DP simulation framework, the time-stepping process is reformulated from the perspective of differentiable operator composition. Rather than viewing the numerical integration as a conventional black-box solver, each discrete calculation step is explicitly treated as a differentiable mathematical operator. The single time-stepping scheme derived in Section II-B is reformulated as: 
+
+un+1 = un + h
+
+> ν
+
+X
+
+> j=1
+
+bj f (tn + cj h, ξ j ) = PS,h (un, θ),
+
+(7) where P(·) represents the functional operator encompassing the fundamental algebraic operations within the numerical method. θ denotes the vector of target parameters to be estimated (i.e., θ = [ Rdson , v F , L, R L, C, R C , R ]T ). The state evolution over a given time interval can be mathematically formulated as a successive composition of these functional operators: 
+
+un+qh 1 = Pq ◦ P q−1 · · · ◦ P 2 ◦ P 1
+
+| {z } 
+
+> qsteps
+
+(un, θ), (8) where ◦ denotes function composition, i.e., f (g(x)) = f ◦g(x).Let a given macroscopic time interval ∆t be uniformly divided into q discrete steps with a step size of h1 = ∆ t/q . Eq.(8) indicates that the final state vector u(tn + ∆ t) = un+qh 1 is obtained by advancing the initial state u(tn) = un through q
+
+successive discrete steps. It should be noted that to maintain the integrity of the gradient chain, every operator Pi(·) must provide exact gradients with respect to both its inputs, namely 
+
+∂Pi/∂ θ and ∂Pi/∂ u. The implementation of automatic dif-ferentiation is described in detail in Section II-D. Likewise, the DP simulation framework can be directly extended to power electronic converters. In this paper, the framework is applied to capture the dynamic relationship between the sparsely sampled data points of the buck con-verter, denoted as the state vector un = [ iL(n), v o(n)]T . These sampled data points serve as the foundation for model training, and the specific strategies for their selection and configuration will be elaborated in Section II-E. However, the inherent switching actions of semiconductor devices periodically alter the circuit topology. The converter’s dynamic behavior constitutes a non-smooth process that must be described by two distinct sets of ordinary differential equations (ODEs), corresponding to the S = 1 and S = 0 
+
+states established in (1). Conventionally, the extreme non-linearity induced by such abrupt topological transitions ren-ders the global dynamic behavior non-differentiable at the switching nodes. Crucially, for the parameter inference task, it is only strictly required to maintain the continuity of the computational graph with respect to the target physical parameters. By treating the exact switching instant merely as a transition node where the mathematical operators are swapped, the uninterrupted propagation of gradients can be successfully maintained. Specifically, considering practical buck converter control designs, sampling points are typically located at the specific instants within a given switching state (e.g., the valley or peak of the triangle carrier), as illustrated in Fig. 3. Consequently, 6on-state off-state 
+
+Observed point Latent point Switching point On-state operator 
+
+Off-state operator 
+
+Observed point Latent point Switching point On-state operator 
+
+Off-state operator 1 2( 1) qh k h+ −u1 2qh kh +u1 2( 2) qh k h+ −u1 2qh h+u1qh u1( 1) q h−u12hu1hu0u1t2t1S =0S =
+
+on-state off-state 
+
+Observed point Latent point Switching point On-state operator 
+
+Off-state operator 1 2( 1) qh k h+ −u1 2qh kh +u1 2( 2) qh k h+ −u1 2qh h+u1qh u1( 1) q h−u12hu1hu0u1t2t1S =0S =
+
+Fig. 3. Numerical time-stepping scheme for the dynamic evolution between two sampling instants. The interval ∆t1 is propagated over q steps and ∆t2
+
+over k steps, with operator switching performed at the switching node. 
+
+both the sampling instants and the switching nodes are de-terministically known and readily accessible from the digital controller. Let ∆t1 and ∆t2 denote the exact time intervals between the observation points and the intermediate switching node. The dynamic evolution during ∆t1 is simulated using 
+
+q discrete steps with a micro-step size of h1 = ∆t1/q .Similarly, the subsequent interval ∆t2 is simulated over k steps with a step size of h2 = ∆ t2/k . Therefore, by seamlessly switching the numerical operators exactly at the switching node, the converter’s piecewise-smooth dynamic behavior can be accurately captured as a differentiable function: 
+
+uqh 1+kh 2 = Pof f ◦ · · · ◦ P of f 
+
+| {z } 
+
+> ksteps
+
+◦ P on ◦ · · · ◦ P on 
+
+| {z } 
+
+> qsteps
+
+(u0, θ ), (9) where Pon and Pof f represent the numerical time-stepping operators corresponding to the ODEs of the on-state and off-state topologies, respectively. As a result, the physical parameters of the dc–dc converter can be effectively identi-fied using gradient-based optimization algorithms within this architecture. Ultimately, the objective loss function under the proposed DP simulation framework is formulated as the Mean Squared Error (MSE) between the measured data and the model-derived states: 
+
+J (θ) = 1
+
+m − 1
+
+> m−1
+
+X
+
+> j=1
+
+u(j+1) − ˆu(j+1) 22
+
+= 1
+
+m − 1
+
+> m−1
+
+X
+
+> j=1
+
+(i(j+1)  
+
+> L
+
+− ˆi(j+1)  
+
+> L
+
+)2 + ( v(j+1)  
+
+> o
+
+− ˆv(j+1)  
+
+> o
+
+)2
+
+(10) where j denotes the index of the sample, m is the total num-ber of data samples, u(j) represents the actual observational data, and ˆu(j) represents the corresponding simulated states. This framework design seamlessly bridges classical numerical integration methods with the rapid advancements in machine learning of the past two decades. Owing to its profound physical interpretability, the framework naturally guarantees that the inferred target parameters strictly conform to the underlying dynamic constraints of the converter. (b) 
+
+> Forward Primal Trace
+
+Inputs: Outputs:  
+
+> Reverse Adjoint Trace ( ) ( )
+
+, , ,,j jL o L Fi v L R v( ) ( ) 
+
+, , , ,j jL o L Fi v L R v( ) 1 jL LR iw( ) 2 1
+
+> jo
+
+w w v3 2 Fw w v4 3w w5 4 /w w L5y w5w yLR1 1( / )Lw w R( ) 1
+
+> jL
+
+w i( ) jLi( ) 1 1( / )jLw w i1 Lw R1w22 1( / )w w w2w( ) jov( ) 2 2( / )jovw w2w2w33 2( / )w w w3wFv33 ( / )Fw w v3w3w4 4 3( / )w w w4w4w5 5 4( / )w w w5 /w LL5 5( / )w w L25 4 /w w L
+
+(a) ( ) jovLFv1w1w2w2w4w4w3w3w5w5wy( ) jLiLR
+
+(b) 
+
+> Forward Primal Trace
+
+Inputs: Outputs:  
+
+> Reverse Adjoint Trace ( ) ( )
+
+, , ,,j jL o L Fi v L R v( ) ( ) 
+
+, , , ,j jL o L Fi v L R v( ) 1 jL LR iw( ) 2 1
+
+> jo
+
+w w v3 2 Fw w v4 3w w5 4 /w w L5y w5w yLR1 1( / )Lw w R( ) 1
+
+> jL
+
+w i( ) jLi( ) 1 1( / )jLw w i1 Lw R1w22 1( / )w w w2w( ) jov( ) 2 2( / )jovw w2w2w33 2( / )w w w3wFv33 ( / )Fw w v3w3w4 4 3( / )w w w4w4w5 5 4( / )w w w5 /w LL5 5( / )w w L25 4 /w w L
+
+(a) ( ) jovLFv1w2w4w3w5wy( ) jLiLR
+
+Fig. 4. Derivative computation by reverse mode AD for the example y =
+
+−(RLi(j) 
+
+> L
+
++ v(j) 
+
+> o
+
++ vF )/L . (a) Computational graph with the parameters of interest taken as inputs; (b) Forward evaluation of the primal variables and reverse propagation of the corresponding adjoint variables. 
+
+D. Automatic Differentiation and Backpropagation 
+
+In the DP simulation framework, the dynamic behavior of the converter is mathematically modeled as a deep composition of functional operators. Directly deriving the exact sym-bolic derivatives of such a complex composition would incur prohibitive memory and computational overhead. Automatic Differentiation (AD) is employed to efficiently extract the gra-dients of the target parameters by systematically applying the chain rule to the fundamental arithmetic operations comprising the dynamic simulation. This is achieved by complementing each intermediate variable wi in the computational graph with an adjoint variable: 
+
+¯wi = ∂y ∂w i
+
+, (11) which represents the sensitivity of a considered output y with respect to changes in wi. The derivative computation in AD fundamentally operates in two distinct phases. In the reverse mode AD 2, derivative evaluation includes a forward phase and a reverse phase. Consider the calculation of the inductor current slope as an example, which is an elementary operation in converter dynamic simulation. When the MOSFET of the buck converter is in off-state (i.e., S = 0 ), the inductor current slope is given by: 
+
+y = di (j)
+
+> L
+
+dt = − RLi(j) 
+
+> L
+
++ v(j) 
+
+> o
+
++ vF
+
+L . (12) 
+
+> 2
+
+Automatic differentiation can be implemented in either forward or reverse mode, depending on how derivatives are propagated through the computational graph [38]. Reverse mode is more efficient for evaluating the gradient of a scalar-valued objective with respect to a large number of parameters. 7( ) 1
+
+ˆ j
+
+u( ) 
+
+ˆqj
+
+u( ) 0
+
+> j
+
+u( ) j
+
+u, , , , , ,: dson F L CR v L R C R Rθθθθ( ) 2
+
+ˆ j
+
+u( ) q 2 ( ) 1 ( ) Lθ( )            
+
+> ˆ
+> ( )
+> jqqu( ) q
+> θ( ) ( ) ( ) ()2ˆˆ
+> jjqjq
+> Lnuuu2( )
+> θ1( )
+> θ( ) 22
+> ˆ
+> ( )
+> j
+> u)11(
+> ˆ
+> ( )
+> j
+> u)1(
+> ( )
+> ˆj
+> u
+> Fig. 5. BPTT over multiple time steps for gradient computation with shared parameters θ.
+
+The corresponding derivative computation process for the intermediate variables and target parameters is shown in Fig. 4. In the forward phase, the function is evaluated and the depen-dency relations in the computational graph are recorded. In the backward phase, the adjoint variables are propagated from the output back to the inputs, and the required derivatives are obtained via the chain rule. However, the output of a dynamic system is governed not only by its immediate preceding state but cumulatively by the entire sequence of past intermediate states. Concurrently, as previously established, each elementary differentiable operator within the converter’s dynamic simulation is parameterized by the same set of shared target parameters θ. To precisely apportion this temporal causal responsibility, Backpropagation Through Time (BPTT) is introduced as a powerful analytical tool [39]. As illustrated in Fig. 5, BPTT unrolls the dynamic system along the time axis into a differentiable computational graph. By backpropagating the error from the ultimate output, the derivatives with respect to the parameters at each discrete time step are evaluated. Accumulating these step-wise contributions to the shared parameters yields the total gradient of the objective function, which can be formulated as: 
+
+∇θ J = 2
+
+m − 1
+
+> m−1
+
+X
+
+> j=1
+
+∂ ˆu(j+1) 
+
+> q
+
+∂θ 
+
+!T 
+
+ˆu(j+1)  
+
+> q
+
+− u(j+1) 
+
+,∂ ˆu(j+1) 
+
+> q
+
+∂θ = ∂Pq
+
+∂ ˆu(j+1) 
+
+> q−1
+
+∂Pq−1
+
+∂ ˆu(j+1) 
+
+> q−2
+
+· · · ∂P2
+
+∂ ˆu(j+1) 1
+
+∂P1
+
+∂θ + · · · + ∂Pq
+
+∂θ 
+
+=
+
+> q
+
+X
+
+> ℓ=1
+> ℓ+1
+
+Y
+
+> r=q
+
+∂Pr
+
+∂ ˆu(j+1) 
+
+> r−1
+
+!
+
+∂Pℓ
+
+∂θ .
+
+(13) This formulation successfully establishes the gradient flow for the target parameters within the DP simulation framework. This enables the direct application of advanced gradient-based optimization algorithms. Furthermore, it supports the efficient computation of higher-order derivatives, such as the Hessian matrix, thereby facilitating higher-order optimization strategies. on-state time off-state    
+
+> noisy region observed signal
+> switching
+> state carrier wave noise-immune sampling window switching instant switching instant sampling instant sampling instant sampled point sampled point
+> on-state time off-state
+> noisy region observed signal
+> switching
+> state carrier wave noise-immune sampling window switching instant sampling instant sampled point
+> sampling at carrier valley sampling at carrier peak
+> Fig. 6. Carrier-synchronized sampling strategy for noise-immune data acquisition. The observed signal is sampled at predefined carrier valley and peak instants, while the switching ringing regions are excluded.
+
+E. Sampling Strategy and Data Configuration 
+
+The aforementioned DP simulation framework is designed to numerically simulate the dynamic evolution between two sampled instants. Based on this simulated trajectory, the phys-ical parameters that best match the observed responses can be iteratively learned. The selection of the sampling strategy is of central importance, as it affects the informativeness of the sampled data and the practical feasibility of the proposed method. To maximize information yield, the sampling window is allocated to the transient intervals of the converter. Compared to steady state operation, transient dynamics are significantly more sensitive to parameter variations, thereby providing richer dynamic signatures for the estimation algorithm. In addition, Low-frequency sampling is highly preferred for compatibility with standard digital control systems. While peak-to-peak sampling captures the maximum signal varia-tion within a switching cycle, its measurement accuracy is severely compromised by switching ringing. Consequently, carrier-synchronized sampling (i.e., capturing data exactly at the carrier valley and peak) emerges as a superior and more practical alternative. As illustrated in Fig. 6, these predefined sampling instants are positioned away from the switching events, ensuring a noise-immune sampling environment. However, this sparse sampling strategy inevitably encom-passes a topological switching event between adjacent obser-vation points. Remarkably, the proposed framework effectively resolves this by leveraging the deterministic timing signals from the controller. Consequently, this unique cross-topology differentiable simulation drastically enhances the utilization of sampled data. As shown in Fig. 7, each sampled point can seamlessly serve as both the ending state of the preceding interval and the initial state of the subsequent one. Likewise, the framework can be extended to a longer time scale, rather than being limited to the dynamic evolution between only two adjacent points. In other words, a single sampled point can be used to infer the subsequent Nh − 1 sampled points, thereby enabling the learning of the dynamic behavior over a time window of 8Ending state Initial state Ending                       
+
+> state
+> Initial state Ending state Initial
+> state
+> Shared-point reuse
+> time
+> time time Extended-horizon simulation
+> Reduced-rate
+> sampling Sampled point Simulation used points Unsampled points (2,2) ssw hffN(,2) ssw hffN(2,3) ssw hffN
+
+Fig. 7. Potential data reuse strategies enabled by the proposed DP simu-lation framework, including shared-point reuse, reduced-rate sampling, and extended-horizon simulation. 
+
+length Nh. This also indicates the potential to further reduce the sampling frequency. Specifically, this capability allows the sampling frequency to be reduced from 2fsw to fsw , or even lower to one sample over multiple switching cycles. These configurations highlight the flexibility of the proposed DP simulation framework in organizing and reusing sampled data. In the subsequent study, the basic one-step prediction setting is considered first. The effects of additional formu-lations, including an extended-horizon simulation and other constraints, are then further examined. III. S IMULATION VERIFICATION AND ROBUSTNESS ANALYSIS 
+
+To verify the accuracy and robustness of the proposed framework, a dc-–dc buck converter is implemented in MAT-LAB/Simulink to generate simulation data. Multiple converter configurations with different operating conditions and hard-ware parameters are considered to evaluate the generalization capability of the method, as listed in Table II. Notably, the proposed framework offers highly flexible structural designs and data utilization. The tradeoff between estimation accu-racy and computational complexity is also evaluated. Fur-thermore, uncertainty may be introduced at different stages in practical condition monitoring. Thus, both the aleatoric uncertainty (e.g., measurement noise, ADC quantization error, and synchronization offset) and epistemic uncertainty (e.g., model–plant mismatch) are further introduced into the clean simulation data for robustness analysis. 
+
+A. Accuracy and Computation Complexity 
+
+Training data are collected by carrier-synchronized sam-pling of the inductor current and output voltage during con-verter transients, as shown in Fig. 8. Such transient processes are common in practical converters. They occur during startup and shutdown, load switching, and control mode transition. Moreover, the required observations are also part of the 
+
+TABLE II REPRESENTATIVE BUCK CONVERTER CONFIGURATIONS FOR 
+
+GENERALIZATION TESTS 
+
+Case Type Configuration I Ref. 
+
+Vin /V ref = 48 V /24 V , fsw = 20 kHz ,
+
+L/R L = 725 μH/0.314 Ω , RDS(on) = 0 .151 Ω ,
+
+C/R C = 164 .5 μF/0.201 Ω , VF = 1 V ,
+
+R0/R 1/R 2/R 3 = 6 .2 Ω /10 .2 Ω /3.1 Ω /6.1 Ω 
+
+II OpCond. Same as Case I except: Vin /V ref = 48 V /12 V 
+
+III OpCond. Same as Case I except: fsw = 100 kHz 
+
+IV OpCond. Same as Case I except: 
+
+R0/R 1/R 2/R 3 = 6 .2 Ω /1.2 Ω /3.8 Ω /1.4 Ω 
+
+V HwParam. Same as Case I except: 
+
+L/R L = 278 .5 μH/0.254 Ω , RDS(on) = 0 .082 Ω ,
+
+C/R C = 124 .5 μF/0.101 Ω , VF = 0 .8 V 
+
+VI OpCond. Same as Case V except: 
+
+R0/R 1/R 2/R 3 = 6 .2 Ω /1.2 Ω /3.8 Ω /1.4 Ω 
+
+VII HwParam. Same as Case I except: 
+
+L/R L = 278 .5 μH/0.554 Ω , RDS(on) = 0 .282 Ω ,
+
+C/R C = 124 .5 μF/0.351 Ω , VF = 1 .5 V 
+
+VIII OpCond. Same as Case VII except: 
+
+R0/R 1/R 2/R 3 = 6 .2 Ω /1.2 Ω /3.8 Ω /1.4 Ω 
+
+Ref.: reference case; OpCond.: cases with modified operating conditions; HwParam.: cases with modified hardware parameters. 0.012 0.014 0.016 0.018 0.020 22 23 24 25 26 27 0.8 1.6 2.4 3.2 4.0 4.8 
+
+> Inductor Current (A) Output Voltage (V) 25.0 25.2 25.4 25.6 25.8 26.0 0.8 1.2 1.6 2.0 2.4 2.8
+> Inductor Current (A) Output Voltage (V)
+
+Transient period     
+
+> Inductor current samples Output voltage samples Output voltage samples 0.012 0.014 0.016 0.018 0.020 22 23 24 25 26 27 0.8 1.6 2.4 3.2 4.0 4.8
+> Inductor Current (A) Output Voltage (V) 25.0 25.2 25.4 25.6 25.8 26.0 0.8 1.2 1.6 2.0 2.4 2.8
+> Inductor Current (A) Output Voltage (V)
+
+Transient period 
+
+> Inductor current samples Output voltage samples
+
+Fig. 8. Carrier-synchronized acquisition of inductor current and output voltage samples during a converter transient. 
+
+feedback signals used in the control loop. Therefore, the data required by the proposed method are readily accessible in practical applications. However, as the switching frequency increases and control algorithms continue to improve, the duration of the transient process becomes shorter. This makes data collection more challenging. It should be noted that part of the steady-state data can also be included in the training set to partially alleviate data scarcity. More importantly, the degradation of 9
+
+power electronic components in a well-designed converter is typically a very slow process (e.g., over months or even years). This provides sufficient time for data collection, especially considering the low data demand of the proposed method with strong physical interpretability.                       
+
+> TABLE III OPTIMIZER HYPERPARAMETERS USED IN THE TWO -STAGE TRAINING
+> PROCEDURE
+> Optimizer Parameter Value Adam Method Learning rate lr 0.001
+> First-moment decay rate β10.9
+> Second-moment decay rate β20.999
+> number of epochs 2000 L-BFGS Method Learning rate lr 1
+> Maximal number of iterations 5000 Maximal number of function evaluations 50000 Gradient tolerance 10 −10
+> Change tolerance 10 −12
+> History size 50
+> Line search method strong wolfe
+
+In this simulation study, converter transients are triggered by load variations ( R0 → R1, R 1 → R2, R 2 → R3). For each transient case, the sampled data over 30 switch-ing cycles are collected as the training data for one load transition, so as to match the response speed encountered in practical converters. The data from the three load transi-tions are then combined to form the training dataset ( D =
+
+{(vn, i n, δt, s ), (vn+1 , i n+1 )}m), which is used for converter condition monitoring. The DP simulation framework is im-plemented in Python with PyTorch. Because the framework establishes a differentiable computational graph for converter dynamics, gradient-based optimizers can be directly employed for training. In this work, the Adam [40] optimizer followed by a full-batch L-BFGS [41] optimizer is adopted, with the parameter settings listed in Table III. The parameter estimation process relies on forward simu-lation of the converter dynamics. Since the discrete formu-lation of the differentiable operator may deviate from the underlying continuous-time physical process, the order of the Runge–Kutta method and the number of integration steps per switching interval should be properly selected to keep the discretization error within an acceptable range. Taking Case I as an example, the parameter estimation performance under different Runge–Kutta configurations is first evaluated using clean simulation data. The results are summarized in Table IV. It can be observed that C, L, and Rload can be accurately identified. For clarity, the set of accurately identifiable pa-rameters is defined as θ1 = {C, L, R load }. However, several other parameters, especially RL and Rdson , are difficult to estimate individually with high accuracy. This is because these two resistive components have nearly identical effects on the observed variables vo and iL, which has also been discussed in detail in previous studies [15], [21]. Therefore, the equivalent resistance RD = RL + Rdson is adopted for monitoring the degradation associated with the inductor winding resistance and the power semiconductor on-state resistance. As shown in Table IV, once the Runge–Kutta scheme reaches a sufficient order, further increasing the integration order or reducing the integration step size brings only marginal improvement in parameter identification. This is because the truncation error of a pth-order Runge–Kutta method scales with a high-order term of the integration step size. When each switching interval ∆t is divided into Nsub substeps, the substep size becomes ∆t/N sub , and the corresponding error term can be qualitatively related to O((∆ t/N sub )p). In this case, the numerical integration error is already much smaller than the errors introduced by observation noise and model– plant mismatch in practical condition monitoring. In addition, benefiting from GPU-based parallel computa-tion, different Runge–Kutta orders lead to only minor dif-ferences in practical runtime. In contrast, the number of integration substeps has a more direct impact on the com-putational cost, because the proposed framework is inher-ently constrained by the sequential nature of time-marching simulation and gradient propagation. Considering estimation accuracy, computational cost, and applicability to practical converters, the single-step classical fourth-order Runge–Kutta method is selected for simulating the converter dynamics in the subsequent experiments. The parameter identification results under different converter configurations are reported in Table V. 
+
+B. Regularization Constraint 
+
+As discussed above, several parameters remain difficult to identify accurately, even when the MSE of the training loss has been reduced to the order of 10 −5. This indicates that a very small mismatch in the simulated dynamic waveform may correspond to a large deviation in certain parameter values. Such behavior is typical of an ill-posed inverse problem. A straightforward remedy is to constrain the weakly iden-tifiable parameters within a narrow prior range and use this range as a regularization condition. However, in application-oriented scenarios, the device parameters of a converter may vary over a wide range throughout its lifetime. It is hard to justify and standardize such prior bounds. Therefore, it is more reasonable to impose additional constraints from the converter dynamics themselves. In this work, two types of constraints are introduced: bidirectional consistency and long-horizon consistency. 1) Bidirectional consistency: The physical operation of a converter evolves in the forward time direction. How-ever, its dynamic behaviors are described by differential equations. From the viewpoint of numerical simulation, a valid parameter set should be locally consistent in both time directions. As illustrated in Fig. 9 (a), the model should predict the next state from the current state and also reconstruct the current state from the next state over a short sampling interval. Accordingly, the loss function is defined as: 
+
+Jbi (θ) = 
+
+> m−1
+
+X
+
+> j=1
+
+
+
+u(j+1) − ˆu(j+1) +
+
+> 22
+
++ u(j) − ˆu(j)
+
+> −
+> 22
+
+2( m − 1) 
+
+
+
+(14) 10 
+
+TABLE IV PERCENTAGE ERRORS (%) AND COMPUTATIONAL COST UNDER DIFFERENT TIME -S TEPPING STRATEGIES 
+
+Methods Error (%) L RL C RC Rdson VF RD R1 R2 R3 Fwd FLOPs Avg. iter time Obs. MSE ERK1 (substeps=1) 0.52 18.45 0.43 23.26 40.71 18.21 0.76 0.41 0.40 0.46 ≈ 114 5.76 ms 5.94e-5 ERK1 (substeps=5) 0.22 10.34 0.20 7.12 26.94 7.76 1.77 0.11 0.06 0.16 ≈ 354 9.94 ms 2.45e-5 ERK1 (substeps=10) 0.19 9.36 0.17 5.11 25.36 6.52 1.90 0.07 0.02 0.12 ≈ 654 15.09 ms 2.33e-5 ERK2 (substeps=1) 0.18 8.70 0.12 2.91 24.78 5.23 2.17 0.02 0.03 0.08 ≈ 218 5.91 ms 2.28e-5 ERK2 (substeps=5) 0.15 8.18 0.15 3.10 23.01 5.23 1.95 0.03 0.02 0.09 ≈ 874 10.46 ms 2.28e-5 ERK2 (substeps=10) 0.15 8.39 0.15 3.11 23.77 5.29 2.05 0.03 0.02 0.09 ≈ 1694 16.03 ms 2.28e-5 ERK4 (substeps=1) 0.15 8.29 0.15 3.11 23.39 5.26 2.00 0.03 0.02 0.09 ≈ 618 5.89 ms 2.28e-5 ERK4 (substeps=5) 0.15 8.35 0.15 3.11 23.60 5.28 2.03 0.03 0.02 0.09 ≈ 2874 10.61 ms 2.28e-5 ERK4 (substeps=10) 0.15 8.35 0.15 3.11 23.60 5.28 2.03 0.03 0.02 0.09 ≈ 5694 16.13 ms 2.28e-5 ERK10 (substeps=1) 0.15 8.35 0.15 3.11 23.60 5.28 2.03 0.03 0.02 0.09 ≈ 2186 6.05 ms 2.28e-5 ERK10 (substeps=5) 0.15 8.36 0.15 3.11 23.63 5.28 2.03 0.03 0.02 0.09 ≈ 10714 10.66 ms 2.28e-5 ERK10 (substeps=10) 0.15 8.35 0.15 3.11 23.60 5.28 2.03 0.03 0.02 0.09 ≈ 21374 16.23 ms 2.28e-5 IRK2 (substeps=1) 0.15 8.39 0.15 3.11 23.73 5.29 2.04 0.03 0.02 0.09 ≈ 336 6.15 ms 2.28e-5 IRK4 (substeps=1) 0.15 8.35 0.15 3.11 23.60 5.28 2.03 0.03 0.02 0.09 ≈ 1429 6.11 ms 2.28e-5 IRK10 (substeps=1) 0.15 8.35 0.15 3.11 23.60 5.28 2.03 0.03 0.02 0.09 ≈ 14821 6.55 ms 2.28e-5 IRK20 (substeps=1) 0.15 8.35 0.15 3.11 23.60 5.28 2.03 0.03 0.02 0.09 ≈ 101567 7.61 ms 2.28e-5 Fwd FLOPs: Approximate floating-point operations for one forward pass of a single sample; Avg iter time: Average wall-clock time per Adam iteration, measured on an NVIDIA GeForce RTX 5060 Ti; Obs. MSE: Mean squared error between the reconstructed and measured observations after training. TABLE V PARAMETER IDENTIFICATION PERFORMANCE (%) U NDER DIFFERENT 
+
+CONVERTER CONFIGURATIONS 
+
+Case ˆθ1
+
+(%) 
+
+RC
+
+(%) 
+
+VF
+
+(%) 
+
+RL
+
+(%) 
+
+Rdson 
+
+(%) 
+
+RD
+
+(%) Obs. MSE I 0.10 3.11 5.26 8.23 23.39 2.00 2.28e-5 II 0.10 2.45 0.10 14.42 95.29 21.21 2.26e-5 III 0.10 0.10 0.10 0.46 1.45 0.16 2.17e-7 IV 0.10 0.75 1.60 0.57 1.00 0.10 2.20e-5 V 0.31 30.27 17.93 21.24 87.29 5.25 1.53e-4 VI 0.10 6.72 11.60 14.68 70.35 6.07 1.43e-4 VII 1.50 24.76 7.86 31.99 100.00 12.53 1.67e-4 VIII 0.25 2.25 19.27 14.70 34.58 1.92 1.47e-4 
+
+ˆθ1 = {L, C, R 1, R 2, R 3}; its reported error is the mean of these parameter errors. Values below 0.1% are rounded up to 0.1% for clarity. 
+
+where ˆu(j+1) + is obtained by forward time-stepping from 
+
+u(j), and ˆu(j) 
+
+> −
+
+is obtained by backward time-stepping from u(j+1) .2) Long-horizon Consistency: The state-space equations in (1) show that some parameters, such as RL, Rdson and 
+
+vF , have strongly coupled effects on the observable states (i.e., iL and vo). Therefore, one-step prediction may still achieve a very small loss even when these pa-rameters are not accurately identified. This is because the compensation among coupled parameters can reproduce the local converter dynamics. Long-horizon consistency is introduced to reduce this compensation effect. Instead of matching only one-step transitions, the model is required to reproduce the measured trajectory over an extended window. If the estimated parameters are inaccurate, small modeling errors may accumulate over the prediction horizon and become more evident, as shown in Fig. 9 (b). Therefore, multi-step prediction provides a stronger dynamic con-straint and guides the optimizer toward more physically meaningful parameter estimates. Under the long-horizon consistency constraint, the loss function is derived as: (a) 
+
+(b) 
+
+> time
+> Sampled
+> point Sampled point
+> Forward Time-stepping Backward Time-stepping
+
+ˆu( Δ ) (u( )) n off on nt t t1 1
+
+ˆu( ) (u( Δ )) n on off nt t t   
+
+> Sampled point #1 Sampled point #2 Sampled point #3 Δt
+> 1-Step:
+> Multi-Step:
+> Local Dynamics
+> Long-horizon Consistency Δ2tu( ntntnt1sw tn
+
+tu( ntu( )ntΔ )t)2Δtˆu( nt)2ΔtΔ )tˆu( nt2sw tΔtntntu( ntΔ )tu( )nt
+
+Fig. 9. Illustration of the proposed regularization constraints. (a) Bidirectional consistency based on forward and backward time-stepping over the sampling interval. (b) Long-horizon consistency based on matching the measured trajectory over an extended prediction window. 
+
+Jlh (θ) = 
+
+Pm−Nh+1 
+
+> j=1
+
+PNh−1 
+
+> k=1
+
+ˆu(j+k) 
+
+> k
+
+− u(j+k)
+
+> k
+> 22
+
+(m − Nh + 1)( Nh − 1) (15) where Nh is the window length of extended horizon, and k denotes the k-th simulated point. Based on the constraints introduced above, the proposed regularization strategy is further tested using transient sim-ulation data from different buck converter configurations. As shown in Table VI, the proposed constraints generally improve the identifiability of the estimated parameters. For clean simulation data, the estimation accuracy generally im-proves as the prediction window length increases. Even the strongly coupled parameters RL and Rdson become more distinguishable when a longer dynamic trajectory is included in the training loss. However, in cases with small parasitic 11 
+
+TABLE VI PARAMETER IDENTIFICATION PERFORMANCE (%) W ITH 
+
+REGULARIZATION CONSTRAINT 
+
+Case Constraint ˆθ1
+
+(%) 
+
+RC
+
+(%) 
+
+VF
+
+(%) 
+
+RL
+
+(%) 
+
+Rdson 
+
+(%) 
+
+RD
+
+(%) INone 0.10 3.11 5.26 8.29 23.39 2.00 Bi, L=3 0.10 0.63 1.94 5.08 16.45 1.91 Bi, L=6 0.10 0.20 0.91 3.51 11.73 1.44 Bi, L=11 0.10 0.10 0.25 1.87 6.52 0.86 Bi, L=16 0.10 0.10 0.21 0.80 2.68 0.33 Bi, L=21 0.10 0.10 0.24 0.75 2.51 0.31 II None 0.10 2.45 0.10 14.42 95.29 21.20 Bi, L=16 0.10 0.30 0.36 3.39 20.86 4.48 III None 0.10 0.10 0.10 0.46 1.45 0.16 Bi, L=16 0.10 0.10 0.10 0.10 0.10 0.10 IV None 0.10 0.75 1.60 0.57 1.00 0.10 Bi, L=16 0.10 0.10 0.21 0.31 0.92 0.10 V None 0.31 30.27 17.93 21.24 87.29 5.25 Bi, L=16 0.10 0.74 1.24 17.82 100 10.93 VI None 0.10 6.72 11.60 14.68 70.35 6.07 Bi, L=16 0.10 0.10 3.10 15.51 79.74 7.74 VII None 1.50 24.76 7.86 31.99 100.00 12.53 Bi, L=16 0.12 0.37 0.11 3.61 11.85 1.60 VIII None 0.25 2.25 19.27 14.70 34.58 1.92 Bi, L=16 0.10 0.10 0.43 0.44 0.92 0.10 
+
+ˆθ1 = {L, C, R 1, R 2, R 3}; its reported error is the mean of these parameter errors. Values below 0.1% are rounded up to 0.1% for clarity. 
+
+resistances and relatively small load variations, such as Cases V and VI, the accurate estimation of RL and Rdson remains challenging. The selection of the prediction window length is related to both the amount of training data and the computational cost. A longer window requires more transient samples for training, and the computational time of differentiable converter simulation increases approximately linearly with the window length. Therefore, an excessively long window may lead to unnecessary training cost. When the window length is set to Nh = 16 , the training time of the differentiable physical model can be kept within one minutes on an NVIDIA GeForce RTX 5060 Ti. With this setting, ˆθ1, RC , VF and RD achieve errors below 1% in most cases. Therefore, considering both computational cost and estimation accuracy, Nh = 16 is selected for the subsequent robustness analysis. 
+
+C. Robustness Analysis 
+
+In practical operation and maintenance scenarios, the ac-curacy of converter parameter estimation can be affected by multiple sources of uncertainty. On the one hand, aleatoric uncertainty arises from the inherent randomness of the sys-tem, including sensor measurement noise, ADC quantization, and synchronization offset among multiple signals. On the other hand, epistemic uncertainty results from incomplete knowledge of the actual system [42], leading to model–plant mismatch between the simplified mathematical model and the real converter. These uncertainty factors are introduced into the clean simulation data to further evaluate the robustness of the proposed method, as illustrated in Fig. 10. 1) Measurement noise: Sensors and analog front-end cir-cuits are subject to thermal noise, environmental dis-turbances, and variations in device properties. As a (a) (b)                                                                     
+
+> 2) ADC quantization 3) Synchronization offset 1) Measurement noise
+> noise
+> 1) Measurement noise
+> noise
+> LSB LSB ovovLiLiΔtΔt
+> 2) ADC quantization 3) Synchronization offset 1) Measurement noise
+> noise
+> LSB ovLiΔtdson RLRCCRLRovLiin v
+> Sampled ovSampled ov
+> Sampled LiSampled LiFvLRCCRLRovLidson Rin vCLFvDCLCSLSCDLDR
+> Diode
+> MOSFET
+> Inductor Capacitor
+> 4) Model-plant mismatch ( Epistemic Uncertainty )Component MOSFET Diode Inductor Capacitor Parameter
+> Magnitude ,SSCL,,DDDCRLLCCL21
+> pF, nF 10 10 2F10 p 221n10 10 pF, Ω, 10 F1H10 n
+> Component MOSFET Diode Inductor Capacitor Parameter
+> Magnitude ,SSCL,,DDDCRLLCCL21
+> pF, nF 10 10 2F10 p 221n10 10 pF, Ω, 10 F1H10 n
+> Component MOSFET Diode Inductor Capacitor Parameter
+> Magnitude ,SSCL,,DDDCRLLCCL21
+> pF, nF 10 10 2F10 p 221n10 10 pF, Ω, 10 F1H10 n
+> Aleatoric Uncertainty
+
+Fig. 10. Uncertainty modeling for robustness evaluation. (a) Aleatoric uncertainty imposed on the sampled signals through measurement noise, ADC quantization, and synchronization offset. (b) Epistemic uncertainty introduced by model—plant mismatch with added parasitic components. 
+
+result, the measured signals inevitably contain random deviations. Zero-mean Gaussian noise is added to the sampled signals (e.g., iL and vo) to emulate this un-certainty. The accuracy of a sampling system is usu-ally specified with respect to the full-scale (FS) range. Specifically, considering an accuracy of ±0.5% FS, the maximum error of output voltage vo is calculated as 
+
+30 V × 0.5% = 150 mV , and that of inductor current 
+
+iL is 25 A × 0.5% = 125 mA . According to the 3σ rule of the Gaussian distribution, the standard deviations(i.e., 
+
+σ) of the voltage and current noise are set to 50 mV and 
+
+41 .67 mA respectively. Similarly, for ±1% FS accuracy, the standard deviations are set to σvo = 100 mV and 
+
+σiL = 83 .33 mA , corresponding to noise ranges of 
+
+[−300 mV , 300 mV] and [−250 mA , 250 mA] .2) ADC quantization: Due to the finite ADC resolution, continuous analog signals are mapped to a finite number of discrete digital codes during digitization. This effect is modeled by quantizing the clean simulation data to the nearest ADC code. For a 12-bit ADC with full-scale ranges of 30 V for the output voltage and 25 A for the inductor current, the least significant bit (LSB) values are 30 V /212 = 7 .32 mV and 25 A /212 = 6 .10 mA ,respectively. Thus, the quantization error is bounded by ±0.5 LSB, corresponding to ±3.66 mV for vo and 12 
+
+TABLE VII PERCENTAGE ERROR (%) OF COMPONENT PARAMETERS UNDER DIFFERENT UNCERTAINTY SOURCES IN CASE IUncertainties Error (%) L RL C RC Rdson VF RD R1 R2 R3
+
+Clean data 0.10 0.80 0.10 0.10 2.68 0.21 0.33 0.10 0.10 0.10 Model–plant mismatch 0.10 6.50 0.10 0.10 46.20 2.02 10.62 0.10 0.10 0.10 ADC quantization error 0.10 2.91 0.10 0.28 9.78 0.36 1.21 0.10 0.10 0.10 Synchronization offset (1 μs ) 0.10 6.41 0.10 1.10 20.45 3.12 2.31 0.10 0.10 0.10 Measurement noise (5‰) 0.68 15.46 0.93 2.61 −− 0.65 7.87 0.15 0.10 0.27 Measurement noise (1%) 1.40 41.80 2.66 0.34 −− 7.09 18.21 0.81 0.59 0.45 ADC-Sync-5‰noise 0.10 23.71 0.35 0.37 −− 2.45 11.41 0.13 0.30 0.10 ADC-Sync-1%noise 0.50 16.32 2.00 8.17 −− 4.12 6.57 0.10 0.25 0.54 ADC-Sync-1%noise-MPM 0.17 1.57 0.27 3.30 24.58 3.84 6.93 0.71 0.39 0.10 (MPM: model–plant mismatch; ADC: ADC quantization error; Sync: synchronization offset). Values below 0.10% are rounded up to 0.10% , and values above 50% are represented by ” −− ” . RC vF  
+
+> −20 −10
+> 010 20 30 Relative estimation error (%)
+> RC
+> vFLCRload
+> −4 −2
+> 024
+> Relative estimation error (%)  LCRload
+
+(a) (b) (c) 0 200 400 600 0100 200 300 400 RL (m W)Rdson (m W)        
+
+> 151 m W
+> 314 m W
+> Rdson
+> RL
+> +20% -20% 465m Ωdson LRR0200 400 600 0100 200 300 400 RL (m W)Rdson (m W)
+> 151 m W
+> 314 m W
+> Rdson
+> RL
+> +20% -20% 465m Ωdson LRR
+> + 2SD - 2SD
+
+Fig. 11. Parameter estimation results of Monte Carlo analysis in Case I. (a) Relative estimation errors of L, C, and Rload . (b) Relative estimation errors of RC and vF . (c) Joint distribution of Rdson and RL, where most samples fall within the shaded ±20% band corresponding to the equivalent resistance 
+
+RD = Rdson + RL.
+
+±3.05 mA for iL.3) Synchronization offset: In practical multi-channel sam-pling systems, vo and iL may not be acquired at exactly the same instant, leading to an inter-channel time offset. In this study, the inductor current sampling instant is assumed to lag behind that of the output voltage. The maximum offset is set to 2% of the switching period (i.e., τmax = 0 .02 Tsw ). This setting gives an upper delay bound of 1 μs for the 20 kHz cases. At each sampling instant, an independent random delay τj ∼ U (0 , τ max )
+
+is applied to the inductor current sample relative to the output voltage sample. 4) Model–plant mismatch: The mathematical model estab-lished in Section II captures only the dominant dynamics of the converter, whereas practical converters contain additional unmodeled parasitic effects, such as para-sitic inductances and capacitances, arising from device characteristics, packaging, and circuit layout. Although these parasitic effects are often small in magnitude, their omission from the nominal model can introduce model–plant mismatch. The resulting discrepancy may substantially affect the accuracy of parameter estimation. To evaluate this effect, simulation data are generated using a higher fidelity model that incorporates parasitic components as shown in Fig. 10 (b), and the parameters are then estimated using the nominal model. With different combinations of the above uncertainty sources, the test results under the Case I configuration are summarized in Table VII. Overall, ADC quantization and model–plant mismatch introduce only limited degradation in the estimation accuracy, while measurement noise and syn-chronization offset have a more noticeable influence due to the direct distortion of the sampled trajectories. The results also show that the parameters in θ1 (i.e., C, L, and Rload ) remain accurately estimated under different uncertainty combinations. In contrast, RC and vF are more sensitive to uncertainty, and the individual estimates of RL and Rdson are unreliable due to their strongly coupled effects on the measured states. Since the imposed uncertainties are stochastic, a Monte Carlo analysis is further conducted to provide a more com-prehensive robustness assessment. Specifically, 1000 indepen-dent trials are performed under the most severe uncertainty configuration (i.e., ADC-Sync-1%noise-MPM). As shown in Fig. 11, the estimation errors of L, C, and Rload are tightly concentrated, confirming the robustness of the strongly iden-tifiable parameters. The distributions of RC and vF are wider than those parameters in θ1. Nevertheless, even for vF , 95% of the samples remain within the range of −11% to 17% .For RL and Rdson , the individual estimates exhibit large dispersion and cannot be interpreted separately. However, their estimates are strongly correlated along the direction of an approximately constant equivalent resistance, and most 13  
+
+> Fig. 12. Experimental test platform of the buck converter with replaceable components. The inductors, capacitors, and power semiconductors can be readily replaced
+
+samples remain within the ±20% band of RD = RL + Rdson .It is worth noting that each training set contains data from only 30 switching cycles, with a sampling frequency of merely twice the switching frequency. Even under this sparse-data condition, the proposed framework remains robust for strongly identifiable parameters and can still provide reliable health indicators for coupled degradation-related parameters under practical uncertainty conditions. IV. E XPERIMENT VERIFICATION 
+
+To validate the proposed method experimentally, a buck converter test platform with replaceable components is devel-oped, as shown in Fig. 12. The key components, including the capacitor, inductor, MOSFET, and diode, can be readily replaced to support different hardware configurations. For example, capacitor degradation can be emulated by combining capacitors and series resistors with different values to repro-duce aging-induced variations in capacitance and equivalent series resistance (ESR). The required signals are acquired by the onboard sensors using the sampling strategy described in Section III-A. Prior to data collection, the sensing channels are calibrated against oscilloscope measurements to reduce acquisition errors. 
+
+A. Experiment Configuration 
+
+Consistent with Section III, the switching frequency of the buck converter is set to 20 kHz. As illustrated in Fig. 8, transient responses are excited by manually changing the load, and the output voltage and inductor current are recorded during the transient intervals. For each transient response, the recorded window is limited to 30 switching cycles. This setting reflects the short settling interval typically expected in a well-designed converter. The sampling instants are synchronized with the valley and peak of the PWM carrier, corresponding to normalized carrier values of 0 and 1, respectively. Therefore,                                      
+
+> TABLE VIII REFERENCE VALUES OF REPLACEABLE COMPONENTS
+> Type Reference value Test condition Capacitor
+> C1:170 .42 μF,98 .05 mΩ
+> at switching frequency (20 kHz )
+> C2:141 .89 μF,59 .27 mΩ
+> C3:158 .59 μF,101 .23 mΩ
+> C4:144 .84 μF,156 .16 mΩ
+> C5:94 .52 μF,256 .52 mΩ
+> Inductor L1:333 .99 μH,268 .98 mΩ at switching frequency (20 kHz )L2:285 .49 μH,228 .22 mΩ
+> MOSFET
+> M1:160 .84 mΩ at 3 A ( Tcase = 35 .7◦C)
+> M2:101 .25 mΩ at 3 A ( Tcase = 35 .3◦C)
+> M3:195 .36 mΩ at 3 A ( Tcase = 36 .8◦C)
+
+each transient record contains only 60 sampled points. Simi-larly, transient data from three load transitions (e.g., R0 → R1,
+
+R1 → R2, and R2 → R3) are combined to form the training dataset for one parameter estimation task. The DP simulation framework is configured with the single-step ERK4 scheme and the regularization constraints specified in Section III-B, with Nh = 16 for the long-horizon constraint. In the tests, the degradation behavior of the converter is simulated by replacing component combinations with different values. The baseline values of the passive components (i.e., the inductor and capacitor) are measured using an LCR meter (HIOKI IM3536) at the switching frequency. In particular, to minimize the difference between the actual inductance during operation and the LCR measurement caused by DC bias effects, inductor cores with low permeability are selected. In terms of the active components (i.e., the MOSFET and diode), the values are obtained from static measurements at a specified current. The detailed experimental configurations are sum-marized in Table VIII. By systematically interchanging these components, a total of 30 distinct hardware configurations of the converter are formulated for the subsequent experimental validation. 
+
+B. Experiment Results Analysis 
+
+As detailed previously, transient data from three load-step tests are combined to perform the parameter estimation task for each hardware configuration. Before the experimental tests, the key replaceable components are characterized off-line to ob-tain their reference values. However, it is practically inevitable that these offline measurements will exhibit discrepancies compared to the effective parameter values observed during the field operational stage. Particularly, while the passive components are characterized exclusively at the switching fre-quency offline, their dynamic behavior during actual converter operation is governed by a broader spectral range. Considering DC bias effects and higher-order PCB parasitics, directly evaluating estimation accuracy based on absolute deviations from offline measurements can be misleading. To mitigate this issue, relative percentage changes are used to characterize health status of the components and evaluate the proposed method. Specifically, the estimated parameters obtained under the configuration L1M1C1 are adopted as the reference baseline, fundamentally treating these estimates as the ground truth (i.e., 0% deviation). It should be noted that the baseline is the average result of three repeated experiments 14 
+
+TABLE IX PERCENTAGE VARIATIONS OF THE ESTIMATED PARAMETERS UNDER DIFFERENT HARDWARE CONFIGURATIONS 
+
+Config. Variation (%) Est. Variation (%) Config. Variation (%) Est. Variation (%) 
+
+L C RC RD L C RC RD L C RC RD L C RC RD
+
+L1M1C1 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 L2M1C1 -14.52 0.00 0.00 -11.81 -14.86 0.57 3.88 -2.75 
+
+L1M1C2 0.00 -19.11 -29.35 0.00 -1.30 -19.59 -26.63 -4.34 L2M1C2 -14.52 -19.11 -29.35 -11.81 -17.41 -19.75 -26.53 -2.68 
+
+L1M1C3 0.00 -9.78 3.24 0.00 1.57 -9.77 15.47 -4.12 L2M1C3 -14.52 -9.78 3.24 -11.81 -14.79 -8.96 10.15 -4.22 
+
+L1M1C4 0.00 -17.43 59.27 0.00 -1.25 -19.15 49.54 2.91 L2M1C4 -14.52 -17.43 59.27 -11.81 -16.36 -18.77 53.30 0.36 
+
+L1M1C5 0.00 -46.12 161.62 0.00 -1.78 -49.01 167.02 -2.39 L2M1C5 -14.52 -46.12 161.62 -11.81 -15.84 -49.17 177.52 -6.16 
+
+L1M2C1 0.00 0.00 0.00 -13.86 1.34 -0.25 1.37 -16.43 L2M2C1 -14.52 0.00 0.00 -25.67 -14.07 0.26 -0.79 -18.60 
+
+L1M2C5 0.00 -46.12 161.62 -13.86 -3.45 -48.92 165.06 -19.57 L2M2C5 -14.52 -46.12 161.62 -25.67 -18.96 -48.97 160.02 -22.93 
+
+L1M3C1 0.00 0.00 0.00 8.03 0.92 0.27 8.27 3.91 L2M3C1 -14.52 0.00 0.00 -3.78 -14.52 0.35 8.48 2.22 
+
+L1M3C5 0.00 -46.12 161.62 8.03 -2.32 -48.93 180.40 4.75 L2M3C5 -14.52 -46.12 161.62 -3.78 -16.66 -49.34 173.47 4.78 
+
+Note: Only representative configurations are listed. The selected cases include the full capacitor sweep under M1 for both inductors and the boundary capacitor cases C1 and C5 under M2 and M3.L1M1 L1M2 L1M3 L2M1 L2M2 L2M3
+
+−25 −20 −15 −10 −5 
+
+0510 
+
+> Relative Variation (%)
+
+Rdson +R LR1 R2 R3
+
+−59.0 −58.5 −48.0 −0.5 
+
+0.0 0.5 
+
+> Relative Variation (%)
+
+Rload RC 1 RC 2 RC 3 RC 4 RC 5
+
+−40 −30 −20 −10 010 50 60 160 170 180 
+
+> Relative Variation (%)
+
+RCL1 L2
+
+−20 −15 −10 −5 
+
+05
+
+> Relative Variation (%)
+
+LC1 C2 C3 C4 C5
+
+−50 −49 −20 −19 −10 −9 
+
+01
+
+> Relative Variation (%)
+
+CReference variation Estimated mean Reference variation Estimated mean Reference variation Estimated mean Reference variation Estimated mean 
+
+(d) (e) 
+
+> -15.8% -13.9% Reference variation Estimated mean Reference variation Estimated mean
+> Reference variation
+> Estimated mean
+> Reference variation
+> Estimated mean Reference variation Estimated mean Reference variation Estimated mean
+
+(a) (b) (c) 
+
+> 0.2% 0% -19.1% -19.6% -9.3% -18.9% -9.8% -17.4% -46.1% -49.0% -0.4% -15.6% -0.1%
+> -48.0%
+> 0% -14.6% 0% -58.40% -58.43% -48.2% 0% 8.0% -25.6% -3.7% -1.6% 4.1% -55.7%
+> -19.0%
+> 0%
+> -29.3%
+> 10.7% 3.5% -3.1% 4.1% -11.8% 59.3% -23.7% 170.6% -161.6% 3.2%
+> - 2SD
+> + 2SD
+
+Fig. 13. Experimental comparison of reference and estimated relative parameter variations under different hardware configurations. (a) Inductance ( L). (b) Capacitance ( C). (c) Load resistance ( Rload ). (d) Capacitor ESR ( RC ). (e) Equivalent resistance ( RD = Rdson + RL). 
+
+under the same operating conditions for the configuration 
+
+L1M1C1. In this way, the estimated parameters of the other configurations are then normalized to this baseline, and the estimated percentage changes are compared with those derived from the offline measurements. The test results covering multiple component combinations are presented in Table IX. Moreover, to provide a more intuitive component-wise com-parison, the relative variations of the estimated parameters are further illustrated in Fig. 13. The comparative experimental results demonstrate that the proposed method can accurately and robustly track the varia-tion trends of the critical components. Several key observations can be readily drawn. First, the relative variations of the inductance L, capacitance C, and load resistance Rload can be tracked with high accuracy. Their estimated results exhibit narrow distributions across different hardware configurations, indicating high repeatability, as depicted in Fig. 13(a)-(c). This indicates that the proposed framework successfully captures the dominant dynamic information of the converter and can stably identify the primary parameters. Notably, the estimation distribution for L is slightly wider than that for C. This discrepancy can likely be attributed to the practical limita-tion that current sensors are inherently more susceptible to measurement noise and inaccuracies than voltage sensors. Second, regarding the capacitor ESR (i.e., RC ), the pro-posed method still captures the degradation trend, as shown in Fig. 13(d). Meanwhile, it is observed that the estimation of RC exhibits a relatively larger deviation. Specifically, the maximum deviation in relative change reaches 18.78% under 
+
+L1M3C5, as detailed in Table IX. However, this deviation 15 
+
+is relatively small compared with the large ESR increase of 161.62%, especially considering that an ESR value reaching 
+
+2 ∼ 3 times its initial value is commonly used as a capacitor failure criterion. It should be noted that the diode forward voltage vF is not emphasized in this work. Because its weak contribution to the measured waveforms makes it difficult to identify accurately under measurement noise and model mismatch. Nevertheless, the estimation of the equivalent resistance 
+
+RD is not as accurate as that of the other parameters (e.g., 
+
+L, C, R load ). The individual estimation results exhibit notice-able dispersion. For instance, as shown in Fig. 13(e), the relative variation rates among different estimation trials for 
+
+L2M2 differ by approximately 8%. Furthermore, there is a considerable discrepancy between the mean estimated values and the reference variations. These unsatisfactory results are attributed to a combination of several factors. A primary factor is that the RL of the inductor and Rdson of the MOSFET are not strictly constant. They dynamically fluctuate with temperature and current lev-els. However, the model derivation for parameter estimation treats the sum of RL and Rdson as a constant, and the reference baseline is acquired from offline static measurements. Another contributing factor is the sampling distortion induced by various sources of uncertainty in the measurement process. It is worth noting that the estimated variation of RD generally follows the reference trend. This suggests that utilizing RD
+
+as a condition indicator for degradation monitoring remains practically meaningful, particularly for detecting severe fault scenarios such as a multifold increase in the MOSFET on-state resistance caused by gate drive anomalies. 
+
+C. Discussion 
+
+The proposed method reliably tracks the critical parameters of the dc–dc buck converter under practical hardware con-ditions, and provides meaningful condition indicators. As a representative case study, the concept of DP shows consid-erable potential and application value in the field of power electronics. 1) The framework establishes a differentiable mapping between critical component parameters and externally measured converter waveforms. This implies that the proposed framework is not confined to condition moni-toring, but may also be extended to other applications, such as converter design optimization and model predic-tive control. 2) It introduces a novel perspective by treating the numer-ical solver as a differentiable computational graph to simulate converter dynamics. This formulation naturally offers the potential for integration with neural-network-based deep learning techniques. 3) It provides a topology-general framework based on nu-merical time-stepping simulation, which can be extended to other converter topologies, such as dc–ac inverters and resonant converters. Although the DP simulation framework yields promising results, several fundamental challenges remain to be addressed from the perspective of condition monitoring to facilitate its widespread industrial implementation. 1) Component characteristics are highly sensitive to oper-ating conditions such as temperature and load current. Condition monitoring often reduces such behavior to a fixed estimated value and compares it with an offline static reference. A more appropriate health-state repre-sentation is needed to account for such a mismatch. 2) Certain parameters exhibit limited identifiability because of their weak sensitivity to measured states and strong mutual coupling. A rigorous mathematical framework is needed to systematically analyze and quantify parameter identifiability, rather than relying solely on empirical observations from experiments. 3) Uncertainty sources, such as measurement noise and synchronization error, can affect the credibility of pa-rameter estimation. These uncertainties should be ex-plicitly modeled and propagated through the estimation process, rather than being considered only as perturba-tions for robustness testing. V. C ONCLUSION 
+
+This article has presented a DP simulation-based param-eter estimation method for power electronic converters. By reformulating numerical time-stepping simulation as a dif-ferentiable computational graph, the proposed DP simulation framework enables end-to-end gradient-based optimization of converter parameters directly through the physical evolution dynamics. Moreover, it seamlessly maintains gradient prop-agation across converter topological transitions and ensures reliable model training even with sparsely sampled data. The effectiveness of the proposed method has been verified through both simulation and experimental studies on a dc— dc buck converter. The dominant parameters, including L,
+
+C, and Rload , are accurately estimated, with the maximum experimental variation deviation kept within 5%, while the capacitor ESR RC and the equivalent resistance RD show maximum deviations within 20% and can still serve as useful health indicators for maintenance guidance. Owing to its flexible formulation, the framework can be readily combined with well-established numerical integration schemes and ex-hibits immense potential for integration with rapidly advancing deep learning techniques. It is expected that this physically interpretable framework will facilitate the broader application of physics-informed machine learning in power electronics. REFERENCES [1] P. Tan, C. Lv, J. Liu, Y. Li, Y. Wang, and J. Qin, “Robust online capaci-tance estimation for mmc submodules using a soft-constrained extended kalman filter,” in 2025 IEEE 3rd International Power Electronics and Application Symposium (PEAS) . IEEE, 2025, pp. 222–228. [2] S. Yang, A. Bryant, P. Mawby, D. Xiang, L. Ran, and P. Tavner, “An industry-based survey of reliability in power electronic converters,” IEEE Transactions on Industry Applications , vol. 47, no. 3, pp. 1441–1451, 2011. [3] J. Falck, C. Felgemacher, A. Rojko, M. Liserre, and P. Zacharias, “Reliability of power electronic systems: An industry perspective,” IEEE Industrial Electronics Magazine , vol. 12, no. 2, pp. 24–35, 2018. 16 
+
+[4] S. Yang, D. Xiang, A. Bryant, P. Mawby, L. Ran, and P. Tavner, “Con-dition monitoring for device reliability in power electronic converters: A review,” IEEE Transactions on Power Electronics , vol. 25, no. 11, pp. 2734–2752, 2010. [5] Y. Liu, J. Bai, M. Huang, and X. Zha, “An online monitoring method for single aluminum electrolytic capacitor in the dc bank of single-phase inverter based on the rogowski coil,” IEEE Transactions on Power Electronics , vol. 37, no. 10, pp. 12 647–12 658, 2022. [6] M. Asoodar, M. Nahalparvari, S. Schneider, I. Shafikhani, G. Ingestr¨ om, and H.-P. Nee, “A novel on-state resistance estimation technique for online condition monitoring of semiconductor devices under noisy conditions,” IEEE Open Journal of Instrumentation and Measurement ,vol. 3, pp. 1–13, 2024. [7] M. Asoodar, M. Nahalparvari, Y. Zhang, C. Danielsson, H.-P. Nee, and F. Blaabjerg, “Accurate condition monitoring of semiconductor devices in cascaded h-bridge modular multilevel converters,” IEEE Transactions on Power Electronics , vol. 38, no. 3, pp. 3870–3884, 2023. [8] Z. Zhao, P. Davari, Y. Wang, and F. Blaabjerg, “Online capacitance mon-itoring for dc/dc boost converters based on low-sampling-rate approach,” 
+
+IEEE Journal of Emerging and Selected Topics in Power Electronics ,vol. 10, no. 5, pp. 5192–5204, 2022. [9] W. Lu, X. Lu, J. Han, Z. Zhao, and X. Du, “Online estimation of esr for dc-link capacitor of boost pfc converter using wavelet transform based time–frequency analysis method,” IEEE Transactions on Power Electronics , vol. 35, no. 8, pp. 7755–7764, 2020. [10] P. Sun, C. Gong, X. Du, Q. Luo, H. Wang, and L. Zhou, “Online condition monitoring for both igbt module and dc-link capacitor of power converter based on short-circuit current simultaneously,” IEEE Transactions on Industrial Electronics , vol. 64, no. 5, pp. 3662–3671, 2017. [11] S. Dusmez, M. Bhardwaj, L. Sun, and B. Akin, “In situ condition monitoring of high-voltage discrete power mosfet in boost converter through software frequency response analysis,” IEEE Transactions on Industrial Electronics , vol. 63, no. 12, pp. 7693–7702, 2016. [12] B. X. Li and K. S. Low, “Low sampling rate online parameters monitor-ing of dc–dc converters for predictive-maintenance using biogeography-based optimization,” IEEE Transactions on Power Electronics , vol. 31, no. 4, pp. 2870–2879, 2016. [13] G. Rojas-Due˜ nas, J.-R. Riba, and M. Moreno-Eguilaz, “Nonlinear least squares optimization for parametric identification of dc–dc converters,” 
+
+IEEE Transactions on Power Electronics , vol. 36, no. 1, pp. 654–661, 2021. [14] J.-R. Riba, M. Moreno-Eguilaz, S. Bogarra, and A. Garcia, “Parameter identification of dc-dc converters under steady-state and transient con-ditions based on white-box models,” Electronics , vol. 7, no. 12, p. 393, 2018. [15] Y. Peng, S. Zhao, and H. Wang, “A digital twin based estimation method for health indicators of dc–dc converters,” IEEE Transactions on Power Electronics , vol. 36, no. 2, pp. 2105–2118, 2021. [16] C. Lu, W. Zhou, and K. Jin, “Electrothermal modeling based digital twin method for degradation parameters identification of dc-dc converter,” in 2023 IEEE Applied Power Electronics Conference and Exposition (APEC) , 2023, pp. 1141–1144. [17] Y. Liu, X. Qing, and G. Chen, “One-cycle digital twin-based multipa-rameter identification of power electronic converters with simple imple-mentation and high accuracy,” IEEE Transactions on Instrumentation and Measurement , vol. 73, pp. 1–11, 2024. [18] S. Chen, S. Wang, P. Wen, and S. Zhao, “Digital twin for degradation parameters identification of dc-dc converters based on bayesian opti-mization,” in 2021 IEEE International Conference on Prognostics and Health Management (ICPHM) . IEEE, 2021, pp. 1–9. [19] Z. Cen and P. Stewart, “Condition parameter estimation for photovoltaic buck converters based on adaptive model observers,” IEEE Transactions on Reliability , vol. 66, no. 1, pp. 148–160, 2017. [20] S. Zhao, Y. Peng, Y. Zhang, and H. Wang, “Parameter estimation of power electronic converters with physics-informed machine learning,” 
+
+IEEE Transactions on Power Electronics , vol. 37, no. 10, pp. 11 567– 11 578, 2022. [21] S. Ou, S. Sahoo, A. Sangwongwanich, F. Blaabjerg, M. Hassanifar, M. Votava, M. Langwasser, and M. Liserre, “Physics-informed neural network for parameter identification: a buck converter case study,” in 
+
+2025 IEEE Energy Conversion Congress & Exposition Asia (ECCE-Asia) , 2025, pp. 1–6. [22] Y. Xiang, H. Lin, and H. S.-H. Chung, “Extended physics-informed neural networks for parameter identification of switched mode power converters with undetermined topological durations,” IEEE Transactions on Power Electronics , vol. 40, no. 1, pp. 2235–2247, 2025. [23] Z. She, Y. Liu, W. Cao, and G. Chen, “Full-parameter identification of buck converter through bp-nn fitting explicit time-domain relationships,” 
+
+IEEE Transactions on Power Electronics , vol. 39, no. 6, pp. 7560–7571, 2024. [24] B. H. Lin, J. T. Tsai, and K. L. Lian, “A non-invasive method for estimating circuit and control parameters of voltage source converters,” 
+
+IEEE Transactions on Circuits and Systems I: Regular Papers , vol. 66, no. 12, pp. 4911–4921, 2019. [25] Y. Jiang, Y. Liu, and Z. Yang, “Parameter identification of dc–dc converter based on dendrite net under fluctuating input voltages,” IET Power Electronics (Wiley-Blackwell) , vol. 16, no. 12, 2023. [26] H. J. Park, J. C. Kim, and S. Kwak, “Deep learning-based estimation technique for capacitance and esr of input capacitors in single-phase dc/ac converters,” Journal of Power Electronics , vol. 22, no. 3, pp. 513– 521, 2022. [27] H. Soliman, I. Abdelsalam, H. Wang, and F. Blaabjerg, “Artificial neural network based dc-link capacitance estimation in a diode-bridge front-end inverter system,” in 2017 IEEE 3rd International Future Energy Electronics Conference and ECCE Asia (IFEEC 2017 - ECCE Asia) ,2017, pp. 196–201. [28] H. Wang and F. Blaabjerg, “Power electronics reliability: State of the art and outlook,” IEEE Journal of Emerging and Selected Topics in Power Electronics , vol. 9, no. 6, pp. 6476–6493, 2021. [29] S. Zhao and H. Wang, “Enabling data-driven condition monitoring of power electronic systems with artificial intelligence: Concepts, tools, and developments,” IEEE Power Electronics Magazine , vol. 8, no. 1, pp. 18–27, 2021. [30] G. E. Karniadakis, I. G. Kevrekidis, L. Lu, P. Perdikaris, S. Wang, and L. Yang, “Physics-informed machine learning,” Nature Reviews Physics ,vol. 3, no. 6, pp. 422–440, 2021. [31] E.-G. Talbi, Metaheuristics: from design to implementation . John Wiley & Sons, 2009. [32] M. Raissi, P. Perdikaris, and G. E. Karniadakis, “Physics-informed neural networks: A deep learning framework for solving forward and inverse problems involving nonlinear partial differential equations,” 
+
+Journal of Computational physics , vol. 378, pp. 686–707, 2019. [33] S. Wang, Y. Teng, and P. Perdikaris, “Understanding and mitigating gradient flow pathologies in physics-informed neural networks,” SIAM Journal on Scientific Computing , vol. 43, no. 5, pp. A3055–A3081, 2021. [34] N. Thuerey, P. Holl, M. M¨ uller, P. Schnell, F. Trost, and K. Um, “Physics-based deep learning,” CoRR , vol. abs/2109.05237, 2021. [Online]. Available: https://arxiv.org/abs/2109.05237 [35] B. Ramsundar, D. Krishnamurthy, and V. Viswanathan, “Differentiable physics: A position piece,” arXiv preprint arXiv:2109.07573 , 2021. [36] A. Iserles, A first course in the numerical analysis of differential equations . Cambridge university press, 2009, no. 44. [37] G. H. Golub and C. F. Van Loan, Matrix computations . JHU press, 2013. [38] A. G. Baydin, B. A. Pearlmutter, A. A. Radul, and J. M. Siskind, “Automatic differentiation in machine learning: a survey,” Journal of machine learning research , vol. 18, no. 153, pp. 1–43, 2018. [39] P. J. Werbos, “Backpropagation through time: what it does and how to do it,” Proceedings of the IEEE , vol. 78, no. 10, pp. 1550–1560, 2002. [40] D. P. Kingma and J. Ba, “Adam: A method for stochastic optimization,” 
+
+arXiv preprint arXiv:1412.6980 , 2014. [41] D. C. Liu and J. Nocedal, “On the limited memory bfgs method for large scale optimization,” Mathematical programming , vol. 45, no. 1, pp. 503–528, 1989. [42] Y. Liao and Y. Zhang, “Rethinking model-based fault detection: Un-certainties, risks, and optimization based on a multilevel converter case study,” IEEE Transactions on Power Electronics , vol. 39, no. 11, pp. 14 229–14 239, 2024.

@@ -1,0 +1,55 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-09-04T22:39:21.722747+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 0,
+    "deep_cap": 6,
+    "deep_selected": 0,
+    "quick_candidates": 1,
+    "quick_skim_target": 11,
+    "quick_selected": 1
+  },
+  "deep_dive": [],
+  "quick_skim": [
+    {
+      "id": "2608.30915v1",
+      "source": "arxiv",
+      "title": "Parameter Estimation of Power Electronic Converters with Differentiable Physics Simulation",
+      "abstract": "This article proposes a differentiable physics simulation (DP simulation)-based parameter estimation method for the condition monitoring of power electronic converters. In the proposed method, the time-domain simulation of converter dynamics is embedded into a differentiable computational graph, directly linking device parameters to observed voltage and current trajectories. By formulating differentiable time-stepping operators, the nonlinear dynamics of the converter across different circuit topologies are simulated in a unified, differentiable manner. A dc-dc buck converter is used as a representative case study. Using sparse transient samples from existing sensing channels, the method enables noninvasive parameter estimation without additional sensing hardware. Comprehensive simulation studies are conducted to evaluate the impacts of time-stepping schemes, regularization constraints, and various uncertainty sources on estimation accuracy and robustness. Subsequently, 30 distinct hardware configurations are experimentally tested for validation. The results show that the proposed method can effectively track the relative variations of health-related parameters across the critical components. This DP simulation framework provides a novel perspective for physics-informed machine learning in power electronic applications.",
+      "authors": [
+        "Pingjunjin Tan",
+        "Chunlin Lv",
+        "Jinjun Liu",
+        "Yang Li"
+      ],
+      "primary_category": "eess.SY",
+      "categories": [
+        "eess.SY"
+      ],
+      "published": "2026-08-31T14:57:50+00:00",
+      "link": "https://arxiv.org/pdf/2608.30915v1",
+      "tags": [
+        "keyword:reconfig-dab",
+        "query:reconfig-dab"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Differentiable physics simulation of power electronic converters, an enabling method reusable for DAB-oriented simulation and efficiency optimization",
+      "llm_evidence_cn": "电力电子变换器可微物理仿真方法，可推广到DAB等拓扑的建模与效率导向优化",
+      "llm_evidence": "电力电子变换器可微物理仿真方法，可推广到DAB等拓扑的建模与效率导向优化",
+      "canonical_evidence": "电力电子变换器可微物理仿真方法，可推广到DAB等拓扑的建模与效率导向优化",
+      "llm_tldr_en": "Introduces differentiable physics simulation for converters, linking device parameters to measured waveforms and enabling noninvasive parameter estimation on a dc-dc buck; general to DAB simulation and design optimization.",
+      "llm_tldr_cn": "电力电子变换器的健康监测与系统级分析依赖器件参数的准确获取，而传统方法往往需要中断运行或额外传感。本文提出可微物理仿真DP仿真方法，将变换器时域仿真嵌入可微计算图，利用统一的可微时间步进算子模拟不同电路拓扑的非线性动态，实现基于现有稀疏瞬态样本的非侵入式参数估计。以dc-dc降压变换器为例验证了方法的可行性，为电力电子变换器的状态监测与参数辨识提供了新的自动化工具。",
+      "llm_tldr": "电力电子变换器的健康监测与系统级分析依赖器件参数的准确获取，而传统方法往往需要中断运行或额外传感。本文提出可微物理仿真DP仿真方法，将变换器时域仿真嵌入可微计算图，利用统一的可微时间步进算子模拟不同电路拓扑的非线性动态，实现基于现有稀疏瞬态样本的非侵入式参数估计。以dc-dc降压变换器为例验证了方法的可行性，为电力电子变换器的状态监测与参数辨识提供了新的自动化工具。",
+      "llm_tags": [
+        "query:reconfig-dab:composite"
+      ],
+      "matched_query_tag": "query:reconfig-dab:composite",
+      "matched_query_text": "Papers central to 可重构电池与DAB联合效率优化相关论文, especially work that connects or combines: reconfigurable battery dual active bridge efficiency optimization; efficiency optimization of reconfigurable battery and DAB converter; reconfigurable battery system integrated with dual active bridge for efficiency; dual active bridge converter for reconfigurable battery efficiency improvement; integrated reconfigurable battery and dual active bridge converter efficiency; joint efficiency optimization of reconfigurable battery and dual active bridge converter; papers on reconfigurable battery with dual active bridge for energy efficiency; design and optimization of reconfigurable battery and DAB system.",
+      "matched_requirement_id": "req-composite-reconfig-dab",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}

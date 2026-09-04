@@ -1,0 +1,24 @@
+{
+  "label": "2026-09-04",
+  "date": "2026-09-04",
+  "generated_at": "2026-09-04T22:41:04",
+  "count": 1,
+  "papers": [
+    {
+      "paper_id": "202609/04/2608.30915v1-parameter-estimation-of-power-electronic-converters-with-differentiable-physics-simulation",
+      "section": "quick",
+      "title_en": "Parameter Estimation of Power Electronic Converters with Differentiable Physics Simulation",
+      "authors": "Pingjunjin Tan, Chunlin Lv, Jinjun Liu, Yang Li",
+      "date": "2026-08-31",
+      "pdf": "https://arxiv.org/pdf/2608.30915v1",
+      "score": "6.0",
+      "evidence": "电力电子变换器可微物理仿真方法，可推广到DAB等拓扑的建模与效率导向优化",
+      "tldr": "针对功率电子变换器健康监测中参数估计依赖额外传感、难以非侵入实现的问题，本文提出一种基于可微分物理仿真的参数估计方法。它将变换器时域仿真嵌入可微计算图，通过可微分时间步进算子统一模拟不同拓扑的非线性动力学，直接将器件参数与观测电压电流轨迹联系起来。以DC-DC buck变换器为例，该方法仅利用现有传感通道的稀疏瞬态样本即可估计关键参数。仿真和30种硬件配置实验表明，它能有效跟踪健康相关参数的相对变化，为物理信息机器学习提供新视角。",
+      "tags": "query:reconfig-dab",
+      "abstract_en": "This article proposes a differentiable physics simulation (DP simulation)-based parameter estimation method for the condition monitoring of power electronic converters. In the proposed method, the time-domain simulation of converter dynamics is embedded into a differentiable computational graph, directly linking device parameters to observed voltage and current trajectories. By formulating differentiable time-stepping operators, the nonlinear dynamics of the converter across different circuit topologies are simulated in a unified, differentiable manner. A dc-dc buck converter is used as a representative case study. Using sparse transient samples from existing sensing channels, the method enables noninvasive parameter estimation without additional sensing hardware. Comprehensive simulation studies are conducted to evaluate the impacts of time-stepping schemes, regularization constraints, and various uncertainty sources on estimation accuracy and robustness. Subsequently, 30 distinct hardware configurations are experimentally tested for validation. The results show that the proposed method can effectively track the relative variations of health-related parameters across the critical components. This DP simulation framework provides a novel perspective for physics-informed machine learning in power electronic applications.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "errors": []
+}
