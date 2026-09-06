@@ -6,22 +6,28 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-09-05
-- 运行时间：2026-09-05 21:46:40 UTC
+- 最新运行日期：2026-09-06
+- 运行时间：2026-09-06 21:18:58 UTC
 - 运行状态：成功
-- 本次总论文数：0
+- 本次总论文数：1
 - 精读区：0
-- 速读区：0
+- 速读区：1
 
 ### 今日简报（AI）
-> 今日无新推荐，系统未产出可展示论文。
-- 详情：[/202609/05/README](/202609/05/README)
+今日仅速读1篇论文，主题为电力电子变换器参数估计的可微物理仿真方法。
+
+值得关注的方向是利用可微仿真提升参数辨识精度，但该文评分6.0，属中等水平。
+
+建议普通读者后续追踪该领域更高分或更结合实验验证的同类研究。
+- 详情：[/202609/06/README](/202609/06/README)
 
 ### 精读区论文标签
 - 本次无精读推荐。
 
 ### 速读区论文标签
-- 本次无速读推荐。
+1. [Parameter Estimation of Power Electronic Converters with Differentiable Physics Simulation](/202609/06/2608.30915v1-parameter-estimation-of-power-electronic-converters-with-differentiable-physics-simulation)  
+   标签：评分：6.0/10、query:reconfig-dab
+   evidence：面向电力电子变换器参数估计的可微物理仿真方法，是可用于双有源桥效率优化的使能工具
 
 
 <div class="dpr-home-promo-card">

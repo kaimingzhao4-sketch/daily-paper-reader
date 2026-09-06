@@ -1,6 +1,9 @@
 * <a class="dpr-sidebar-root-link" href="#/">首页</a>
 * <a class="dpr-sidebar-root-link dpr-sidebar-noactive-link" href="javascript:void(0)" data-dpr-hash="#/tutorial/README">使用教程</a>
 * Daily Papers
+  * 2026-09-06 <!--dpr-date:20260906-->
+    * 速读区
+      * <a class="dpr-sidebar-item-link dpr-sidebar-item-structured" href="#/202609/06/2608.30915v1-parameter-estimation-of-power-electronic-converters-with-differentiable-physics-simulation" data-sidebar-item="{&quot;title&quot;: &quot;Parameter Estimation of Power Electronic Converters with Differentiable Physics Simulation&quot;, &quot;link&quot;: &quot;https://arxiv.org/abs/2608.30915v1-parameter-estimation-of-power-electronic-converters-with-differentiable-physics-simulation&quot;, &quot;score&quot;: &quot;6.0&quot;, &quot;tags&quot;: [{&quot;kind&quot;: &quot;query&quot;, &quot;label&quot;: &quot;reconfig-dab&quot;}], &quot;evidence&quot;: &quot;面向电力电子变换器参数估计的可微物理仿真方法，是可用于双有源桥效率优化的使能工具&quot;}">Parameter Estimation of Power Electronic Converters with Differentiable Physics Simulation</a>
   * 2026-09-04 <!--dpr-date:20260904-->
     * 速读区
       * <a class="dpr-sidebar-item-link dpr-sidebar-item-structured" href="#/202609/04/2608.30915v1-parameter-estimation-of-power-electronic-converters-with-differentiable-physics-simulation" data-sidebar-item="{&quot;title&quot;: &quot;Parameter Estimation of Power Electronic Converters with Differentiable Physics Simulation&quot;, &quot;link&quot;: &quot;https://arxiv.org/abs/2608.30915v1-parameter-estimation-of-power-electronic-converters-with-differentiable-physics-simulation&quot;, &quot;score&quot;: &quot;6.0&quot;, &quot;tags&quot;: [{&quot;kind&quot;: &quot;query&quot;, &quot;label&quot;: &quot;reconfig-dab&quot;}], &quot;evidence&quot;: &quot;电力电子变换器可微物理仿真方法，可推广到DAB等拓扑的建模与效率导向优化&quot;}">Parameter Estimation of Power Electronic Converters with Differentiable Physics Simulation</a>
